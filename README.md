@@ -31,7 +31,7 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 
 1. Open the Google Sheet, then in menu: `Functions` / `Update Playlists`
 
-(Notice: on first time use, only a timestamp will be added (prevents adding an unlimited set of videos on first time use)).
+(Notice: when used first time, only a timestamp will be added (prevents overflow with old videos)).
 
 ##### Scheduled playlist update:
 
