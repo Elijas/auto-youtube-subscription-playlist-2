@@ -1,6 +1,7 @@
 // TODO: Exception handling for Youtube API calls
 // TODO: Special keyword "ALLOTHER" for all other (unmentioned yet in the app) channel ids
 // TODO: Limiting (batching?) videoId upload to a playlist
+// TODO: Deal with playlist limits (~ 200-218 videos)
 
 function updatePlaylists() {
   // Sheet
