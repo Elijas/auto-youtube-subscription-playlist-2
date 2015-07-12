@@ -1,17 +1,17 @@
-// TODO: Exception handling for Youtube API calls
-// TODO: Special keyword "ALLOTHER" for all other (unmentioned yet in the app) channel ids
-// TODO: Limiting (batching?) videoId upload to a playlist
+// TODO: Better exception handling for Youtube API calls
 // TODO: Deal with playlist limits (~ 200-218 videos)
+// TODO: Special keyword "ALLOTHER" for all other (unmentioned yet in the app) channel ids
 
 function updatePlaylists() {
-  // Sheet
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
   var data = sheet.getDataRange().getValues();
   var reservedTableRows = 3; // Start of the range of the PlaylistID+ChannelID data
   var reservedTableColumns = 2; // Start of the range of the ChannelID data
   var reservedTimestampCell = "F1";
   if (!sheet.getRange(reservedTimestampCell).getValue()) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date()));
-  var userChannelId = sheet.getRange("C1").getValue(); //TODO: Validate if cell is not empty
+  
+  var debugFlag_dontUpdateTimestamp = true;
+  var debugFlag_dontUpdatePlaylists = false;
   
   /// For each playlist...
   for (var iRow = reservedTableRows; iRow < sheet.getLastRow(); iRow++) {
@@ -24,7 +24,7 @@ function updatePlaylists() {
       var channel = data[iRow][iColumn];
       if (!channel) continue;
       else if (channel == "ALL")
-        channelIds.push.apply(channelIds, getAllChannelIds(userChannelId));
+        channelIds.push.apply(channelIds, getAllChannelIds());
       else if (!(channel.substring(0,2) == "UC" && channel.length > 10)) // Check if it is not a channel ID (therefore a username). MaybeTODO: do a better validation, since might interpret a channel with a name "UC..." as a channel ID
       {
         try {
@@ -45,32 +45,31 @@ function updatePlaylists() {
       videoIds.push.apply(videoIds, getVideoIds(channelIds[i], lastTimestamp)); // Append new videoIds array to the original one
     }
     
-    sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date())); // Update timestamp
+    if (!debugFlag_dontUpdateTimestamp) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date())); // Update timestamp
     
     /// ...add videos to the playlist
-    for (var i = 0; i < videoIds.length; i++) {
-      /**/
-      try {
-        YouTube.PlaylistItems.insert
-        ( { snippet: 
-           { playlistId: 'PL1YG9ktx9sVdPMMt3ewQ6RQWhO-K1CskE', 
-            resourceId: 
-            { videoId: videoIds[i],
-             kind: 'youtube#video'
-            }
-           }
-          }, 'snippet,contentDetails'
-        );
-      } catch (e) {
-        Logger.log("ERROR: " + e.message);
-        continue;
+    if (!debugFlag_dontUpdatePlaylists) {
+      for (var i = 0; i < videoIds.length; i++) {
+        try {
+          YouTube.PlaylistItems.insert
+          ( { snippet: 
+             { playlistId: playlistId, 
+              resourceId: 
+              { videoId: videoIds[i],
+               kind: 'youtube#video'
+              }
+             }
+            }, 'snippet,contentDetails'
+          );
+        } catch (e) {
+          Logger.log("ERROR: " + e.message);
+          continue;
+        }
+        
+        Utilities.sleep(1000);
       }
-      /**/
-      
-      Utilities.sleep(1000);
     }
   }
-  
 }
 
 function getVideoIds(channelId, lastTimestamp) {
@@ -124,13 +123,44 @@ function getVideoIds(channelId, lastTimestamp) {
   return videoIds;
 }
 
-function getAllChannelIds(userChannelId) { // TODO: Does it really return ALL channels? (a couple seemed to be missing during the tests)
+function getAllChannelIds() { // get YT Subscriptions-List, src: https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/
+  var AboResponse, AboList = [[],[]], nextPageToken = [], nptPage = 0, i, ix;
+
+  // Workaround: nextPageToken API-Bug (this Tokens are limited to 1000 Subscriptions... but you can add more Tokens.)
+  nextPageToken = ['','CDIQAA','CGQQAA','CJYBEAA','CMgBEAA','CPoBEAA','CKwCEAA','CN4CEAA','CJADEAA','CMIDEAA','CPQDEAA','CKYEEAA','CNgEEAA','CIoFEAA','CLwFEAA','CO4FEAA','CKAGEAA','CNIGEAA','CIQHEAA','CLYHEAA'];
+  try {
+    do {
+      AboResponse = YouTube.Subscriptions.list('snippet', {
+        mine: true,
+        maxResults: 50,
+        order: 'alphabetical',
+        pageToken: nextPageToken[nptPage],
+        fields: 'items(snippet(title,resourceId(channelId)))'
+      });
+      for (i = 0, ix = AboResponse.items.length; i < ix; i++) {
+        AboList[0][AboList[0].length] = AboResponse.items[i].snippet.title;
+        AboList[1][AboList[1].length] = AboResponse.items[i].snippet.resourceId.channelId;
+      }
+      nptPage += 1;
+    } while (AboResponse.items.length > 0 && nptPage < 20);
+    if (AboList[0].length !== AboList[1].length) {
+      return 'Length Title != ChannelId'; // returns a string === error
+    }
+  } catch (e) {
+    return e;
+  }
+  
+  Logger.log('Acquired subscriptions %s', AboList[1].length);
+  return AboList[1];
+}
+
+function getAllChannelIds_OLD() { // Note: this function is not used. TODO: It seems to be leaking channels. Find out which ones and why?
   var channelIds = [];
   
   // First call
   try {
     var results = YouTube.Subscriptions.list('snippet', {
-      channelId: userChannelId,
+      mine: true,
       maxResults: 50
     });
   } catch (e) {
@@ -148,7 +178,7 @@ function getAllChannelIds(userChannelId) { // TODO: Does it really return ALL ch
     
     try {
       results = YouTube.Subscriptions.list('snippet', {
-        channelId: userChannelId,
+        mine: true,
         maxResults: 50,
         pageToken: nextPageToken
       });
@@ -164,6 +194,7 @@ function getAllChannelIds(userChannelId) { // TODO: Does it really return ALL ch
     nextPageToken = results.nextPageToken;
   }
   
+  Logger.log('Acquired subscriptions %s, Actual subscriptions %s', channelIds.length, results.pageInfo.totalResults);
   return channelIds;
 }
 
@@ -177,3 +208,6 @@ function ISODateString(d) { // modified from src: http://stackoverflow.com/quest
       + pad(d.getUTCSeconds())+'.000Z'
 }
 
+function onOpen() {
+  SpreadsheetApp.getActiveSpreadsheet().addMenu("Functions", [{name: "Update Playlists", functionName: "updatePlaylists"}]);
+}
