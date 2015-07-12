@@ -1,5 +1,5 @@
 # Description
-This is a Google Apps Script that automatically adds new Youtube videos to a playlist (a replacement for Youtube Collections feature). 
+This is a Google Apps Script that automatically adds new Youtube videos to playlists (a replacement for Youtube Collections feature). 
 
 This is done using Google Sheets for interface, Google Script + Youtube API v3 for executing and scheduling.
 
