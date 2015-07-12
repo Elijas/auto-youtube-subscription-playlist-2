@@ -81,7 +81,7 @@ function getVideoIds(channelId, lastTimestamp) {
     
     var results = YouTube.Search.list('id', {
       channelId: channelId,
-      maxResults: 2,
+      maxResults: 50,
       order: "date",
       publishedAfter: lastTimestamp
     });
@@ -103,7 +103,7 @@ function getVideoIds(channelId, lastTimestamp) {
     try {
       results = YouTube.Search.list('id', {
         channelId: channelId,
-        maxResults: 2,
+        maxResults: 50,
         order: "date",
         publishedAfter: lastTimestamp,
         pageToken: nextPageToken
