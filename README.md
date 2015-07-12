@@ -29,7 +29,7 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 
 ##### Manual playlist update:
 
-1. Open the Google Sheet, then in menu: `Functions` / `Update Playlists`
+1. Open the Google Sheet, then in menu: `Functions` / `Update Playlists` (notice: on first time use, only a timestamp will be added. Only videos uploaded after this timestamp will be added. Timestamp is updated on every `Update Playlists`).
 
 ##### Scheduled playlist update:
 
