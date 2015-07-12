@@ -9,6 +9,7 @@ function updatePlaylists() {
   var reservedTableRows = 3; // Start of the range of the PlaylistID+ChannelID data
   var reservedTableColumns = 2; // Start of the range of the ChannelID data
   var reservedTimestampCell = "F1";
+  if (!sheet.getRange(reservedTimestampCell).getValue()) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date()));
   var userChannelId = sheet.getRange("C1").getValue(); //TODO: Validate if cell is not empty
   
   /// For each playlist...
