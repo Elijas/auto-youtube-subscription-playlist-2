@@ -15,13 +15,12 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 # Set-up Instructions
 1. [Copy](https://docs.google.com/spreadsheets/d/1sZ9U52iuws6ijWPQTmQkXvaZSV3dZ3W9JzhnhNTX9GU/copy) the Sheet to your Google Drive.
 2. Allow the Sheets to access Youtube:
-  - Open the `Script Editor` (in menu: `Tools` / `Script Editor`) of the Sheet
-  - In menu: `Resources` / `Advanced Google Services` / `Google Developers Console` / `Youtube API` / `Enable API`
-  - Open the Sheet again
+  - Open the `Script Editor` (in menu: `Tools` / `Script Editor...`) of the Sheet
+  - In menu: `Resources` / `Advanced Google Services` / `Google Developers Console` / `Youtube Data API` / `Enable API`
+  - Close the Developers Console and Script Editor, open the Sheet again
   - In menu: `Functions` / `Update Playlists`
   - Grant access in the dialog
 3. Setup your playlists and channels (white cells in the Sheet):
-  - User Channel ID ([how to get it](https://support.google.com/youtube/answer/3250431?hl=en))
   - Your Playlist IDs (you can find it in the URLs of your playlists, after `?list=`)
   - Channels for the playlists
 
