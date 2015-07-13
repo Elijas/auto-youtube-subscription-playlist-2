@@ -13,7 +13,7 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 2. Optional - ability to set automatic interval for updates
 
 # Set-up Instructions
-1. [Copy](https://docs.google.com/document/d/1sZ9U52iuws6ijWPQTmQkXvaZSV3dZ3W9JzhnhNTX9GU/copy) the Sheet to your Google Drive.
+1. [Copy](https://docs.google.com/spreadsheets/d/1sZ9U52iuws6ijWPQTmQkXvaZSV3dZ3W9JzhnhNTX9GU/copy) the Sheet to your Google Drive.
 2. Allow the Sheets to access Youtube:
   - Open the `Script Editor` (in menu: `Tools` / `Script Editor`) of the Sheet
   - In menu: `Resources` / `Advanced Google Services` / `Google Developers Console` / `Youtube API` / `Enable API`
