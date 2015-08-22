@@ -154,7 +154,7 @@ function getAllChannelIds() { // get YT Subscriptions-List, src: https://www.red
   return AboList[1];
 }
 
-function getAllChannelIds_OLD() { // Note: this function is not used. TODO: It seems to be leaking channels. Find out which ones and why?
+function getAllChannelIds_OLD() { // Note: this function is not used.
   var channelIds = [];
   
   // First call
