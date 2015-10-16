@@ -70,6 +70,7 @@ function updatePlaylists() {
       }
     }
   }
+  sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date())) //to avoid adding the same videos twice, update the timestamp when script completes.
 }
 
 function getVideoIds(channelId, lastTimestamp) {
