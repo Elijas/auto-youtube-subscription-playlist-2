@@ -10,7 +10,7 @@ function updatePlaylists() {
   var reservedTimestampCell = "F1";
   if (!sheet.getRange(reservedTimestampCell).getValue()) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date()));
   
-  var debugFlag_dontUpdateTimestamp = true;
+  var debugFlag_dontUpdateTimestamp = false;
   var debugFlag_dontUpdatePlaylists = false;
   
   /// For each playlist...
