@@ -3,6 +3,8 @@ This is a Google Apps Script that automatically adds new Youtube videos to playl
 
 This is done using Google Sheets for interface, Google Script + Youtube API v3 for executing and scheduling.
 
+[(Older version here)](https://github.com/Elijas/auto-youtube-subscription-playlist-2)
+
 # Features
 1. Adds all new videos to Youtube playlists (uploaded later than some date)
   
