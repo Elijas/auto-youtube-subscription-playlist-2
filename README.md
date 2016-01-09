@@ -23,8 +23,15 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
   - In menu: `Functions` / `Update Playlists`
   - Grant access in the dialog
 3. Setup your playlists and channels (white cells in the Sheet):
-  - Your Playlist IDs (you can find it in the URLs of your playlists, after `?list=`)
-  - Channels for the playlists
+  - Delete all existing white rows, they are just examples.
+  - For each new playlist you want to use:
+    - In a new row:
+    - Add your Playlist ID in the first white column (you can find it in the URLs of your playlists, after `?list=`)
+    - Add your Channels (in other white columns of the same row) ([Example of a successful set-up](https://gyazo.com/39ea428c97f5326ec5082712b9a306c0), from [topdogmsn](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cwlfjop))
+      - Any of the following:
+      - User ID (last part (after last `/`) in `https://www.youtube.com/user/someusername`)
+      - Channel ID (last part (after last `/`) in `https://www.youtube.com/channel/UCzMVH2jEyEwXPBvyht8xQNw`)
+      - `ALL`, to add all new videos from all of your subscriptions
 
 # Usage
 
@@ -39,12 +46,33 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 3. `updatePlaylists` -> `Time driven` -> `Hour timer` -> `Every hour`
 4. `Save`
 
-##### (Extra) Link to remove all items:
+##### (Extra) Link to remove all items from a youtube playlist:
 
 To remove all playlist items, bookmark the link below and click on it while having the youtube playlist page open.
 
 `javascript:(function() { if (confirm('Remove all?')) {var i = window.setInterval(function() {var closeButton = document.querySelector('.pl-video-edit-remove');    if (closeButton) {      closeButton.click();    } else {      window.clearInterval(i);    }}, 500);}})();` ([source](https://gist.github.com/timothyarmstrong/10501804))
 
+##### (Extra) Link to remove watched items from a youtube playlist (thanks to [saso5tr](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cy38z0f)):
+
+Same as above.
+
+`javascript:(function() { if (confirm('Remove all?')) {var i = window.setInterval(function() {var closeButton = document.querySelector('.watched-badge'); if (closeButton) { closeButton.parentElement.parentElement.parentElement.parentElement.querySelector('.pl-video-edit-remove').click(); } else { window.clearInterval(i); }}, 500);}})();`
+
+# FAQ
+
+##### Q: How do I solve this error: `TypeError: Second argument to Function.prototype.apply must be an array. (line 27, file "")`?
+
+A: Do the step laid out in the instructions above: go to `Resources > Developers Console Project > Click the link to your API console project > On the left, APIs & Auth > APIs > YouTube Data API > Enable API`. (thanks to [josn0w](https://github.com/Elijas/auto-youtube-subscription-playlist-2/issues/1#issue-111149125) and [theit8514](https://github.com/Elijas/auto-youtube-subscription-playlist-2/issues/1#issuecomment-153812078), also [nmgoh](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cx55gtc) and [saso5tr](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cy38tkg))
+
+##### Q: I want all the channels I'm subscribed to, to play all their most recent and new videos in a playlist (which is the purpose of this script).
+What do I need to add to the google sheets to do this?
+
+##### Q: I have more questions.
+
+A: See `Feedback` section below.
+
 # Feedback
 
-[Official Reddit Thread](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/)
+[~~Official Reddit Thread~~](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/)
+
+[Official Message Board](http://autoplaylistfeedback.boards.net/thread/2/general-thread)
