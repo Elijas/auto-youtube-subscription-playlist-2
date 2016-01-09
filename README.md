@@ -74,6 +74,6 @@ A: See `Feedback` section below.
 
 # Feedback
 
-[~~Official Reddit Thread~~](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/)
+[Official Reddit Thread](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/)
 
 [Official Message Board](http://autoplaylistfeedback.boards.net/thread/2/general-thread)
