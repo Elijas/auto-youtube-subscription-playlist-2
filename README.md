@@ -64,8 +64,9 @@ Same as above.
 
 A: Do the step laid out in the instructions above: go to `Resources > Developers Console Project > Click the link to your API console project > On the left, APIs & Auth > APIs > YouTube Data API > Enable API`. (thanks to [josn0w](https://github.com/Elijas/auto-youtube-subscription-playlist-2/issues/1#issue-111149125) and [theit8514](https://github.com/Elijas/auto-youtube-subscription-playlist-2/issues/1#issuecomment-153812078), also [nmgoh](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cx55gtc) and [saso5tr](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cy38tkg))
 
-##### Q: I want all the channels I'm subscribed to, to play all their most recent and new videos in a playlist (which is the purpose of this script).
-What do I need to add to the google sheets to do this?
+##### Q: How to temporarily pause updating only some of the channels?
+
+A: Cut (or delete) the contents of the playlist ID cell in the row you want to pause.
 
 ##### Q: I have more questions.
 
