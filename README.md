@@ -23,7 +23,7 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
   - In menu: `Functions` / `Update Playlists`
   - Grant access in the dialog
 3. Setup your playlists and channels (white cells in the Sheet):
-  - Delete all existing white rows, they are just examples.
+  - Clear all existing white rows, they are just examples (i.e. delete the 3 rows).
   - For each new playlist you want to use:
     - In a new row:
     - Add your Playlist ID in the first white column (you can find it in the URLs of your playlists, after `?list=`)
