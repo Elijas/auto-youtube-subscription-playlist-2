@@ -1,4 +1,4 @@
-# Description [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CEGR3HNGE2RA2)
+# Description [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RPRJ8UNWNWUK2)
 This is a Google Apps Script that automatically adds new Youtube videos to playlists (a replacement for Youtube Collections feature). 
 
 This is done using Google Sheets for interface, Google Script + Youtube API v3 for executing and scheduling.
@@ -70,7 +70,7 @@ A: Cut (or delete) the contents of the playlist ID cell in the row you want to p
 
 ##### Q: Where can I support further development?
 
-A: [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CEGR3HNGE2RA2)
+A: [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RPRJ8UNWNWUK2)
 
 ##### Q: I have more questions.
 
