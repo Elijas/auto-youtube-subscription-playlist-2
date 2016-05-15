@@ -1,5 +1,9 @@
-// The core functionality of the program
-// Change values in the main function to experiment with it
+// The core functionality of the program, used for debugging
+// Instructions:
+// 1. Create an empty Docs or Sheet File
+// 2. Open Script Editor and copy-paste the contents
+// 3. Change values in main() function
+// 4. Select 'main' and run it, authorize (`Resources`/`Advanced Google Services`)
 
 function err(id,msg) {
   out("ERROR in "+id+": "+msg);
