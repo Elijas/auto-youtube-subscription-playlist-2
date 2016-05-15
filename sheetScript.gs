@@ -1,6 +1,8 @@
-// TODO: Better exception handling for Youtube API calls
-// TODO: Deal with playlist limits (~ 200-218 videos)
-// TODO: Special keyword "ALLOTHER" for all other (unmentioned yet in the app) channel ids
+// MAYBE TODO: Better exception handling for Youtube API calls
+// MAYBE TODO: Deal with playlist limits (~ 200-218 videos)
+// MAYBE TODO: Special keyword "ALLOTHER" for all other (unmentioned yet in the app) channel ids
+// MAYBE TODO: Filtering based on text (regexp?) in title and description
+// MAYBE TODO: NOT flags to include videos that are NOT from certain channels / do not contain text, etc
 
 function updatePlaylists() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
@@ -8,7 +10,13 @@ function updatePlaylists() {
   var reservedTableRows = 3; // Start of the range of the PlaylistID+ChannelID data
   var reservedTableColumns = 2; // Start of the range of the ChannelID data
   var reservedTimestampCell = "F1";
-  if (!sheet.getRange(reservedTimestampCell).getValue()) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date()));
+  //if (!sheet.getRange(reservedTimestampCell).getValue()) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date()));
+  if (!sheet.getRange(reservedTimestampCell).getValue()) {
+    var date = new Date();
+    date.setHours(date.getHours() - 24); // Subscriptions added starting with the last day
+    var isodate = date.toISOString();
+    sheet.getRange(reservedTimestampCell).setValue(isodate);
+  }
   
   var debugFlag_dontUpdateTimestamp = false;
   var debugFlag_dontUpdatePlaylists = false;
