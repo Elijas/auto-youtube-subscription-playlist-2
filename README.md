@@ -18,16 +18,19 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 1. [Copy](https://goo.gl/FMmDZR) the Sheet to your Google Drive.
 2. Allow the Sheets to access Youtube:
   - Open the `Script Editor` (in menu: `Tools` / `Script Editor...`) of the Sheet
-  - In menu: `Resources` / `Advanced Google Services` / `Google Developers Console` / `Youtube Data API` / `Enable API`
+      - In menu: `Resources` / `Advanced Google Services`
+      - Scroll down and make sure `YouTube Data API` is enabled
+      - Then, `Google Developers Console` / `Youtube Data API` / `Enable API`, close the tab, go back to Script Editor and click `OK`
+      - Continue only after the yellow `Updating Google Services` box disappears in the top of the Script Editor
   - Close the Developers Console and Script Editor, open the Sheet again
-  - In menu: `Functions` / `Update Playlists`
-  - Grant access in the dialog
+      - In menu: `Functions` / `Update Playlists`
+      - Grant access in the dialog
 3. Setup your playlists and channels (white cells in the Sheet):
   - Clear all existing white rows, they are just examples (i.e. delete the 3 rows).
   - For each new playlist you want to use:
     - In a new row:
     - Add your Playlist ID in the first white column (you can find it in the URLs of your playlists, after `?list=`)
-    - Add your Channels (in other white columns of the same row) ([Example of a successful set-up](https://gyazo.com/39ea428c97f5326ec5082712b9a306c0), from [topdogmsn](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cwlfjop))
+    - Add your Channels (in other white columns of the same row) ([Example of a successful set-up](https://gyazo.com/39ea428c97f5326ec5082712b9a306c0), from user `topdogmsn`)
       - Any of the following:
       - User ID (last part (after last `/`) in `https://www.youtube.com/user/someusername`)
       - Channel ID (last part (after last `/`) in `https://www.youtube.com/channel/UCzMVH2jEyEwXPBvyht8xQNw`)
@@ -74,7 +77,7 @@ A: Cut (or delete) the contents of the playlist ID cell in the row you want to p
 
 ##### Q: Where can I support further development?
 
-A: [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RPRJ8UNWNWUK2)
+A: Let me devote more time and resources to this project here: [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RPRJ8UNWNWUK2). You can also use your GitHub account to suggest the changes directly. Thanks for all the help!
 
 ##### Q: I have more questions.
 
