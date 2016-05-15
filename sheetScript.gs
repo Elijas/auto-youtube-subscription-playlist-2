@@ -45,7 +45,8 @@ function updatePlaylists() {
       videoIds.push.apply(videoIds, getVideoIds(channelIds[i], lastTimestamp)); // Append new videoIds array to the original one
     }
     
-    if (!debugFlag_dontUpdateTimestamp) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date())); // Update timestamp
+    //causes only first line to be updated
+    //if (!debugFlag_dontUpdateTimestamp) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date())); // Update timestamp
     
     /// ...add videos to the playlist
     if (!debugFlag_dontUpdatePlaylists) {
@@ -70,6 +71,7 @@ function updatePlaylists() {
       }
     }
   }
+  if (!debugFlag_dontUpdateTimestamp) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date())); // Update timestamp
 }
 
 function getVideoIds(channelId, lastTimestamp) {
