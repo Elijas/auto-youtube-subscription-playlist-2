@@ -60,6 +60,10 @@ Same as above.
 
 # FAQ
 
+##### Q: I followed the instructions and nothing happened?
+
+A: Only videos that are uploaded after the first run of the script are added (i.e. the timestamp is set to current date). New videos should be up. Alternatively, you can modify the timestamp yourself.
+
 ##### Q: How do I solve this error: `TypeError: Second argument to Function.prototype.apply must be an array. (line 27, file "")`?
 
 A: Do the step laid out in the instructions above: go to `Resources > Developers Console Project > Click the link to your API console project > On the left, APIs & Auth > APIs > YouTube Data API > Enable API`. (thanks to [josn0w](https://github.com/Elijas/auto-youtube-subscription-playlist-2/issues/1#issue-111149125) and [theit8514](https://github.com/Elijas/auto-youtube-subscription-playlist-2/issues/1#issuecomment-153812078), also [nmgoh](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cx55gtc) and [saso5tr](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cy38tkg))
