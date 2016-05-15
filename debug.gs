@@ -4,6 +4,7 @@
 // 2. Open Script Editor and copy-paste the contents
 // 3. Change values in main() function
 // 4. Select 'main' and run it, authorize (`Resources`/`Advanced Google Services`)
+// 5. See the log (Ctrl+Enter in the Script Editor) for details
 
 function err(id,msg) {
   out("ERROR in "+id+": "+msg);
