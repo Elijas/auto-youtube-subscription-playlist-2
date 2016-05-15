@@ -67,10 +67,6 @@ Same as above.
 
 A: Only videos that are uploaded after the first run of the script are added (i.e. the timestamp is set to current date). New videos should be up. Alternatively, you can modify the timestamp yourself.
 
-##### Q: How do I solve this error: `TypeError: Second argument to Function.prototype.apply must be an array. (line 27, file "")`?
-
-A: Do the step laid out in the instructions above: go to `Resources > Developers Console Project > Click the link to your API console project > On the left, APIs & Auth > APIs > YouTube Data API > Enable API`. (thanks to [josn0w](https://github.com/Elijas/auto-youtube-subscription-playlist-2/issues/1#issue-111149125) and [theit8514](https://github.com/Elijas/auto-youtube-subscription-playlist-2/issues/1#issuecomment-153812078), also [nmgoh](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cx55gtc) and [saso5tr](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cy38tkg))
-
 ##### Q: How to temporarily pause updating only some of the channels?
 
 A: Cut (or delete) the contents of the playlist ID cell in the row you want to pause.
@@ -78,6 +74,20 @@ A: Cut (or delete) the contents of the playlist ID cell in the row you want to p
 ##### Q: Where can I support further development?
 
 A: Let me devote more time and resources to this project here: [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RPRJ8UNWNWUK2). You can also use your GitHub account to suggest the changes directly. Thanks for all the help!
+
+##### Q: I have more questions.
+
+A: See `Feedback` section below.
+
+# Troubleshooting
+
+##### Q: Google keeps asking to authorize, even when I did so.
+
+A: A known fix is to use an account with Gmail, YouTube accounts are known to have this issue. Notice that you will only be able to use the playlists accessible by the authorized account (i.e. your 'Gmail' account in YouTube site).
+
+##### Q: I get this error: `TypeError: Second argument to Function.prototype.apply must be an array. (line 27, file "")`
+
+A: Do the step laid out in the instructions above: go to `Resources > Developers Console Project > Click the link to your API console project > On the left, APIs & Auth > APIs > YouTube Data API > Enable API`. (thanks to [josn0w](https://github.com/Elijas/auto-youtube-subscription-playlist-2/issues/1#issue-111149125) and [theit8514](https://github.com/Elijas/auto-youtube-subscription-playlist-2/issues/1#issuecomment-153812078), also [nmgoh](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cx55gtc) and [saso5tr](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cy38tkg))
 
 ##### Q: I have more questions.
 
