@@ -89,6 +89,10 @@ A: A known fix is to use an account with Gmail, YouTube accounts are known to ha
 
 A: Do the step laid out in the instructions above: go to `Resources > Developers Console Project > Click the link to your API console project > On the left, APIs & Auth > APIs > YouTube Data API > Enable API`. (thanks to [josn0w](https://github.com/Elijas/auto-youtube-subscription-playlist-2/issues/1#issue-111149125) and [theit8514](https://github.com/Elijas/auto-youtube-subscription-playlist-2/issues/1#issuecomment-153812078), also [nmgoh](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cx55gtc) and [saso5tr](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cy38tkg))
 
+##### Q: I want to experiment with the error further
+
+A: Copy-paste the contents of the debug.gs file into your Script Editor
+
 ##### Q: I have more questions.
 
 A: See `Feedback` section below.
