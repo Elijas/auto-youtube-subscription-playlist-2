@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html style="background-color:#DDD; margin: 1em auto 1em; font-size: 26px; line-height: 39px; max-width: 1260px;">
+  <head>
+    <base target="_top">
+    <title>YouTube Playlist for Subscriptions</title>
+  </head>
+  <body>
+<script>
+function copy_function(event) {
+  var copyTextarea = document.querySelector('.js-copytextarea');
+  copyTextarea.select();
+
+  try {
+    var successful = document.execCommand('copy');
+    var msg = successful ? 'successful' : 'unsuccessful';
+    console.log('Copying text command was ' + msg);
+  } catch (err) {
+    console.log('Oops, unable to copy');
+  }
+};
+</script>
+
+  <textarea style="width: 1px; height: 1px; padding: 0px; border: 0px;"
+            class="js-copytextarea">javascript:(function() { if (confirm('Remove all watched videos?')) {var i = window.setInterval(function() {var closeButton = document.querySelector('.watched-badge'); if (closeButton) { closeButton.parentElement.parentElement.parentElement.parentElement.querySelector('.pl-video-edit-remove').click(); } else { window.clearInterval(i); }}, 500);}})();</textarea>
+
+    <center>
+    <a target="_blank" onClick="copy_function();" href="https://www.youtube.com/playlist?list=<?= playlist(data); ?>">Open Youtube Playlist!</a>
+    </center>
+    <br>
+    <br>
+    <iframe width="1260" height="695" src='https://www.youtube.com/embed/videoseries?list=<?= playlist(data); ?>' frameborder="0" allowfullscreen></iframe>
+    <br>
+    <!---
+    <iframe id="playlist" width="0" height="0" src='https://www.youtube.com/playlist?list=<?= playlist(data); ?>' frameborder="0" allowfullscreen></iframe>
+    <input type="button" value="Copy function to clipboard." onClick="copy_function();">
+    --->
+  </body>
+</html>

@@ -1,5 +1,5 @@
 # Description [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RPRJ8UNWNWUK2)
-This is a Google Apps Script that automatically adds new Youtube videos to playlists (a replacement for Youtube Collections feature). 
+This is a Google Apps Script that automatically adds new Youtube videos to playlists (a replacement for Youtube Collections feature).
 
 This is done using Google Sheets for interface, Google Script + Youtube API v3 for executing and scheduling.
 
@@ -7,15 +7,18 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 
 # Features
 1. Adds all new videos to Youtube playlists (uploaded later than some date)
-  
+
   1.1. From ALL subscribed channels
-  
+
   1.2. From any list of channels (by username or channel ID)
-  
+
 2. Optional - ability to set automatic interval for updates
+
+3. Optional - ability to deploy as a web app to update or show playlist.
 
 # Set-up Instructions
 1. [Copy](https://goo.gl/FMmDZR) the Sheet to your Google Drive.
+
 2. Allow the Sheets to access Youtube:
   - Open the `Script Editor` (in menu: `Tools` / `Script Editor...`) of the Sheet
       - In menu: `Resources` / `Advanced Google Services`
@@ -25,6 +28,7 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
   - Close the Developers Console and Script Editor, open the Sheet again
       - In menu: `Functions` / `Update Playlists`
       - Grant access in the dialog
+
 3. Setup your playlists and channels (white cells in the Sheet):
   - Clear all existing white rows, they are just examples (i.e. delete the 3 rows).
   - For each new playlist you want to use:
@@ -48,6 +52,17 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 2. In menu: `Resources` / `Current project triggers`
 3. `updatePlaylists` -> `Time driven` -> `Hour timer` -> `Every hour`
 4. `Save`
+
+##### Deploy as a web app:
+
+1. In menu (of the Sheet): `Tools` / `Script Editor...`
+2. In menu: `Publish` / `Deploy as a web app`
+3. `Publish` (you will get a special link to use)
+4. Optional - create a tiny.cc redirect link for easy acess (tiny.cc is recommended as it allows you to pass parameters to the url)
+5. Usage: append /?pl=N to select the Nth playlist in the spreadsheed.
+          append /?update=True to force update the playlists.
+          e.g. tiny.cc/myplaylist/?update=True?pl=3
+               this will force update and open the third playlist.
 
 ##### (Extra) Link to remove all items from a youtube playlist:
 
