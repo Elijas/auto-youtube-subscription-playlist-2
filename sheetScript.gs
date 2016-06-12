@@ -27,11 +27,14 @@ function updatePlaylists(sheet) {
 
     /// ...get channels...
     var channelIds = [];
+    var playlistIds = [];
     for (var iColumn = reservedTableColumns; iColumn < sheet.getLastColumn(); iColumn++) {
       var channel = data[iRow][iColumn];
       if (!channel) continue;
       else if (channel == "ALL")
         channelIds.push.apply(channelIds, getAllChannelIds());
+      else if (channel.substring(0,2) == "PL" && channel.length > 10)  // Add videos from playlist. MaybeTODO: better validation, since might interpret a channel with a name "PL..." as a playlist ID
+         playlistIds.push(channel);
       else if (!(channel.substring(0,2) == "UC" && channel.length > 10)) // Check if it is not a channel ID (therefore a username). MaybeTODO: do a better validation, since might interpret a channel with a name "UC..." as a channel ID
       {
         try {
@@ -50,6 +53,9 @@ function updatePlaylists(sheet) {
     var lastTimestamp = sheet.getRange(reservedTimestampCell).getValue();
     for (var i = 0; i < channelIds.length; i++) {
       videoIds.push.apply(videoIds, getVideoIds(channelIds[i], lastTimestamp)); // Append new videoIds array to the original one
+    }
+    for (var i = 0; i < playlistIds.length; i++) {
+      videoIds.push.apply(videoIds, getPlaylistVideoIds(playlistIds[i], lastTimestamp));
     }
 
     //causes only first line to be updated
@@ -124,6 +130,36 @@ function getVideoIds(channelId, lastTimestamp) {
     for (var j = 0; j < results.items.length; j++) {
       var item = results.items[j];
       videoIds.push(item.id.videoId);
+    }
+
+    nextPageToken = results.nextPageToken;
+  }
+
+  return videoIds;
+}
+
+function getPlaylistVideoIds(playlistId, lastTimestamp) {
+  var videoIds = [];
+
+  var nextPageToken = '';
+  while (nextPageToken != null){
+
+    try {
+      var results = YouTube.PlaylistItems.list('snippet', {
+        playlistId: playlistId,
+        maxResults: 50,
+        order: "date",
+        publishedAfter: lastTimestamp,
+        pageToken: nextPageToken});
+    } catch (e) {
+      Logger.log("ERROR: " + e.message);
+      nextPageToken = null;
+    }
+
+    for (var j = 0; j < results.items.length; j++) {
+      var item = results.items[j];
+      if (item.snippet.publishedAt > lastTimestamp)
+        videoIds.push(item.snippet.resourceId.videoId);
     }
 
     nextPageToken = results.nextPageToken;
