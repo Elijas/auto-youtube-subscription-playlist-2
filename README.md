@@ -62,12 +62,8 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 4. `Publish` (you will get a special link to use)
 5. Optional - create a tiny.cc redirect link for easy acess (tiny.cc is recommended as it allows you to pass parameters to the url)
 6. Usage: append `/?pl=N` to select the Nth playlist in the spreadsheed.
-
-          append `/?update=True` to force update the playlists.
-
-          e.g. `tiny.cc/myplaylist/?update=True&pl=3`
-
-               this will force update and open the third playlist.
+6.1: append `/?update=True` to force update the playlists.
+6.2: e.g. `tiny.cc/myplaylist/?update=True&pl=3` will force update and open the third playlist.
 
 ##### (Extra) Link to remove all items from a youtube playlist:
 
