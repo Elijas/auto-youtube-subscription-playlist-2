@@ -4,8 +4,7 @@
 // MAYBE TODO: Filtering based on text (regexp?) in title and description
 // MAYBE TODO: NOT flags to include videos that are NOT from certain channels / do not contain text, etc
 
-function updatePlaylists() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+function updatePlaylists(sheet) {
   var data = sheet.getDataRange().getValues();
   var reservedTableRows = 3; // Start of the range of the PlaylistID+ChannelID data
   var reservedTableColumns = 2; // Start of the range of the ChannelID data
@@ -17,22 +16,25 @@ function updatePlaylists() {
     var isodate = date.toISOString();
     sheet.getRange(reservedTimestampCell).setValue(isodate);
   }
-  
+
   var debugFlag_dontUpdateTimestamp = false;
   var debugFlag_dontUpdatePlaylists = false;
-  
+
   /// For each playlist...
   for (var iRow = reservedTableRows; iRow < sheet.getLastRow(); iRow++) {
     var playlistId = data[iRow][0];
     if (!playlistId) continue;
-    
+
     /// ...get channels...
     var channelIds = [];
+    var playlistIds = [];
     for (var iColumn = reservedTableColumns; iColumn < sheet.getLastColumn(); iColumn++) {
       var channel = data[iRow][iColumn];
       if (!channel) continue;
       else if (channel == "ALL")
         channelIds.push.apply(channelIds, getAllChannelIds());
+      else if (channel.substring(0,2) == "PL" && channel.length > 10)  // Add videos from playlist. MaybeTODO: better validation, since might interpret a channel with a name "PL..." as a playlist ID
+         playlistIds.push(channel);
       else if (!(channel.substring(0,2) == "UC" && channel.length > 10)) // Check if it is not a channel ID (therefore a username). MaybeTODO: do a better validation, since might interpret a channel with a name "UC..." as a channel ID
       {
         try {
@@ -45,25 +47,28 @@ function updatePlaylists() {
       else
         channelIds.push(channel);
     }
-    
+
     /// ...get videos from the channels...
     var videoIds = [];
     var lastTimestamp = sheet.getRange(reservedTimestampCell).getValue();
     for (var i = 0; i < channelIds.length; i++) {
       videoIds.push.apply(videoIds, getVideoIds(channelIds[i], lastTimestamp)); // Append new videoIds array to the original one
     }
-    
+    for (var i = 0; i < playlistIds.length; i++) {
+      videoIds.push.apply(videoIds, getPlaylistVideoIds(playlistIds[i], lastTimestamp));
+    }
+
     //causes only first line to be updated
     //if (!debugFlag_dontUpdateTimestamp) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date())); // Update timestamp
-    
+
     /// ...add videos to the playlist
     if (!debugFlag_dontUpdatePlaylists) {
       for (var i = 0; i < videoIds.length; i++) {
         try {
           YouTube.PlaylistItems.insert
-          ( { snippet: 
-             { playlistId: playlistId, 
-              resourceId: 
+          ( { snippet:
+             { playlistId: playlistId,
+              resourceId:
               { videoId: videoIds[i],
                kind: 'youtube#video'
               }
@@ -74,7 +79,7 @@ function updatePlaylists() {
           Logger.log("ERROR: " + e.message);
           continue;
         }
-        
+
         Utilities.sleep(1000);
       }
     }
@@ -84,10 +89,10 @@ function updatePlaylists() {
 
 function getVideoIds(channelId, lastTimestamp) {
   var videoIds = [];
-  
+
   // First call
   try {
-    
+
     var results = YouTube.Search.list('id', {
       channelId: channelId,
       maxResults: 50,
@@ -104,11 +109,11 @@ function getVideoIds(channelId, lastTimestamp) {
     var item = results.items[j];
     videoIds.push(item.id.videoId);
   }
-  
+
   // Other calls
   var nextPageToken = results.nextPageToken;
   for (var pageNo = 0; pageNo < (-1+Math.ceil(results.pageInfo.totalResults / 50.0)); pageNo++) {
-  
+
     try {
       results = YouTube.Search.list('id', {
         channelId: channelId,
@@ -121,15 +126,45 @@ function getVideoIds(channelId, lastTimestamp) {
       Logger.log("ERROR: " + e.message);
       continue;
     }
-    
+
     for (var j = 0; j < results.items.length; j++) {
       var item = results.items[j];
       videoIds.push(item.id.videoId);
     }
-    
+
     nextPageToken = results.nextPageToken;
   }
-  
+
+  return videoIds;
+}
+
+function getPlaylistVideoIds(playlistId, lastTimestamp) {
+  var videoIds = [];
+
+  var nextPageToken = '';
+  while (nextPageToken != null){
+
+    try {
+      var results = YouTube.PlaylistItems.list('snippet', {
+        playlistId: playlistId,
+        maxResults: 50,
+        order: "date",
+        publishedAfter: lastTimestamp,
+        pageToken: nextPageToken});
+    } catch (e) {
+      Logger.log("ERROR: " + e.message);
+      nextPageToken = null;
+    }
+
+    for (var j = 0; j < results.items.length; j++) {
+      var item = results.items[j];
+      if (item.snippet.publishedAt > lastTimestamp)
+        videoIds.push(item.snippet.resourceId.videoId);
+    }
+
+    nextPageToken = results.nextPageToken;
+  }
+
   return videoIds;
 }
 
@@ -159,14 +194,14 @@ function getAllChannelIds() { // get YT Subscriptions-List, src: https://www.red
   } catch (e) {
     return e;
   }
-  
+
   Logger.log('Acquired subscriptions %s', AboList[1].length);
   return AboList[1];
 }
 
 function getAllChannelIds_OLD() { // Note: this function is not used.
   var channelIds = [];
-  
+
   // First call
   try {
     var results = YouTube.Subscriptions.list('snippet', {
@@ -180,12 +215,12 @@ function getAllChannelIds_OLD() { // Note: this function is not used.
   for (var i = 0; i < results.items.length; i++) {
     var item = results.items[i];
     channelIds.push(item.snippet.resourceId.channelId);
-  }  
-  
+  }
+
   // Other calls
   var nextPageToken = results.nextPageToken;
   for (var pageNo = 0; pageNo < (-1+Math.ceil(results.pageInfo.totalResults / 50.0)); pageNo++) {
-    
+
     try {
       results = YouTube.Subscriptions.list('snippet', {
         mine: true,
@@ -200,10 +235,10 @@ function getAllChannelIds_OLD() { // Note: this function is not used.
       var item = results.items[i];
       channelIds.push(item.snippet.resourceId.channelId);
     }
-    
+
     nextPageToken = results.nextPageToken;
   }
-  
+
   Logger.log('Acquired subscriptions %s, Actual subscriptions %s', channelIds.length, results.pageInfo.totalResults);
   return channelIds;
 }
@@ -219,5 +254,41 @@ function ISODateString(d) { // modified from src: http://stackoverflow.com/quest
 }
 
 function onOpen() {
-  SpreadsheetApp.getActiveSpreadsheet().addMenu("Functions", [{name: "Update Playlists", functionName: "updatePlaylists"}]);
+  SpreadsheetApp.getActiveSpreadsheet().addMenu("Functions", [{name: "Update Playlists", functionName: "insideUpdate"}]);
+}
+
+function insideUpdate(){
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+  updatePlaylists(sheet);
+}
+
+function playlist(pl){
+  var sheetID = '1Qc0ZWC4kCdvokek2j3SruEhjTPsamu-OT8VxGK1OUpY';
+  var sheet = SpreadsheetApp.openById(sheetID).getSheets()[0];
+  var data = sheet.getDataRange().getValues();
+  var reservedTableRows = 3; // Start of the range of the PlaylistID+ChannelID data
+  if (pl == undefined){
+    pl = reservedTableRows;
+  } else {
+    pl = Number(pl) + reservedTableRows - 1;  // I like to think of the first playlist as being number 1.
+  }
+
+  if (pl > sheet.getLastRow()){
+    pl = sheet.getLastRow();
+  }
+
+  var playlistId = data[pl][0];
+  return playlistId
+}
+
+function doGet(e) {
+  if (e.parameter.update == "True") {
+    var sheetID = '1Qc0ZWC4kCdvokek2j3SruEhjTPsamu-OT8VxGK1OUpY';
+    var sheet = SpreadsheetApp.openById(sheetID).getSheets()[0];
+    updatePlaylists(sheet);
+  };
+
+  var t = HtmlService.createTemplateFromFile('index.html');
+  t.data = e.parameter.pl
+  return t.evaluate();
 }
