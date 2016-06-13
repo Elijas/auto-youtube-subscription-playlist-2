@@ -56,12 +56,17 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 ##### Deploy as a web app:
 
 1. In menu (of the Sheet): `Tools` / `Script Editor...`
-2. In menu: `Publish` / `Deploy as a web app`
-3. `Publish` (you will get a special link to use)
-4. Optional - create a tiny.cc redirect link for easy acess (tiny.cc is recommended as it allows you to pass parameters to the url)
-5. Usage: append /?pl=N to select the Nth playlist in the spreadsheed.
-          append /?update=True to force update the playlists.
-          e.g. tiny.cc/myplaylist/?update=True?pl=3
+2. Update the SheetID in the very begining of the file. It's the random long string found in the URL of the SpreadSheet. The highlighted part of the URL in the image below.
+![reference image](http://i.imgur.com/WGwQ5GW.jpg)
+3. In menu: `Publish` / `Deploy as a web app`
+4. `Publish` (you will get a special link to use)
+5. Optional - create a tiny.cc redirect link for easy acess (tiny.cc is recommended as it allows you to pass parameters to the url)
+6. Usage: append `/?pl=N` to select the Nth playlist in the spreadsheed.
+
+          append `/?update=True` to force update the playlists.
+
+          e.g. `tiny.cc/myplaylist/?update=True&pl=3`
+
                this will force update and open the third playlist.
 
 ##### (Extra) Link to remove all items from a youtube playlist:

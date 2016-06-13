@@ -24,14 +24,14 @@ function copy_function(event) {
             class="js-copytextarea">javascript:(function() { if (confirm('Remove all watched videos?')) {var i = window.setInterval(function() {var closeButton = document.querySelector('.watched-badge'); if (closeButton) { closeButton.parentElement.parentElement.parentElement.parentElement.querySelector('.pl-video-edit-remove').click(); } else { window.clearInterval(i); }}, 500);}})();</textarea>
 
     <center>
-    <a target="_blank" onClick="copy_function();" href="https://www.youtube.com/playlist?list=<?= playlist(data); ?>">Open Youtube Playlist!</a>
+    <a target="_blank" onClick="copy_function();" href="https://www.youtube.com/playlist?list=<?= playlist(data, sheetID); ?>">Open Youtube Playlist!</a>
     </center>
     <br>
     <br>
-    <iframe width="1260" height="695" src='https://www.youtube.com/embed/videoseries?list=<?= playlist(data); ?>' frameborder="0" allowfullscreen></iframe>
+    <iframe width="1260" height="695" src='https://www.youtube.com/embed/videoseries?list=<?= playlist(data, sheetID); ?>' frameborder="0" allowfullscreen></iframe>
     <br>
     <!---
-    <iframe id="playlist" width="0" height="0" src='https://www.youtube.com/playlist?list=<?= playlist(data); ?>' frameborder="0" allowfullscreen></iframe>
+    <iframe id="playlist" width="0" height="0" src='https://www.youtube.com/playlist?list=<?= playlist(data, sheetID); ?>' frameborder="0" allowfullscreen></iframe>
     <input type="button" value="Copy function to clipboard." onClick="copy_function();">
     --->
   </body>
