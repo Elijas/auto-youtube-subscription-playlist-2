@@ -6,13 +6,14 @@
 
 
 function doGet(e) {
+    // url = https://docs.google.com/spreadsheets/d/XXXXXXXXXX/edit#gid=0
+    var sheetID = 'XXXXXXXXXX';  // Paste the Sheet ID here, it's the long string in the Sheet URL
+
     if (e.parameter.update == "True") {
-        var sheetID = 'XXXXXXXXXX';  // Paste the Sheet ID here, it's the long string in the Sheet URL
-        // url = https://docs.google.com/spreadsheets/d/XXXXXXXXXX/edit#gid=0
         var sheet = SpreadsheetApp.openById(sheetID).getSheets()[0];
         updatePlaylists(sheet);
     };
-    
+
     var t = HtmlService.createTemplateFromFile('index.html');
     t.data = e.parameter.pl
     t.sheetID = sheetID
