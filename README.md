@@ -12,6 +12,8 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 
   1.2. From any list of channels (by username or channel ID)
 
+  1.3. From any other playlist (by playlist ID)
+
 2. Optional - ability to set automatic interval for updates
 
 3. Optional - ability to deploy as a web app to update or show playlist.
@@ -38,6 +40,7 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
       - Any of the following:
       - User ID (last part (after last `/`) in `https://www.youtube.com/user/someusername`)
       - Channel ID (last part (after last `/`) in `https://www.youtube.com/channel/UCzMVH2jEyEwXPBvyht8xQNw`)
+      - Playlist ID (last part (after `?list=` in `https://www.youtube.com/playlist?list=PLd0LhgZxFkVKh_JNXcdHoPYo832Wu9fub`)
       - `ALL`, to add all new videos from all of your subscriptions
 
 # Usage
@@ -62,8 +65,10 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 4. `Publish` (you will get a special link to use)
 5. Optional - create a tiny.cc redirect link for easy acess (tiny.cc is recommended as it allows you to pass parameters to the url)
 6. Usage: append `/?pl=N` to select the Nth playlist in the spreadsheed.
-6.1: append `/?update=True` to force update the playlists.
-6.2: e.g. `tiny.cc/myplaylist/?update=True&pl=3` will force update and open the third playlist.
+
+  6.1: append `/?update=True` to force update the playlists.
+
+  6.2: e.g. `tiny.cc/myplaylist/?update=True&pl=3` will force update and open the third playlist.
 
 ##### (Extra) Link to remove all items from a youtube playlist:
 
