@@ -4,6 +4,22 @@
 // MAYBE TODO: Filtering based on text (regexp?) in title and description
 // MAYBE TODO: NOT flags to include videos that are NOT from certain channels / do not contain text, etc
 
+
+function doGet(e) {
+    // url = https://docs.google.com/spreadsheets/d/XXXXXXXXXX/edit#gid=0
+    var sheetID = 'XXXXXXXXXX';  // Paste the Sheet ID here, it's the long string in the Sheet URL
+
+    if (e.parameter.update == "True") {
+        var sheet = SpreadsheetApp.openById(sheetID).getSheets()[0];
+        updatePlaylists(sheet);
+    };
+
+    var t = HtmlService.createTemplateFromFile('index.html');
+    t.data = e.parameter.pl
+    t.sheetID = sheetID
+    return t.evaluate();
+}
+
 function updatePlaylists(sheet) {
   var data = sheet.getDataRange().getValues();
   var reservedTableRows = 3; // Start of the range of the PlaylistID+ChannelID data
@@ -262,8 +278,7 @@ function insideUpdate(){
   updatePlaylists(sheet);
 }
 
-function playlist(pl){
-  var sheetID = '1Qc0ZWC4kCdvokek2j3SruEhjTPsamu-OT8VxGK1OUpY';
+function playlist(pl, sheetID){
   var sheet = SpreadsheetApp.openById(sheetID).getSheets()[0];
   var data = sheet.getDataRange().getValues();
   var reservedTableRows = 3; // Start of the range of the PlaylistID+ChannelID data
@@ -279,16 +294,4 @@ function playlist(pl){
 
   var playlistId = data[pl][0];
   return playlistId
-}
-
-function doGet(e) {
-  if (e.parameter.update == "True") {
-    var sheetID = '1Qc0ZWC4kCdvokek2j3SruEhjTPsamu-OT8VxGK1OUpY';
-    var sheet = SpreadsheetApp.openById(sheetID).getSheets()[0];
-    updatePlaylists(sheet);
-  };
-
-  var t = HtmlService.createTemplateFromFile('index.html');
-  t.data = e.parameter.pl
-  return t.evaluate();
 }
