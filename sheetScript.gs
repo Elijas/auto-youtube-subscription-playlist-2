@@ -21,6 +21,7 @@ function doGet(e) {
 }
 
 function updatePlaylists(sheet) {
+  if (sheet.toString() != 'Sheet') sheet = SpreadsheetApp.openById('XXXXXXXXXX').getSheets()[0]; // Hotfix, Paste the Sheet ID here, it's the long string in the Sheet URL
   var data = sheet.getDataRange().getValues();
   var reservedTableRows = 3; // Start of the range of the PlaylistID+ChannelID data
   var reservedTableColumns = 2; // Start of the range of the ChannelID data
