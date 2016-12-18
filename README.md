@@ -1,4 +1,4 @@
-## ~~You can use an App now (beta)! [yougather.xyz](http://www.yougather.xyz/)~~ 
+## ~~Alternatively, you can use an App now (beta)! [yougather.xyz](http://www.yougather.xyz/)~~ 
 Looking into ways to support the service, it reached the usage limits of free tier (will be shown as 500 error).
 
 # Description [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RPRJ8UNWNWUK2)
