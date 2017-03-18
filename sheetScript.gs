@@ -1,10 +1,3 @@
-// MAYBE TODO: Better exception handling for Youtube API calls
-// MAYBE TODO: Deal with playlist limits (~ 200-218 videos)
-// MAYBE TODO: Special keyword "ALLOTHER" for all other (unmentioned yet in the app) channel ids
-// MAYBE TODO: Filtering based on text (regexp?) in title and description
-// MAYBE TODO: NOT flags to include videos that are NOT from certain channels / do not contain text, etc
-
-
 function doGet(e) {
     // url = https://docs.google.com/spreadsheets/d/XXXXXXXXXX/edit#gid=0
     var sheetID = 'XXXXXXXXXX';  // Paste the Sheet ID here, it's the long string in the Sheet URL
@@ -15,13 +8,13 @@ function doGet(e) {
     };
 
     var t = HtmlService.createTemplateFromFile('index.html');
-    t.data = e.parameter.pl
-    t.sheetID = sheetID
+    t.data = e.parameter.pl;
+    t.sheetID = sheetID;
     return t.evaluate();
 }
 
 function updatePlaylists(sheet) {
-  if (sheet.toString() != 'Sheet') sheet = SpreadsheetApp.openById('XXXXXXXXXX').getSheets()[0]; // Hotfix, Paste the Sheet ID here, it's the long string in the Sheet URL
+  if (sheet.toString() != 'Sheet') sheet = SpreadsheetApp.openById('XXXXXXXXXX').getSheets()[0];
   var data = sheet.getDataRange().getValues();
   var reservedTableRows = 3; // Start of the range of the PlaylistID+ChannelID data
   var reservedTableColumns = 2; // Start of the range of the ChannelID data
@@ -36,6 +29,9 @@ function updatePlaylists(sheet) {
 
   var debugFlag_dontUpdateTimestamp = false;
   var debugFlag_dontUpdatePlaylists = false;
+
+
+
 
   /// For each playlist...
   for (var iRow = reservedTableRows; iRow < sheet.getLastRow(); iRow++) {
@@ -101,7 +97,10 @@ function updatePlaylists(sheet) {
       }
     }
   }
-  if (!debugFlag_dontUpdateTimestamp) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date())); // Update timestamp
+  if (!debugFlag_dontUpdateTimestamp) {
+    var date = new Date();
+    sheet.getRange(reservedTimestampCell).setValue(ISODateString(date)); // Update timestamp
+  }
 }
 
 function getVideoIds(channelId, lastTimestamp) {
@@ -271,12 +270,13 @@ function ISODateString(d) { // modified from src: http://stackoverflow.com/quest
 }
 
 function onOpen() {
-  SpreadsheetApp.getActiveSpreadsheet().addMenu("Functions", [{name: "Update Playlists", functionName: "insideUpdate"}]);
+  SpreadsheetApp.getActiveSpreadsheet().addMenu("Functions", [{name: "Update Playlists", functionName: "insideUpdate"}, {name: "Update Month", functionName: "checkMonthlyPlaylist"}]);
 }
 
 function insideUpdate(){
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
   updatePlaylists(sheet);
+
 }
 
 function playlist(pl, sheetID){
@@ -295,4 +295,88 @@ function playlist(pl, sheetID){
 
   var playlistId = data[pl][0];
   return playlistId
+}
+//Check for if the monthly playlist has been made yet
+//if so, nothing happens, if not, creat it and replace it in the spreadsheet!
+function checkMonthlyPlaylist() {
+  var date = new Date();
+  var year = date.getFullYear();
+  var month = date.getMonth();
+  var title = getMonthText(month) + " " + String(year) + " Watch Later";
+  var tempTitle;
+  var found = false;
+  var request = YouTube.Playlists.list('snippet', {'mine':true, 'maxResults': 5});
+
+  for(var i = 0; i < request.items.length; i++) {
+    tempTitle = request.items[i].snippet.title;
+    if(tempTitle === title) {
+      found = true;
+      break;
+    }
+  }
+  if(!found) {
+    createPlaylist(title, title);
+  }
+}
+
+function getMonthText(month) {
+  switch(month) {
+    case 0:
+      return "Jan"
+      break;
+    case 1:
+      return "Feb"
+      break;
+    case 2:
+      return "Mar"
+      break;
+    case 3:
+      return "Apr"
+      break;
+    case 4:
+      return "May"
+      break;
+    case 5:
+      return "Jun"
+      break;
+    case 6:
+      return "Jul"
+      break;
+    case 7:
+      return "Aug"
+      break;
+    case 8:
+      return "Sep"
+      break;
+    case 9:
+      return "Oct"
+      break;
+    case 10:
+      return "Nov"
+      break;
+    case 11:
+      return "Dec"
+      break;
+  }
+}
+
+function createPlaylist(title, description) {
+
+
+  var request = YouTube.Playlists.insert(
+    {
+      snippet: {
+        title: title,
+        description: description
+      },
+      status: {
+        privacyStatus: 'private'
+      }
+    }, 'snippet, status');
+  var sheetID = 'XXXXXXXXXX';  // Paste the Sheet ID here, it's the long string in the Sheet URL
+  var sheet = SpreadsheetApp.openById(sheetID).getSheets()[0];
+  //A4 is first playlist. Hardcoded in.
+  var cell = sheet.getRange('A4');
+  var test = request.id;
+  cell.setValue(test);
 }
