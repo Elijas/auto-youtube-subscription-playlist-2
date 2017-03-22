@@ -75,13 +75,13 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 
 To remove all playlist items, bookmark the link below and click on it while having the youtube playlist page open.
 
-`javascript:(function() { if (confirm('Remove all?')) {var i = window.setInterval(function() {var closeButton = document.querySelector('.pl-video-edit-remove');    if (closeButton) {      closeButton.click();    } else {      window.clearInterval(i);    }}, 500);}})();` ([source](https://gist.github.com/timothyarmstrong/10501804))
+`javascript:(function(){if(confirm('Remove all?')&&confirm('Are you sure?')){let c=[].slice.call(document.querySelectorAll('.pl-video-edit-remove')),iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;}c.pop().click();},200);}})();` ([source](https://gist.github.com/timothyarmstrong/10501804))
 
 ##### (Extra) Link to remove watched items from a youtube playlist (thanks to [saso5tr](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cy38z0f)):
 
 Same as above.
 
-`javascript:(function() { if (confirm('Remove all?')) {var i = window.setInterval(function() {var closeButton = document.querySelector('.watched-badge'); if (closeButton) { closeButton.parentElement.parentElement.parentElement.parentElement.querySelector('.pl-video-edit-remove').click(); } else { window.clearInterval(i); }}, 500);}})();`
+`javascript:(function(){if(confirm('Remove all watched?')){for(c=[].slice.call(document.querySelectorAll('.resume-playback-background')),i=c.length;i--;c[i]=c[i].parentElement.parentElement.parentElement.querySelector('.pl-video-edit-remove'));iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;};c.pop().click();},400);}})();`
 
 # FAQ
 
