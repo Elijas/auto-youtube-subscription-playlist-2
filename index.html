@@ -28,7 +28,7 @@ function copy_function(event) {
     </center>
     <br>
     <br>
-    <iframe width="1260" height="695" src='https://www.youtube.com/embed/videoseries?list=<?= playlist(data, sheetID); ?>' frameborder="0" allowfullscreen></iframe>
+    <iframe id="ytplayer" type="text/html" width="1260" height="695" src='https://www.youtube.com/embed?listType=playlist&list=<?= playlist(data, sheetID); ?>' frameborder="0" allowfullscreen></iframe>
     <br>
     <!---
     <iframe id="playlist" width="0" height="0" src='https://www.youtube.com/playlist?list=<?= playlist(data, sheetID); ?>' frameborder="0" allowfullscreen></iframe>
