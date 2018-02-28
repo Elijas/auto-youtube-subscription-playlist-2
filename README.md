@@ -1,4 +1,9 @@
-# Description [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RPRJ8UNWNWUK2)
+# Update: Regarding support 
+- Support status is `Abandonware` as of this moment (Will change with each [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RPRJ8UNWNWUK2) )
+- Feel free to interact with community support forum: [Official Message Board](http://autoplaylistfeedback.boards.net/thread/2/general-thread)
+- Feel free to interact with forks of the project or create your own.
+
+# Description 
 This is a Google Apps Script that automatically adds new Youtube videos to playlists (a replacement for Youtube Collections feature).
 
 This is done using Google Sheets for interface, Google Script + Youtube API v3 for executing and scheduling.
