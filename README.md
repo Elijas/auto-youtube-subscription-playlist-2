@@ -1,5 +1,5 @@
 # Update: Regarding issues/errors and feedback
-Support status is `Abandonware` as of this moment (Will change with each [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RPRJ8UNWNWUK2) )
+Support status is `Abandonware` as of this moment (Each [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RPRJ8UNWNWUK2) counts and helps support  )
 Possible sources of solutions:
 - Troubleshooting section at the end of this README
 - Community support forum: [Official Message Board](http://autoplaylistfeedback.boards.net/thread/2/general-thread)
@@ -27,7 +27,7 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 3. Optional - ability to deploy as a web app to update or show playlist.
 
 # Set-up Instructions
-1. [Copy](https://goo.gl/FMmDZR) the Sheet to your Google Drive.
+1. [Copy](http://bit.ly/subscriptionPlaylistsCopy) the Sheet to your Google Drive.
 
 2. Allow the Sheets to access Youtube:
   - Open the `Script Editor` (in menu: `Tools` / `Script Editor...`) of the Sheet
