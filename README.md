@@ -117,10 +117,14 @@ A: A known fix is to use an account with Gmail, YouTube accounts are known to ha
 A: Do the step laid out in the instructions above: go to `Resources > Developers Console Project > Click the link to your API console project > On the left, APIs & Auth > APIs > YouTube Data API > Enable API`. (thanks to [josn0w](https://github.com/Elijas/auto-youtube-subscription-playlist-2/issues/1#issue-111149125) and [theit8514](https://github.com/Elijas/auto-youtube-subscription-playlist-2/issues/1#issuecomment-153812078), also [nmgoh](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cx55gtc) and [saso5tr](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cy38tkg))
 
 
-#### Q: I get this error [`TypeError: Cannot call method "toString" of undefined.`](https://i.stack.imgur.com/oDT5D.png)
+##### Q: I get this error [`TypeError: Cannot call method "toString" of undefined.`](https://i.stack.imgur.com/oDT5D.png)
 
 A: See https://stackoverflow.com/a/48912679/1544154 (thanks to [LPanic](https://stackoverflow.com/users/5295765/lpanic))
 
+
+##### Q: I get this error: `TypeError: Cannot read property "items" from undefined. (line 169, file "Code")`
+
+A: If it only happens sometimes, it can be safely ignored, the next round will work normal again. If it happens on every execution, check your playlist and channel IDs. The script stops working if any of your playlists or channels doesn't exist, for example because it was deleted.
 
 ##### Q: I want to experiment with the error further
 
