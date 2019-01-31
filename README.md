@@ -3,7 +3,7 @@ Support status is `Abandonware` as of this moment.
 
 Feel free buy me a cup of coffee if you found the app useful [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RPRJ8UNWNWUK2)) Although, I'd appreciate even more if you could help support other users and/or create pull requests for fixes and improvements!
 
-If you ran into problems, here are possible sources of solutions:
+If you ran into problems, here are some of the possible sources for solutions:
 - Troubleshooting section at the end of this README
 - [Issues board in GitHub](https://github.com/Elijas/auto-youtube-subscription-playlist-2/issues)
 - Community support forum: [Official Message Board](http://autoplaylistfeedback.boards.net/thread/2/general-thread)
