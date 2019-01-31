@@ -2,6 +2,7 @@
 Support status is `Abandonware` as of this moment (Each [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RPRJ8UNWNWUK2) counts and helps support  )
 Possible sources of solutions:
 - Troubleshooting section at the end of this README
+- [Issues board in GitHub](https://github.com/Elijas/auto-youtube-subscription-playlist-2/issues)
 - Community support forum: [Official Message Board](http://autoplaylistfeedback.boards.net/thread/2/general-thread)
 - 3rd party copies of the project (Forks)
     - If you'd like improve the code yourself: some issues were introduced with merges from 3rd party forks. Last commit before the merges can be found [here](https://github.com/Elijas/auto-youtube-subscription-playlist-2/blob/a53d0ea033d9a9aaf5e8832edfcffc10777701b3/sheetScript.gs)
