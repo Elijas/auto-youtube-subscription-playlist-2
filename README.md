@@ -1,6 +1,9 @@
 # Update: Regarding issues/errors and feedback
-Support status is `Abandonware` as of this moment (Each [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RPRJ8UNWNWUK2) counts and helps support  )
-Possible sources of solutions:
+Support status is `Abandonware` as of this moment. 
+
+Feel free buy me a cup of coffee if you found the app useful [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RPRJ8UNWNWUK2)) Although, I'd appreciate even more if you could help support other users and/or create pull requests for fixes and improvements!
+
+If you ran into problems, here are possible sources of solutions:
 - Troubleshooting section at the end of this README
 - [Issues board in GitHub](https://github.com/Elijas/auto-youtube-subscription-playlist-2/issues)
 - Community support forum: [Official Message Board](http://autoplaylistfeedback.boards.net/thread/2/general-thread)
@@ -99,9 +102,9 @@ A: Only videos that are uploaded after the first run of the script are added (i.
 
 A: Cut (or delete) the contents of the playlist ID cell in the row you want to pause.
 
-##### Q: Where can I support further development?
+##### Q: I want to say thanks!
 
-A: Let me devote more time and resources to this project here: [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RPRJ8UNWNWUK2). You can also use your GitHub account to suggest the changes directly. Thanks for all the help!
+A: Feel free to buy me a cup of coffee here: [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RPRJ8UNWNWUK2). Although, I'd appreciate even more if you could help support other users and/or create pull requests for fixes and improvements!
 
 ##### Q: I have more questions.
 
