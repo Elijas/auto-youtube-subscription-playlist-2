@@ -28,6 +28,8 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 
 3. Optional - ability to deploy as a web app to update or show playlist.
 
+4. Optional - remove vidoes in the playlists that are older than a certain number of days before the execution of the script 
+
 # Set-up Instructions
 1. [Copy](http://bit.ly/subscriptionPlaylistsCopy) the Sheet to your Google Drive. Afterwards you might want to update the script to the latest version of sheetScript.gs
 
