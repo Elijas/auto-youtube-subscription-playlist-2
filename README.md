@@ -29,7 +29,7 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 3. Optional - ability to deploy as a web app to update or show playlist.
 
 # Set-up Instructions
-1. [Copy](http://bit.ly/subscriptionPlaylistsCopy) the Sheet to your Google Drive.
+1. [Copy](http://bit.ly/subscriptionPlaylistsCopy) the Sheet to your Google Drive. Afterwards you might want to update the script to the latest version of sheetScript.gs
 
 2. Allow the Sheets to access Youtube:
   - Open the `Script Editor` (in menu: `Tools` / `Script Editor...`) of the Sheet
@@ -52,6 +52,7 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
       - Channel ID (last part (after last `/`) in `https://www.youtube.com/channel/UCzMVH2jEyEwXPBvyht8xQNw`)
       - Playlist ID (last part (after `?list=` in `https://www.youtube.com/playlist?list=PLd0LhgZxFkVKh_JNXcdHoPYo832Wu9fub`)
       - `ALL`, to add all new videos from all of your subscriptions
+    - Optionally add a number of days in the grey column (B). Videos in the playlist that have been published that many days before are going to be removed from the playlist.
 
 # Usage
 
