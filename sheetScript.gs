@@ -22,9 +22,11 @@ function doGet(e) {
 
 function updatePlaylists(sheet) {
   if (!sheet || !sheet.toString || sheet.toString() != 'Sheet') sheet = SpreadsheetApp.openById('XXXXXXXXXX').getSheets()[0]; // Hotfix, Paste the Sheet ID here, it's the long string in the Sheet URL
+  var MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
   var data = sheet.getDataRange().getValues();
   var reservedTableRows = 3; // Start of the range of the PlaylistID+ChannelID data
   var reservedTableColumns = 2; // Start of the range of the ChannelID data
+  var reservedDeleteDaysColumn = 1; // Column containing number of days before today until videos get deleted
   var reservedTimestampCell = "F1";
   //if (!sheet.getRange(reservedTimestampCell).getValue()) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date()));
   if (!sheet.getRange(reservedTimestampCell).getValue()) {
@@ -100,6 +102,15 @@ function updatePlaylists(sheet) {
         Utilities.sleep(1000);
       }
     }
+    
+    /// ...delete old vidoes in playlist
+    var daysBack = data[iRow][reservedDeleteDaysColumn];
+    if (!daysBack || !(daysBack > 0) ) continue;
+    
+    var deleteBeforeTimestamp = ISODateString(new Date((new Date()).getTime() - daysBack*MILLIS_PER_DAY));
+    Logger.log("Delete before: "+deleteBeforeTimestamp);
+    deletePlaylistItems(playlistId, deleteBeforeTimestamp);
+    
   }
   if (!debugFlag_dontUpdateTimestamp) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date())); // Update timestamp
 }
@@ -209,11 +220,42 @@ function getAllChannelIds() { // get YT Subscriptions-List, src: https://www.red
       return 'Length Title != ChannelId'; // returns a string === error
     }
   } catch (e) {
+    Logger.log("ERROR: " + e.message);
     return e;
   }
 
   Logger.log('Acquired subscriptions %s', AboList[1].length);
   return AboList[1];
+}
+
+function deletePlaylistItems(playlistId, deleteBeforeTimestamp) {
+  var nextPageToken = '';
+  while (nextPageToken != null){
+
+    try {
+      var results = YouTube.PlaylistItems.list('contentDetails', {
+        playlistId: playlistId,
+        maxResults: 50,
+        order: "date",
+        publishedBefore: deleteBeforeTimestamp, // this compares the timestamp when the video was added to playlist
+        pageToken: nextPageToken});
+        
+      for (var j = 0; j < results.items.length; j++) {
+        var item = results.items[j];
+        if (item.contentDetails.videoPublishedAt < deleteBeforeTimestamp) // this compares the timestamp when the video was published
+        { 
+          Logger.log("Del: | "+item.contentDetails.videoPublishedAt)
+          YouTube.PlaylistItems.remove(item.id)
+        }
+      }
+      
+      nextPageToken = results.nextPageToken;
+
+    } catch (e) {
+      Logger.log("ERROR: " + e.message);
+      nextPageToken = null;
+    }
+  }
 }
 
 function getAllChannelIds_OLD() { // Note: this function is not used.
