@@ -35,7 +35,8 @@ function updatePlaylists(sheet) {
     var isodate = date.toISOString();
     sheet.getRange(reservedTimestampCell).setValue(isodate);
   }
-
+  
+  var errorflag = false;
   var debugFlag_dontUpdateTimestamp = false;
   var debugFlag_dontUpdatePlaylists = false;
 
@@ -81,7 +82,7 @@ function updatePlaylists(sheet) {
     //if (!debugFlag_dontUpdateTimestamp) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date())); // Update timestamp
 
     /// ...add videos to the playlist
-    if (!debugFlag_dontUpdatePlaylists) {
+    if (!debugFlag_dontUpdatePlaylists && videoIds.length < 200) {
       for (var i = 0; i < videoIds.length; i++) {
         try {
           YouTube.PlaylistItems.insert
@@ -96,12 +97,16 @@ function updatePlaylists(sheet) {
           );
         } catch (e) {
           Logger.log("ERROR: " + e.message);
+          var errorflag = true;
           continue;
         }
 
         Utilities.sleep(1000);
       }
+    } else {
+      var errorflag = true;
     }
+    
     
     /// ...delete old vidoes in playlist
     var daysBack = data[iRow][reservedDeleteDaysColumn];
@@ -112,7 +117,7 @@ function updatePlaylists(sheet) {
     deletePlaylistItems(playlistId, deleteBeforeTimestamp);
     
   }
-  if (!debugFlag_dontUpdateTimestamp) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date())); // Update timestamp
+  if (!debugFlag_dontUpdateTimestamp && !errorflag) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date())); // Update timestamp
 }
 
 function getVideoIds(channelId, lastTimestamp) {
