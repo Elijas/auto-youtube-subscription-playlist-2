@@ -6,6 +6,7 @@ This app still works, however I am not able to provide support and updates anymo
 If you ran into problems, here are some of the possible sources for solutions:
 - Troubleshooting section at the end of this README
 - [Issues board in GitHub](https://github.com/Elijas/auto-youtube-subscription-playlist-2/issues)
+    - You can [put bounties](https://issuehunt.io/r/Elijas/auto-youtube-subscription-playlist-2) on issues too
 - Community support forum: [Official Message Board](http://autoplaylistfeedback.boards.net/thread/2/general-thread)
 - 3rd party copies of the project (Forks)
     - If you'd like improve the code yourself: some issues were introduced with merges from 3rd party forks. Last commit before the merges can be found [here](https://github.com/Elijas/auto-youtube-subscription-playlist-2/blob/a53d0ea033d9a9aaf5e8832edfcffc10777701b3/sheetScript.gs)
