@@ -1,5 +1,5 @@
 ### Update on the project status
-This app still works, however I am not able to provide support and updates anymore. Feel free buy me a [cup of coffee](https://ko-fi.com/Z8Z311X7D) if you found the app useful. Although, I'd appreciate even more if you could help support other users and/or create pull requests for fixes and improvements!
+This app still works, however I am not able to provide support and updates anymore. Feel free [buy me a cup of coffee](https://ko-fi.com/Z8Z311X7D) if you found the app useful. Although, I'd appreciate even more if you could help support other users and/or create pull requests for fixes and improvements!
 
 If you ran into problems, here are some of the possible sources for solutions:
 - Troubleshooting section at the end of this README
