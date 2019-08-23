@@ -1,5 +1,6 @@
 ### Update on the project status
-This app still works, however I am not able to provide support and updates anymore. Feel free buy me a cup of coffee if you found the app useful [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RPRJ8UNWNWUK2). Although, I'd appreciate even more if you could help support other users and/or create pull requests for fixes and improvements!
+This app still works, however I am not able to provide support and updates anymore. Feel free buy me a [cup of coffee](https://ko-fi.com/Z8Z311X7D) if you found the app useful. Although, I'd appreciate even more if you could help support other users and/or create pull requests for fixes and improvements!
+[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Z8Z311X7D)
 
 If you ran into problems, here are some of the possible sources for solutions:
 - Troubleshooting section at the end of this README
