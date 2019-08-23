@@ -1,4 +1,4 @@
-![issuehunt-readme-button-v1](./docs/issuehunt-button-v1.svg)
+![https://issuehunt.io/r/Elijas/auto-youtube-subscription-playlist-2](./docs/issuehunt-button-v1.svg)
 
 ### Update on the project status
 This app still works, however I am not able to provide support and updates anymore. Feel free [buy me a cup of coffee](https://ko-fi.com/Z8Z311X7D) if you found the app useful. Although, I'd appreciate even more if you could help support other users and/or create pull requests for fixes and improvements!
