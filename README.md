@@ -89,13 +89,25 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 
 To remove all playlist items, bookmark the link below and click on it while having the youtube playlist page open.
 
-`javascript:(function(){if(confirm('Remove all?')&&confirm('Are you sure?')){let c=[].slice.call(document.querySelectorAll('.pl-video-edit-remove')),iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;}c.pop().click();},200);}})();` ([source](https://gist.github.com/timothyarmstrong/10501804))
+Using [classic (disable-polymer=true) YouTube theme] ([source](https://gist.github.com/timothyarmstrong/10501804))
+
+`javascript:(function(){if(confirm('Remove all?')&&confirm('Are you sure?')){let c=[].slice.call(document.querySelectorAll('.pl-video-edit-remove')),iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;}c.pop().click();},200);}})();`
+
+Using [new YouTube theme](https://www.youtube.com/new)
+
+`javascript:(function(){if(confirm('Remove all?')&&confirm('Are you sure?')){for(c=[].slice.call(document.querySelectorAll('ytd-playlist-video-renderer')),i=c.length;i--;c[i]=c[i].firstElementChild.nextElementSibling.nextElementSibling.nextElementSibling.firstElementChild.firstElementChild.nextElementSibling);iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;};c.pop().click();setTimeout(()=>[].slice.call(document.querySelectorAll('ytd-menu-service-item-renderer'))[2].click(), 1);},400);}})();`
 
 ##### (Extra) Link to remove watched items from a youtube playlist (thanks to [saso5tr](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cy38z0f)):
 
 Same as above.
 
+Using [classic (disable-polymer=true) YouTube theme]
+
 `javascript:(function(){if(confirm('Remove all watched?')){for(c=[].slice.call(document.querySelectorAll('.resume-playback-background')),i=c.length;i--;c[i]=c[i].parentElement.parentElement.parentElement.querySelector('.pl-video-edit-remove'));iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;};c.pop().click();},400);}})();`
+
+Using [new YouTube theme](https://www.youtube.com/new)
+
+`javascript:(function(){if(confirm('Remove all watched?')){for(c=[].slice.call(document.querySelectorAll('ytd-thumbnail-overlay-resume-playback-renderer')),i=c.length;i--;c[i]=c[i].parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.firstElementChild.nextElementSibling.nextElementSibling.nextElementSibling.firstElementChild.firstElementChild.nextElementSibling);iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;};c.pop().click();setTimeout(()=>[].slice.call(document.querySelectorAll('ytd-menu-service-item-renderer'))[2].click(), 1);},400);}})();`
 
 # FAQ
 
