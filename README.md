@@ -95,7 +95,7 @@ Using [classic (disable-polymer=true) YouTube theme] ([source](https://gist.gith
 
 Using [new YouTube theme](https://www.youtube.com/new)
 
-`javascript:(function(){if(confirm('Remove all?')&&confirm('Are you sure?')){for(c=[].slice.call(document.querySelectorAll('ytd-playlist-video-renderer')),i=c.length;i--;c[i]=c[i].firstElementChild.nextElementSibling.nextElementSibling.nextElementSibling.firstElementChild.firstElementChild.nextElementSibling);iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;};c.pop().click();setTimeout(()=>[].slice.call(document.querySelectorAll('ytd-menu-service-item-renderer'))[2].click(), 1);},400);}})();`
+`javascript:(function(){if(confirm('Remove all?')&&confirm('Are you sure?')){for(c=[].slice.call(document.querySelectorAll('ytd-playlist-video-renderer')),i=c.length;i--;c[i]=c[i].firstElementChild.nextElementSibling.nextElementSibling.nextElementSibling.firstElementChild.firstElementChild.nextElementSibling);iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;};c.pop().click();setTimeout(()=>{d=[].slice.call(document.querySelectorAll('ytd-menu-service-item-renderer'));d[d.length-2].click()}, 1);},400);}})();`
 
 ##### (Extra) Link to remove watched items from a youtube playlist (thanks to [saso5tr](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cy38z0f)):
 
@@ -107,7 +107,7 @@ Using [classic (disable-polymer=true) YouTube theme]
 
 Using [new YouTube theme](https://www.youtube.com/new)
 
-`javascript:(function(){if(confirm('Remove all watched?')){for(c=[].slice.call(document.querySelectorAll('ytd-thumbnail-overlay-resume-playback-renderer')),i=c.length;i--;c[i]=c[i].parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.firstElementChild.nextElementSibling.nextElementSibling.nextElementSibling.firstElementChild.firstElementChild.nextElementSibling);iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;};c.pop().click();setTimeout(()=>[].slice.call(document.querySelectorAll('ytd-menu-service-item-renderer'))[2].click(), 1);},400);}})();`
+`javascript:(function(){if(confirm('Remove all watched?')){for(c=[].slice.call(document.querySelectorAll('ytd-thumbnail-overlay-resume-playback-renderer')),i=c.length;i--;c[i]=c[i].parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.firstElementChild.nextElementSibling.nextElementSibling.nextElementSibling.firstElementChild.firstElementChild.nextElementSibling);iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;};c.pop().click();setTimeout(()=>{d=[].slice.call(document.querySelectorAll('ytd-menu-service-item-renderer'));d[d.length-2].click()}, 1);},400);}})();`
 
 # FAQ
 
