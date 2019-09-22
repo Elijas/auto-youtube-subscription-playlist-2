@@ -67,7 +67,7 @@ function updatePlaylists(sheet) {
       else
         channelIds.push(channel);
     }
-    
+
     /// ...get videos from the channels...
     var videoIds = [];
     var lastTimestamp = sheet.getRange(reservedTimestampCell).getValue();
