@@ -158,6 +158,8 @@ A: See `Feedback` section below.
 
 # Feedback
 
+[Github Issue Board](https://github.com/Elijas/auto-youtube-subscription-playlist-2/issues)
+
 [Official Reddit Thread](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/)
 
 [Official Message Board](http://autoplaylistfeedback.boards.net/thread/2/general-thread)
