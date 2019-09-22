@@ -1,16 +1,3 @@
-[![issuehunt](./docs/issuehunt-button-v1.svg)](https://issuehunt.io/r/Elijas/auto-youtube-subscription-playlist-2)
-
-### Update on the project status
-This app still works, however I am not able to provide support and updates anymore. Feel free [buy me a cup of coffee](https://ko-fi.com/Z8Z311X7D) if you found the app useful. Although, I'd appreciate even more if you could help support other users and/or create pull requests for fixes and improvements!
-
-If you ran into problems, here are some of the possible sources for solutions:
-- Troubleshooting section at the end of this README
-- [Issues board in GitHub](https://github.com/Elijas/auto-youtube-subscription-playlist-2/issues)
-    - You can [put bounties](https://issuehunt.io/r/Elijas/auto-youtube-subscription-playlist-2) on issues too
-- Community support forum: [Official Message Board](http://autoplaylistfeedback.boards.net/thread/2/general-thread)
-- 3rd party copies of the project (Forks)
-    - If you'd like improve the code yourself: some issues were introduced with merges from 3rd party forks. Last commit before the merges can be found [here](https://github.com/Elijas/auto-youtube-subscription-playlist-2/blob/a53d0ea033d9a9aaf5e8832edfcffc10777701b3/sheetScript.gs)
-
 # Description 
 This is a Google Apps Script that automatically adds new Youtube videos to playlists (a replacement for Youtube Collections feature).
 
@@ -18,7 +5,7 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 
 [(Older version here)](https://github.com/Elijas/auto-youtube-subscription-playlist)
 
-# Features
+### Features
 1. Adds all new videos to Youtube playlists (uploaded later than some date)
 
   1.1. From ALL subscribed channels
@@ -32,6 +19,18 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 3. Optional - ability to deploy as a web app to update or show playlist.
 
 4. Optional - remove videos in the playlists that are older than a certain number of days before the execution of the script 
+
+# Where to get help
+
+[![issuehunt](./docs/issuehunt-button-v1.svg)](https://issuehunt.io/r/Elijas/auto-youtube-subscription-playlist-2)
+
+If you ran into problems, here are some of the possible sources for solutions:
+- Troubleshooting section at the end of this README
+- [Issues board in GitHub](https://github.com/Elijas/auto-youtube-subscription-playlist-2/issues)
+    - You can [put bounties](https://issuehunt.io/r/Elijas/auto-youtube-subscription-playlist-2) on issues too
+- Community support forum: [Official Message Board](http://autoplaylistfeedback.boards.net/thread/2/general-thread)
+- 3rd party copies of the project (Forks)
+    - If you'd like improve the code yourself: some issues were introduced with merges from 3rd party forks. Last commit before the merges can be found [here](https://github.com/Elijas/auto-youtube-subscription-playlist-2/blob/a53d0ea033d9a9aaf5e8832edfcffc10777701b3/sheetScript.gs)
 
 # Set-up Instructions
 1. [Copy](http://bit.ly/subscriptionPlaylistsCopy) the Sheet to your Google Drive. 
