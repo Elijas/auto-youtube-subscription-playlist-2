@@ -6,9 +6,7 @@
 
 
 function doGet(e) {
-    // url = https://docs.google.com/spreadsheets/d/XXXXXXXXXX/edit#gid=0
-    var sheetID = 'XXXXXXXXXX';  // Paste the Sheet ID here, it's the long string in the Sheet URL
-
+    var sheetID = PropertiesService.getScriptProperties().getProperty("sheetID");
     if (e.parameter.update == "True") {
         var sheet = SpreadsheetApp.openById(sheetID).getSheets()[0];
         updatePlaylists(sheet);
@@ -21,8 +19,10 @@ function doGet(e) {
 }
 
 function updatePlaylists(sheet) {
-  if (!sheet || !sheet.toString || sheet.toString() != 'Sheet') sheet = SpreadsheetApp.openById('XXXXXXXXXX').getSheets()[0]; // Hotfix, Paste the Sheet ID here, it's the long string in the Sheet URL
-  var MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
+  var sheetID = PropertiesService.getScriptProperties().getProperty("sheetID")
+  if (!sheetID) onOpen()
+  if (!sheet || !sheet.toString || sheet.toString() != 'Sheet') sheet = SpreadsheetApp.openById(sheetId).getSheets()[0];
+  const MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
   var data = sheet.getDataRange().getValues();
   var reservedTableRows = 3; // Start of the range of the PlaylistID+ChannelID data
   var reservedTableColumns = 2; // Start of the range of the ChannelID data
@@ -319,6 +319,10 @@ function ISODateString(d) { // modified from src: http://stackoverflow.com/quest
 
 function onOpen() {
   SpreadsheetApp.getActiveSpreadsheet().addMenu("Functions", [{name: "Update Playlists", functionName: "insideUpdate"}]);
+  var ss = SpreadsheetApp.getActiveSpreadsheet()
+  var sheet = ss.getSheets()[0]
+  if (!sheet || sheet.getRange("A3").getValue() !== "Playlist ID") throw new Error("Cannot find playlist sheet, make sure the sheet with playlist IDs and channels is the first sheet (leftmost)")
+  PropertiesService.getScriptProperties().setProperty("sheetID", ss.getId())
 }
 
 function insideUpdate(){
