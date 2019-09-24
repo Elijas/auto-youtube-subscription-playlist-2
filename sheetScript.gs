@@ -81,13 +81,11 @@ function updatePlaylists(sheet) {
     for (var i = 0; i < channelIds.length; i++) {
       var newVideoIds = getVideoIds(channelIds[i], lastTimestamp)
       if (!newVideoIds || typeof(newVideoIds) !== "object") Logger.log("Failed to get videos with channel id "+channelIds[i])
-      else if (newVideoIds.length === 0 && debugFlag_logWhenNoNewVideosFound) Logger.log("No videos added for channel with id "+channelIds[i])
       else [].push.apply(videoIds, newVideoIds); // Append new videoIds array to the original one
     }
     for (var i = 0; i < playlistIds.length; i++) {
       var newVideoIds = getVideoIds(playlistIds[i], lastTimestamp)
       if (!newVideoIds || typeof(newVideoIds) !== "object") Logger.log("Failed to get videos with playlist id "+playlistIds[i])
-      else if (newVideoIds.length === 0 && debugFlag_logWhenNoNewVideosFound) Logger.log("No videos added for playlist with id "+playlistIds[i])
       else [].push.apply(videoIds, newVideoIds);
     }
 
@@ -135,6 +133,18 @@ function updatePlaylists(sheet) {
 
 function getVideoIds(channelId, lastTimestamp) {
   var videoIds = [];
+  
+  // Check Channel validity
+  var results = YouTube.Channels.list('id', {
+    id: channelId
+  });
+  if (!results || !results.items) {
+    Logger.log("YouTube channel search returned invalid response for channel with id "+channelId)
+    return []
+  } else if (results.items.length === 0) {
+    Logger.log("Cannot find channel with id "+channelId)
+    return []
+  }
 
   // First call
   try {
@@ -146,7 +156,7 @@ function getVideoIds(channelId, lastTimestamp) {
       publishedAfter: lastTimestamp
     });
     if (!results || !results.items) {
-      Logger.log("Cannot find channel with id "+channelId)
+      Logger.log("YouTube video search returned invalid response for channel with id "+channelId)
       return []
     } else if (results.items.length === 0) {
       if (debugFlag_logWhenNoNewVideosFound) {
@@ -176,8 +186,8 @@ function getVideoIds(channelId, lastTimestamp) {
         publishedAfter: lastTimestamp,
         pageToken: nextPageToken
       });
-      if (!results) {
-        Logger.log("Cannot find channel with id "+channelId)
+      if (!results || !results.items) {
+        Logger.log("YouTube video search returned invalid response for channel with id "+channelId)
         return []
       } else if (results.items.length === 0) {
         if (debugFlag_logWhenNoNewVideosFound) {
@@ -203,6 +213,18 @@ function getVideoIds(channelId, lastTimestamp) {
 
 function getPlaylistVideoIds(playlistId, lastTimestamp) {
   var videoIds = [];
+  
+  // Check Playlist validity
+  var results = YouTube.Playlists.list('id', {
+    id: playlistId
+  });
+  if (!results || !results.items) {
+    Logger.log("YouTube channel search returned invalid response for playlist with id "+playlistId)
+    return []
+  } else if (results.items.length === 0) {
+    Logger.log("Cannot find playlist with id "+playlistId)
+    return []
+  }
 
   var nextPageToken = '';
   while (nextPageToken != null){
@@ -213,9 +235,10 @@ function getPlaylistVideoIds(playlistId, lastTimestamp) {
         maxResults: 50,
         order: "date",
         publishedAfter: lastTimestamp,
-        pageToken: nextPageToken});
-      if (!results) {
-        Logger.log("Cannot find playlist with id "+playlistId)
+        pageToken: nextPageToken
+      });
+      if (!results || !results.items) {
+        Logger.log("YouTube playlist search returned invalid response for playlist with id "+playlistId)
         break
       } else if (results.items.length === 0) {
         if (debugFlag_logWhenNoNewViwdeosFound) {
