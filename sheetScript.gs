@@ -5,9 +5,9 @@
 // MAYBE TODO: NOT flags to include videos that are NOT from certain channels / do not contain text, etc
 
 var errorflag = false;
-const debugFlag_dontUpdateTimestamp = false;
-const debugFlag_dontUpdatePlaylists = false;
-const debugFlag_logWhenNoNewVideosFound = true;
+var debugFlag_dontUpdateTimestamp = false;
+var debugFlag_dontUpdatePlaylists = false;
+var debugFlag_logWhenNoNewVideosFound = false;
 
 function doGet(e) {
     var sheetID = PropertiesService.getScriptProperties().getProperty("sheetID");
@@ -25,7 +25,7 @@ function doGet(e) {
 function updatePlaylists(sheet) {
   const sheetID = PropertiesService.getScriptProperties().getProperty("sheetID")
   if (!sheetID) onOpen()
-  if (!sheet || !sheet.toString || sheet.toString() != 'Sheet') sheet = SpreadsheetApp.openById(sheetId).getSheets()[0];
+  if (!sheet || !sheet.toString || sheet.toString() != 'Sheet') sheet = SpreadsheetApp.openById(sheetID).getSheets()[0];
   const MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
   const data = sheet.getDataRange().getValues();
   const reservedTableRows = 3; // Start of the range of the PlaylistID+ChannelID data
@@ -54,7 +54,7 @@ function updatePlaylists(sheet) {
       else if (channel == "ALL") {
         var newChannelIds = getAllChannelIds();
         if (!newChannelIds || newChannelIds.length === 0) Logger.log("Could not find any subscriptions")
-        else channelIds.push(...newChannelIds);
+        else [].push.apply(channelIds, newChannelIds);
       } else if (channel.substring(0,2) == "PL" && channel.length > 10)  // Add videos from playlist. MaybeTODO: better validation, since might interpret a channel with a name "PL..." as a playlist ID
          playlistIds.push(channel);
       else if (!(channel.substring(0,2) == "UC" && channel.length > 10)) // Check if it is not a channel ID (therefore a username). MaybeTODO: do a better validation, since might interpret a channel with a name "UC..." as a channel ID
@@ -67,7 +67,7 @@ function updatePlaylists(sheet) {
           else if (!channel.items[0].id) Logger.log("Cannot get id from this channel")
           else channelIds.push(channel.items[0].id);
         } catch (e) {
-          Logger.log("ERROR: " + e.message);
+          Logger.log("Cannot search for channels, ERROR: " + e.message);
           continue;
         }
       }
@@ -82,13 +82,13 @@ function updatePlaylists(sheet) {
       var newVideoIds = getVideoIds(channelIds[i], lastTimestamp)
       if (!newVideoIds || typeof(newVideoIds) !== "object") Logger.log("Failed to get videos with channel id "+channelIds[i])
       else if (newVideoIds.length === 0 && debugFlag_logWhenNoNewVideosFound) Logger.log("No videos added for channel with id "+channelIds[i])
-      else videoIds.push(...newVideoIds); // Add new videos to array
+      else [].push.apply(videoIds, newVideoIds); // Append new videoIds array to the original one
     }
     for (var i = 0; i < playlistIds.length; i++) {
       var newVideoIds = getVideoIds(playlistIds[i], lastTimestamp)
       if (!newVideoIds || typeof(newVideoIds) !== "object") Logger.log("Failed to get videos with playlist id "+playlistIds[i])
       else if (newVideoIds.length === 0 && debugFlag_logWhenNoNewVideosFound) Logger.log("No videos added for playlist with id "+playlistIds[i])
-      else videoIds.push(...newVideoIds);
+      else [].push.apply(videoIds, newVideoIds);
     }
 
     //causes only first line to be updated
@@ -109,7 +109,7 @@ function updatePlaylists(sheet) {
             }, 'snippet,contentDetails'
           );
         } catch (e) {
-          Logger.log("Couldn't update playlist, ERROR: " + e.message);
+          Logger.log("Couldn't update playlist with video "+videoIds[i]+", ERROR: " + e.message);
           var errorflag = true;
           continue;
         }
