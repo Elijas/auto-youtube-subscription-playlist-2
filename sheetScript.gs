@@ -25,7 +25,8 @@ function doGet(e) {
 function updatePlaylists(sheet) {
   const sheetID = PropertiesService.getScriptProperties().getProperty("sheetID")
   if (!sheetID) onOpen()
-  if (!sheet || !sheet.toString || sheet.toString() != 'Sheet') sheet = SpreadsheetApp.openById(sheetID).getSheets()[0];
+  const spreadsheet = SpreadsheetApp.openById(sheetID)
+  if (!sheet || !sheet.toString || sheet.toString() != 'Sheet') sheet = spreadsheet.getSheets()[0];
   const MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
   const data = sheet.getDataRange().getValues();
   const reservedTableRows = 3; // Start of the range of the PlaylistID+ChannelID data
@@ -129,22 +130,34 @@ function updatePlaylists(sheet) {
     
   }
   if (!debugFlag_dontUpdateTimestamp && !errorflag) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date())); // Update timestamp
+  
+  // Prints logs to Debug sheet
+  var debugSheet = spreadsheet.getSheetByName("Debug")
+  if (!debugSheet) debugSheet = spreadsheet.insertSheet("Debug")
+  var newLogs = Logger.getLog().split("\n").slice(0, -1).map(function(log) {return log.split(" INFO: ")})
+  if (newLogs.length > 0) debugSheet.clear().getRange(1, 1, newLogs.length, 2).setValues(newLogs)
 }
 
 function getVideoIds(channelId, lastTimestamp) {
   var videoIds = [];
   
-  // Check Channel validity
-  var results = YouTube.Channels.list('id', {
-    id: channelId
-  });
-  if (!results || !results.items) {
-    Logger.log("YouTube channel search returned invalid response for channel with id "+channelId)
-    return []
-  } else if (results.items.length === 0) {
-    Logger.log("Cannot find channel with id "+channelId)
-    return []
+  try {
+    // Check Channel validity
+    var results = YouTube.Channels.list('id', {
+      id: channelId
+    });
+    if (!results || !results.items) {
+      Logger.log("YouTube channel search returned invalid response for channel with id "+channelId)
+      return []
+    } else if (results.items.length === 0) {
+      Logger.log("Cannot find channel with id "+channelId)
+      return []
+    }
+  } catch (e) {
+    Logger.log("Cannot lookup channel on YouTube, ERROR: " + e.message);
+    return [];
   }
+
 
   // First call
   try {
