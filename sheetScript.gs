@@ -19,9 +19,9 @@ function doGet(e) {
 }
 
 function updatePlaylists(sheet) {
-  var sheetID = PropertiesService.getScriptProperties().getProperty("sheetID")
+  var sheetID = PropertiesService.getScriptProperties().getProperty("sheetID");
   if (!sheetID) onOpen()
-  if (!sheet || !sheet.toString || sheet.toString() != 'Sheet') sheet = SpreadsheetApp.openById(sheetId).getSheets()[0];
+  if (!sheet || !sheet.toString || sheet.toString() != 'Sheet') sheet = SpreadsheetApp.openById(sheetID).getSheets()[0];
   const MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
   var data = sheet.getDataRange().getValues();
   var reservedTableRows = 3; // Start of the range of the PlaylistID+ChannelID data
