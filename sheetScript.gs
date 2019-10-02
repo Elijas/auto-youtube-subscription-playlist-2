@@ -23,16 +23,10 @@ function doGet(e) {
 }
 
 function updatePlaylists(sheet) {
-<<<<<<< HEAD
   const sheetID = PropertiesService.getScriptProperties().getProperty("sheetID")
   if (!sheetID) onOpen()
   const spreadsheet = SpreadsheetApp.openById(sheetID)
   if (!sheet || !sheet.toString || sheet.toString() != 'Sheet') sheet = spreadsheet.getSheets()[0];
-=======
-  var sheetID = PropertiesService.getScriptProperties().getProperty("sheetID");
-  if (!sheetID) onOpen()
-  if (!sheet || !sheet.toString || sheet.toString() != 'Sheet') sheet = SpreadsheetApp.openById(sheetID).getSheets()[0];
->>>>>>> master
   const MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
   const data = sheet.getDataRange().getValues();
   const reservedTableRows = 3; // Start of the range of the PlaylistID+ChannelID data
