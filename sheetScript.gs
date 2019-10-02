@@ -89,7 +89,9 @@ function updatePlaylists(sheet) {
       if (!newVideoIds || typeof(newVideoIds) !== "object") Logger.log("Failed to get videos with playlist id "+playlistIds[i])
       else [].push.apply(videoIds, newVideoIds);
     }
-
+    
+    Logger.log("Acquired "+videoIds.length+" videos ")
+    
     //causes only first line to be updated
     //if (!debugFlag_dontUpdateTimestamp) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date())); // Update timestamp
 
@@ -108,14 +110,16 @@ function updatePlaylists(sheet) {
             }, 'snippet,contentDetails'
           );
         } catch (e) {
-          Logger.log("Couldn't update playlist with video "+videoIds[i]+", ERROR: " + e.message);
+          Logger.log("Couldn't update playlist with video ("+videoIds[i]+"), ERROR: " + e.message);
           var errorflag = true;
           continue;
         }
 
         Utilities.sleep(1000);
       }
+      Logger.log("Added "+i+" videos to playlist")
     } else {
+      Logger.log("More than 200 videos are to be added, script cannot add this many.")
       var errorflag = true;
     }
     
@@ -129,13 +133,15 @@ function updatePlaylists(sheet) {
     deletePlaylistItems(playlistId, deleteBeforeTimestamp);
     
   }
-  if (!debugFlag_dontUpdateTimestamp && !errorflag) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date())); // Update timestamp
   
   // Prints logs to Debug sheet
   var debugSheet = spreadsheet.getSheetByName("Debug")
   if (!debugSheet) debugSheet = spreadsheet.insertSheet("Debug")
   var newLogs = Logger.getLog().split("\n").slice(0, -1).map(function(log) {return log.split(" INFO: ")})
   if (newLogs.length > 0) debugSheet.clear().getRange(1, 1, newLogs.length, 2).setValues(newLogs)
+
+  if (errorflag) throw new Error("One or more videos was not added to playlist correctly, please check Debug sheet. Timestamp has not been updated.")
+  if (!debugFlag_dontUpdateTimestamp) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date())); // Update timestamp
 }
 
 function getVideoIds(channelId, lastTimestamp) {
@@ -184,6 +190,13 @@ function getVideoIds(channelId, lastTimestamp) {
 
   for (var j = 0; j < results.items.length; j++) {
     var item = results.items[j];
+    if (!item.id) {
+      Logger.log("YouTube search result ("+item+") doesn't have id")
+      continue
+    } else if (!item.id.videoId) {
+      Logger.log("YouTube search result ("+item+") doesn't have videoId")
+      continue
+    }
     videoIds.push(item.id.videoId);
   }
 
@@ -215,6 +228,13 @@ function getVideoIds(channelId, lastTimestamp) {
 
     for (var j = 0; j < results.items.length; j++) {
       var item = results.items[j];
+      if (!item.id) {
+        Logger.log("YouTube search result ("+item+") doesn't have id")
+        continue
+      } else if (!item.id.videoId) {
+        Logger.log("YouTube search result ("+item+") doesn't have videoId")
+        continue
+      }
       videoIds.push(item.id.videoId);
     }
 
