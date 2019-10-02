@@ -96,6 +96,7 @@ function updatePlaylists(sheet) {
     //if (!debugFlag_dontUpdateTimestamp) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date())); // Update timestamp
 
     /// ...add videos to the playlist
+    var j = 0;
     if (!debugFlag_dontUpdatePlaylists && videoIds.length < 200) {
       for (var i = 0; i < videoIds.length; i++) {
         try {
@@ -111,13 +112,15 @@ function updatePlaylists(sheet) {
           );
         } catch (e) {
           Logger.log("Couldn't update playlist with video ("+videoIds[i]+"), ERROR: " + e.message);
+          j += 1;
           var errorflag = true;
           continue;
         }
 
         Utilities.sleep(1000);
       }
-      Logger.log("Added "+i+" videos to playlist")
+      i -= j;
+      Logger.log("Found "+videoIds.length+" videos and added "+i+" videos to playlist. Error for "+j+" videos.")
     } else {
       Logger.log("More than 200 videos are to be added, script cannot add this many.")
       var errorflag = true;
