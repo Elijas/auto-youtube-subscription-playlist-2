@@ -82,11 +82,17 @@ function updatePlaylists(sheet) {
     for (var i = 0; i < channelIds.length; i++) {
       var newVideoIds = getVideoIds(channelIds[i], lastTimestamp)
       if (!newVideoIds || typeof(newVideoIds) !== "object") Logger.log("Failed to get videos with channel id "+channelIds[i])
+      if (debugFlag_logWhenNoNewVideosFound && newVideoIds.length === 0) {
+        Logger.log("Channel with id "+channelIds[i]+" has no new videos")
+      }
       else [].push.apply(videoIds, newVideoIds); // Append new videoIds array to the original one
     }
     for (var i = 0; i < playlistIds.length; i++) {
       var newVideoIds = getVideoIds(playlistIds[i], lastTimestamp)
       if (!newVideoIds || typeof(newVideoIds) !== "object") Logger.log("Failed to get videos with playlist id "+playlistIds[i])
+      if (debugFlag_logWhenNoNewVideosFound && newVideoIds.length === 0) {
+        Logger.log("Playlist with id "+playlistIds[i]+" has no new videos")
+      }
       else [].push.apply(videoIds, newVideoIds);
     }
     
@@ -179,11 +185,6 @@ function getVideoIds(channelId, lastTimestamp) {
     if (!results || !results.items) {
       Logger.log("YouTube video search returned invalid response for channel with id "+channelId)
       return []
-    } else if (results.items.length === 0) {
-      if (debugFlag_logWhenNoNewVideosFound) {
-        Logger.log("Channel with id "+channelId+" has no new videos")
-      }
-      return []
     }
   } catch (e) {
     Logger.log("Cannot search YouTube, ERROR: " + e.message);
@@ -217,11 +218,6 @@ function getVideoIds(channelId, lastTimestamp) {
       if (!results || !results.items) {
         Logger.log("YouTube video search returned invalid response for channel with id "+channelId)
         return []
-      } else if (results.items.length === 0) {
-        if (debugFlag_logWhenNoNewVideosFound) {
-          Logger.log("Channel with id "+channelId+" has no new videos")
-        }
-        break
       }
     } catch (e) {
       Logger.log("Cannot search YouTube, ERROR: " + e.message);
@@ -275,15 +271,9 @@ function getPlaylistVideoIds(playlistId, lastTimestamp) {
       if (!results || !results.items) {
         Logger.log("YouTube playlist search returned invalid response for playlist with id "+playlistId)
         break
-      } else if (results.items.length === 0) {
-        if (debugFlag_logWhenNoNewViwdeosFound) {
-          Logger.log("Playlist with id "+playlistId+" has no new videos")
-        }
-        break
       }
     } catch (e) {
       Logger.log("Cannot search YouTube, ERROR: " + e.message);
-      nextPageToken = null;
       break
     }
 
