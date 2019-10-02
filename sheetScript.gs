@@ -120,7 +120,7 @@ function updatePlaylists(sheet) {
         Utilities.sleep(1000);
       }
       i -= j;
-      Logger.log("Found "+videoIds.length+" videos and added "+i+" videos to playlist. Error for "+j+" videos.")
+      Logger.log("Added "+i+" videos to playlist. Error for "+j+" videos.")
     } else {
       Logger.log("More than 200 videos are to be added, script cannot add this many.")
       var errorflag = true;
