@@ -121,7 +121,7 @@ function updatePlaylists(sheet) {
       }
       Logger.log("Added "+(i -= errorCount)+" videos to playlist. Error for "+errorCount+" videos.")
     } else {
-      Logger.log("More than 200 videos are to be added, script cannot add this many.")
+      Logger.log("The query contains "+videoIds.length+" videos. Script cannot add more than 200 videos. Try moving the timestamp closer to today.")
       var errorflag = true;
     }
     
@@ -142,7 +142,7 @@ function updatePlaylists(sheet) {
   var newLogs = Logger.getLog().split("\n").slice(0, -1).map(function(log) {return log.split(" INFO: ")})
   if (newLogs.length > 0) debugSheet.clear().getRange(1, 1, newLogs.length, 2).setValues(newLogs)
 
-  if (errorflag) throw new Error("One or more videos was not added to playlist correctly, please check Debug sheet. Timestamp has not been updated.")
+  if (errorflag) throw new Error(errorCount+" videos were not added to playlist correctly, please check Debug sheet. Timestamp has not been updated.")
   if (!debugFlag_dontUpdateTimestamp) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date())); // Update timestamp
 }
 
@@ -225,7 +225,7 @@ function getVideoIds(channelId, lastTimestamp) {
       }
     } catch (e) {
       Logger.log("Cannot search YouTube, ERROR: " + e.message);
-      break;
+      return [];
     }
 
     for (var j = 0; j < results.items.length; j++) {
@@ -277,7 +277,7 @@ function getPlaylistVideoIds(playlistId, lastTimestamp) {
         break
       } else if (results.items.length === 0) {
         if (debugFlag_logWhenNoNewViwdeosFound) {
-          Logger.log("Playlist with id "+playlistIdw+" has no new videos")
+          Logger.log("Playlist with id "+playlistId+" has no new videos")
         }
         break
       }
@@ -320,7 +320,7 @@ function getAllChannelIds() { // get YT Subscriptions-List, src: https://www.red
       nptPage += 1;
     } while (AboResponse.items.length > 0 && nptPage < 20);
     if (AboList[0].length !== AboList[1].length) {
-      Logger.log('Length of Titles != Length of ChannelIds'); // returns a string === error
+      Logger.log("While getting subscriptions, the number of titles ("+AboList[0].length+") did not match the number of channels ("+AboList[1].length+")."); // returns a string === error
       return []
     }
   } catch (e) {
@@ -356,7 +356,7 @@ function deletePlaylistItems(playlistId, deleteBeforeTimestamp) {
       nextPageToken = results.nextPageToken;
 
     } catch (e) {
-      Logger.log("ERROR: " + e.message);
+      Logger.log("Problem deleting existing videos from Playlist ("+playlistId+"), ERROR: " + e.message);
       nextPageToken = null;
     }
   }
