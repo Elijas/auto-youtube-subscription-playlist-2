@@ -225,7 +225,7 @@ function getVideoIds(channelId, lastTimestamp) {
       }
     } catch (e) {
       Logger.log("Cannot search YouTube, ERROR: " + e.message);
-      return [];
+      break;
     }
 
     for (var j = 0; j < results.items.length; j++) {
