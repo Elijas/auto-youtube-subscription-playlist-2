@@ -65,7 +65,7 @@ function updatePlaylists(sheet) {
           if (!user || !user.items) Logger.log("Cannot query for user " + channel)
           else if (user.items.length === 0) Logger.log("No user with name " + channel)
           else if (user.items.length !== 1) Logger.log("Multiple users with name " + channel)
-          else if (!user.items[0].id) Logger.log("Cannot get id from user" + channel)
+          else if (!user.items[0].id) Logger.log("Cannot get id from user " + channel)
           else channelIds.push(user.items[0].id);
         } catch (e) {
           Logger.log("Cannot search for channels, ERROR: " + e.message);
