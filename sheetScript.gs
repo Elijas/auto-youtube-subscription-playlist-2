@@ -10,7 +10,7 @@ const debugFlag_dontUpdatePlaylists = false;
 const debugFlag_logWhenNoNewVideosFound = false;
 
 function doGet(e) {
-    var sheetID = PropertiesService.getScriptProperties().getProperty("sheetID");
+    const sheetID = PropertiesService.getScriptProperties().getProperty("sheetID");
     if (e.parameter.update == "True") {
         var sheet = SpreadsheetApp.openById(sheetID).getSheets()[0];
         updatePlaylists(sheet);
