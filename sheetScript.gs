@@ -61,12 +61,12 @@ function updatePlaylists(sheet) {
       else if (!(channel.substring(0,2) == "UC" && channel.length > 10)) // Check if it is not a channel ID (therefore a username). MaybeTODO: do a better validation, since might interpret a channel with a name "UC..." as a channel ID
       {
         try {
-          var channel = YouTube.Channels.list('id', {forUsername: channel, maxResults: 1});
-          if (!channel || !channel.items) Logger.log("Cannot query for channel")
-          else if (channel.items.length === 0) Logger.log("No channel with this name")
-          else if (channel.items.length !== 1) Logger.log("Multiple channels with this name")
-          else if (!channel.items[0].id) Logger.log("Cannot get id from this channel")
-          else channelIds.push(channel.items[0].id);
+          var user = YouTube.Channels.list('id', {forUsername: channel, maxResults: 1});
+          if (!user || !user.items) Logger.log("Cannot query for user " + channel)
+          else if (user.items.length === 0) Logger.log("No user with name " + channel)
+          else if (user.items.length !== 1) Logger.log("Multiple users with name " + channel)
+          else if (!user.items[0].id) Logger.log("Cannot get id from user " + channel)
+          else channelIds.push(user.items[0].id);
         } catch (e) {
           Logger.log("Cannot search for channels, ERROR: " + e.message);
           continue;
