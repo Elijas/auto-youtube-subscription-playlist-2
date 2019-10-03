@@ -155,24 +155,6 @@ function updatePlaylists(sheet) {
 function getVideoIds(channelId, lastTimestamp) {
   var videoIds = [];
   
-  try {
-    // Check Channel validity
-    var results = YouTube.Channels.list('id', {
-      id: channelId
-    });
-    if (!results || !results.items) {
-      Logger.log("YouTube channel search returned invalid response for channel with id "+channelId)
-      return []
-    } else if (results.items.length === 0) {
-      Logger.log("Cannot find channel with id "+channelId)
-      return []
-    }
-  } catch (e) {
-    Logger.log("Cannot lookup channel on YouTube, ERROR: " + e.message);
-    return [];
-  }
-
-
   // First call
   try {
 
@@ -239,23 +221,30 @@ function getVideoIds(channelId, lastTimestamp) {
     nextPageToken = results.nextPageToken;
   }
 
+  if (videoIds.length === 0) {
+    try {
+      // Check Channel validity
+      var results = YouTube.Channels.list('id', {
+        id: channelId
+      });
+      if (!results || !results.items) {
+        Logger.log("YouTube channel search returned invalid response for channel with id "+channelId)
+        return []
+      } else if (results.items.length === 0) {
+        Logger.log("Cannot find channel with id "+channelId)
+        return []
+      }
+    } catch (e) {
+      Logger.log("Cannot lookup channel on YouTube, ERROR: " + e.message);
+      return [];
+    }
+  }
+
   return videoIds;
 }
 
 function getPlaylistVideoIds(playlistId, lastTimestamp) {
   var videoIds = [];
-  
-  // Check Playlist validity
-  var results = YouTube.Playlists.list('id', {
-    id: playlistId
-  });
-  if (!results || !results.items) {
-    Logger.log("YouTube channel search returned invalid response for playlist with id "+playlistId)
-    return []
-  } else if (results.items.length === 0) {
-    Logger.log("Cannot find playlist with id "+playlistId)
-    return []
-  }
 
   var nextPageToken = '';
   while (nextPageToken != null){
@@ -284,6 +273,25 @@ function getPlaylistVideoIds(playlistId, lastTimestamp) {
     }
 
     nextPageToken = results.nextPageToken;
+  }
+
+  if (videoIds.length === 0) {
+    try {
+      // Check Playlist validity
+      var results = YouTube.Playlists.list('id', {
+        id: playlistId
+      });
+      if (!results || !results.items) {
+        Logger.log("YouTube channel search returned invalid response for playlist with id "+playlistId)
+        return []
+      } else if (results.items.length === 0) {
+        Logger.log("Cannot find playlist with id "+playlistId)
+        return []
+      }
+    } catch (e) {
+      Logger.log("Cannot lookup playlist on YouTube, ERROR: " + e.message);
+      return [];
+    }
   }
 
   return videoIds;
