@@ -4,10 +4,10 @@
 // MAYBE TODO: Filtering based on text (regexp?) in title and description
 // MAYBE TODO: NOT flags to include videos that are NOT from certain channels / do not contain text, etc
 
-var errorflag = false;
-var debugFlag_dontUpdateTimestamp = false;
-var debugFlag_dontUpdatePlaylists = false;
-var debugFlag_logWhenNoNewVideosFound = false;
+const errorflag = false;
+const debugFlag_dontUpdateTimestamp = false;
+const debugFlag_dontUpdatePlaylists = false;
+const debugFlag_logWhenNoNewVideosFound = false;
 
 function doGet(e) {
     var sheetID = PropertiesService.getScriptProperties().getProperty("sheetID");
