@@ -23,16 +23,16 @@ function doGet(e) {
 }
 
 function updatePlaylists(sheet) {
-  const sheetID = PropertiesService.getScriptProperties().getProperty("sheetID")
+  var sheetID = PropertiesService.getScriptProperties().getProperty("sheetID")
   if (!sheetID) onOpen()
-  const spreadsheet = SpreadsheetApp.openById(sheetID)
+  var spreadsheet = SpreadsheetApp.openById(sheetID)
   if (!sheet || !sheet.toString || sheet.toString() != 'Sheet') sheet = spreadsheet.getSheets()[0];
-  const MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
-  const data = sheet.getDataRange().getValues();
-  const reservedTableRows = 3; // Start of the range of the PlaylistID+ChannelID data
-  const reservedTableColumns = 2; // Start of the range of the ChannelID data
-  const reservedDeleteDaysColumn = 1; // Column containing number of days before today until videos get deleted
-  const reservedTimestampCell = "F1";
+  var MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
+  var data = sheet.getDataRange().getValues();
+  var reservedTableRows = 3; // Start of the range of the PlaylistID+ChannelID data
+  var reservedTableColumns = 2; // Start of the range of the ChannelID data
+  var reservedDeleteDaysColumn = 1; // Column containing number of days before today until videos get deleted
+  var reservedTimestampCell = "F1";
   //if (!sheet.getRange(reservedTimestampCell).getValue()) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date()));
   if (!sheet.getRange(reservedTimestampCell).getValue()) {
     var date = new Date();
