@@ -36,17 +36,7 @@ If you ran into problems, here are some of the possible sources for solutions:
 1. [Copy](http://bit.ly/subscriptionPlaylistsCopy) the Sheet to your Google Drive. 
    Afterwards you might want to update the script to the latest version of sheetScript.gs
 
-2. Allow the Sheets to access Youtube:
-  - Open the `Script Editor` (in menu: `Tools` / `Script Editor...`) of the Sheet
-      - In menu: `Resources` / `Advanced Google Services`
-      - Scroll down and make sure `YouTube Data API` is enabled
-      - Then, `Google Developers Console` / `Youtube Data API` / `Enable API`, close the tab, go back to Script Editor and click `OK`
-      - Continue only after the yellow `Updating Google Services` box disappears in the top of the Script Editor
-  - Close the Developers Console and Script Editor, open the Sheet again
-      - In menu: `Functions` / `Update Playlists`
-      - Grant access in the dialog
-
-3. Setup your playlists and channels (white cells in the Sheet):
+2. Setup your playlists and channels (white cells in the Sheet):
   - Clear all existing white rows, they are just examples (i.e. delete the 3 rows).
   - For each new playlist you want to use:
     - In a new row:
@@ -58,6 +48,10 @@ If you ran into problems, here are some of the possible sources for solutions:
       - Playlist ID (last part (after `?list=` in `https://www.youtube.com/playlist?list=PLd0LhgZxFkVKh_JNXcdHoPYo832Wu9fub`)
       - `ALL`, to add all new videos from all of your subscriptions
     - Optionally add a number of days in the grey column (B). Videos in the playlist that have been published that many days before are going to be removed from the playlist.
+
+3. Run the script:
+      - In Sheet's menu: `Functions` / `Update Playlists`
+      - Grant access in the dialog
 
 # Usage
 
@@ -147,6 +141,14 @@ A: See https://stackoverflow.com/a/48912679/1544154 (thanks to [LPanic](https://
 ##### Q: I get this error: `TypeError: Cannot read property "items" from undefined. (line 169, file "Code")`
 
 A: If it only happens sometimes, it can be safely ignored, the next round will work normal again. If it happens on every execution, check your playlist and channel IDs. The script stops working if any of your playlists or channels doesn't exist, for example because it was deleted.
+
+##### Q: I get `Quota` or `Cannot (Search) YouTube` errors
+
+A: Make sure the sheet can access YouTube's API:
+  - Open the `Script Editor` (in menu: `Tools` / `Script Editor...`) of the Sheet
+      - In menu: `Resources` / `Advanced Google Services`
+      - Scroll down and make sure `YouTube Data API` is enabled
+  - Close the Developers Console and Script Editor, open the Sheet again
 
 ##### Q: I want to experiment with the error further
 
