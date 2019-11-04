@@ -68,7 +68,7 @@ function updatePlaylists(sheet) {
           else if (!user.items[0].id) Logger.log("Cannot get id from user " + channel)
           else channelIds.push(user.items[0].id);
         } catch (e) {
-          Logger.log("Cannot search for channels, ERROR: " + e.message);
+          Logger.log("Cannot search for channels, ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
           continue;
         }
       }
@@ -117,7 +117,7 @@ function updatePlaylists(sheet) {
             }, 'snippet,contentDetails'
           );
         } catch (e) {
-          Logger.log("Couldn't update playlist with video ("+videoIds[i]+"), ERROR: " + e.message);
+          Logger.log("Couldn't update playlist with video ("+videoIds[i]+"), ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
           errorCount += 1;
           var errorflag = true;
           continue;
@@ -169,7 +169,7 @@ function getVideoIds(channelId, lastTimestamp) {
       return []
     }
   } catch (e) {
-    Logger.log("Cannot search YouTube, ERROR: " + e.message);
+    Logger.log("Cannot search YouTube, ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
     return [];
   }
 
@@ -202,7 +202,7 @@ function getVideoIds(channelId, lastTimestamp) {
         return []
       }
     } catch (e) {
-      Logger.log("Cannot search YouTube, ERROR: " + e.message);
+      Logger.log("Cannot search YouTube, ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
       break;
     }
 
@@ -235,7 +235,7 @@ function getVideoIds(channelId, lastTimestamp) {
         return []
       }
     } catch (e) {
-      Logger.log("Cannot lookup channel on YouTube, ERROR: " + e.message);
+      Logger.log("Cannot lookup channel on YouTube, ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
       return [];
     }
   }
@@ -262,7 +262,7 @@ function getPlaylistVideoIds(playlistId, lastTimestamp) {
         break
       }
     } catch (e) {
-      Logger.log("Cannot search YouTube, ERROR: " + e.message);
+      Logger.log("Cannot search YouTube, ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
       break
     }
 
@@ -289,7 +289,7 @@ function getPlaylistVideoIds(playlistId, lastTimestamp) {
         return []
       }
     } catch (e) {
-      Logger.log("Cannot lookup playlist on YouTube, ERROR: " + e.message);
+      Logger.log("Cannot lookup playlist on YouTube, ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
       return [];
     }
   }
@@ -322,7 +322,7 @@ function getAllChannelIds() { // get YT Subscriptions-List, src: https://www.red
       return []
     }
   } catch (e) {
-    Logger.log("Could not get subscription channels, ERROR: " + e.message);
+    Logger.log("Could not get subscription channels, ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
     return [];
   }
 
@@ -354,7 +354,7 @@ function deletePlaylistItems(playlistId, deleteBeforeTimestamp) {
       nextPageToken = results.nextPageToken;
 
     } catch (e) {
-      Logger.log("Problem deleting existing videos from Playlist ("+playlistId+"), ERROR: " + e.message);
+      Logger.log("Problem deleting existing videos from Playlist ("+playlistId+"), ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
       nextPageToken = null;
     }
   }
@@ -370,7 +370,7 @@ function getAllChannelIds_OLD() { // Note: this function is not used.
       maxResults: 50
     });
   } catch (e) {
-    Logger.log("ERROR: " + e.message);
+    Logger.log("ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
     return;
   }
   for (var i = 0; i < results.items.length; i++) {
@@ -389,7 +389,7 @@ function getAllChannelIds_OLD() { // Note: this function is not used.
         pageToken: nextPageToken
       });
     } catch (e) {
-      Logger.log("ERROR: " + e.message);
+      Logger.log("ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
       continue;
     }
     for (var i = 0; i < results.items.length; i++) {
