@@ -98,9 +98,13 @@ Using [classic (disable-polymer=true) YouTube theme]
 
 `javascript:(function(){if(confirm('Remove all watched?')){for(c=[].slice.call(document.querySelectorAll('.resume-playback-background')),i=c.length;i--;c[i]=c[i].parentElement.parentElement.parentElement.querySelector('.pl-video-edit-remove'));iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;};c.pop().click();},400);}})();`
 
-Using [new YouTube theme](https://www.youtube.com/new)
+Using [new YouTube theme] for Mac (https://www.youtube.com/new)
 
 `javascript:(function(){if(confirm('Remove all watched?')){for(c=[].slice.call(document.querySelectorAll('ytd-thumbnail-overlay-resume-playback-renderer')),i=c.length;i--;c[i]=c[i].parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.firstElementChild.nextElementSibling.nextElementSibling.lastElementChild.firstElementChild.lastElementChild);iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;};c.pop().click();setTimeout(()=>{d=[].slice.call(document.querySelectorAll('ytd-menu-service-item-renderer'));d[d.length-2].click()}, 1);},400);}})();`
+
+Using [new YouTube theme] for Windows (https://www.youtube.com/new)
+
+`javascript:(function(){if(confirm('Remove all watched?')){for(c=[].slice.call(document.querySelectorAll('ytd-thumbnail-overlay-resume-playback-renderer')),i=c.length;i--;c[i]=c[i].parentElement.parentElement.parentElement.parentElement.parentElement.firstElementChild.nextElementSibling.nextElementSibling.firstElementChild.firstElementChild.nextElementSibling.firstElementChild);iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;};c.pop().click();setTimeout(()=>{d=[].slice.call(document.querySelectorAll('ytd-menu-service-item-renderer'));d[d.length-2].click()}, 1);},400);}})();`
 
 # FAQ
 
