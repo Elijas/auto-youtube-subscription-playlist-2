@@ -68,7 +68,7 @@ function updatePlaylists(sheet) {
           else if (!user.items[0].id) Logger.log("Cannot get id from user " + channel)
           else channelIds.push(user.items[0].id);
         } catch (e) {
-          Logger.log("Cannot search for channels, ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+          Logger.log("Cannot search for channel with name "+channel+", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
           continue;
         }
       }
@@ -88,7 +88,7 @@ function updatePlaylists(sheet) {
       else [].push.apply(videoIds, newVideoIds); // Append new videoIds array to the original one
     }
     for (var i = 0; i < playlistIds.length; i++) {
-      var newVideoIds = getVideoIds(playlistIds[i], lastTimestamp)
+      var newVideoIds = getPlaylistVideoIds(playlistIds[i], lastTimestamp)
       if (!newVideoIds || typeof(newVideoIds) !== "object") Logger.log("Failed to get videos with playlist id "+playlistIds[i])
       if (debugFlag_logWhenNoNewVideosFound && newVideoIds.length === 0) {
         Logger.log("Playlist with id "+playlistIds[i]+" has no new videos")
@@ -169,7 +169,7 @@ function getVideoIds(channelId, lastTimestamp) {
       return []
     }
   } catch (e) {
-    Logger.log("Cannot search YouTube, ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+    Logger.log("Cannot search YouTube with channel id "+channelId+", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
     return [];
   }
 
@@ -202,7 +202,7 @@ function getVideoIds(channelId, lastTimestamp) {
         return []
       }
     } catch (e) {
-      Logger.log("Cannot search YouTube, ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+      Logger.log("Cannot search YouTube with channel id "+channelId+", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
       break;
     }
 
@@ -235,7 +235,7 @@ function getVideoIds(channelId, lastTimestamp) {
         return []
       }
     } catch (e) {
-      Logger.log("Cannot lookup channel on YouTube, ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+      Logger.log("Cannot search Youtube for channel with id "+channelId+", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
       return [];
     }
   }
@@ -262,7 +262,7 @@ function getPlaylistVideoIds(playlistId, lastTimestamp) {
         break
       }
     } catch (e) {
-      Logger.log("Cannot search YouTube, ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+      Logger.log("Cannot search YouTube with playlist id "+playlistId+", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
       break
     }
 
@@ -289,7 +289,7 @@ function getPlaylistVideoIds(playlistId, lastTimestamp) {
         return []
       }
     } catch (e) {
-      Logger.log("Cannot lookup playlist on YouTube, ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+      Logger.log("Cannot lookup playlist with id "+playlistID+" on YouTube, ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
       return [];
     }
   }
@@ -322,7 +322,7 @@ function getAllChannelIds() { // get YT Subscriptions-List, src: https://www.red
       return []
     }
   } catch (e) {
-    Logger.log("Could not get subscription channels, ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+    Logger.log("Could not get subscribed channels, ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
     return [];
   }
 
@@ -354,7 +354,7 @@ function deletePlaylistItems(playlistId, deleteBeforeTimestamp) {
       nextPageToken = results.nextPageToken;
 
     } catch (e) {
-      Logger.log("Problem deleting existing videos from Playlist ("+playlistId+"), ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+      Logger.log("Problem deleting existing videos from playlist with id "+playlistId+", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
       nextPageToken = null;
     }
   }
