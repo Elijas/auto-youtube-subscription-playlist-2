@@ -118,8 +118,10 @@ function updatePlaylists(sheet) {
           );
         } catch (e) {
           Logger.log("Couldn't update playlist with video ("+videoIds[i]+"), ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+          if (e.details.code !== 409) { // Skip error count if Video exists in playlist already
+            var errorflag = true;
+          }
           errorCount += 1;
-          var errorflag = true;
           continue;
         }
 
