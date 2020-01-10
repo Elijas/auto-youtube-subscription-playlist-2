@@ -147,7 +147,7 @@ function updatePlaylists(sheet) {
   // Prints logs to Debug sheet
   var debugSheet = spreadsheet.getSheetByName("Debug")
   if (!debugSheet) debugSheet = spreadsheet.insertSheet("Debug")
-  var newLogs = Logger.getLog().split("\n").slice(0, -1).map(function(log) {return log.split(" INFO: ")})
+  var newLogs = Logger.getLog().split("\n").slice(0, -1).map(function(log) {if(log.search("limit") != -1 && log.search("quota") != -1)errorflag=true;return log.split(" INFO: ")})
   if (newLogs.length > 0) debugSheet.clear().getRange(1, 1, newLogs.length, 2).setValues(newLogs)
 
   if (errorflag) throw new Error(errorCount+" videos were not added to playlist correctly, please check Debug sheet. Timestamp has not been updated.")
