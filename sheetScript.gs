@@ -159,7 +159,8 @@ function getVideoIds(channelId, lastTimestamp) {
         maxResults: 50,
         order: "date",
         publishedAfter: lastTimestamp,
-        pageToken: nextPageToken
+        pageToken: nextPageToken,
+        type: "video"
       });
       if (!results || !results.items) {
         Logger.log("YouTube video search returned invalid response for channel with id "+channelId)
