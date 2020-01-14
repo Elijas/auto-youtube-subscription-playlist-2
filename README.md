@@ -78,37 +78,7 @@ If you ran into problems, here are some of the possible sources for solutions:
   - append `/?update=True` to force update the playlists.
   - e.g. `tiny.cc/myplaylist/?update=True&pl=3` will force update and open the third playlist.
 
-##### (Extra) Link to remove all items from a youtube playlist:
-
-To remove all playlist items, bookmark the link below and click on it while having the youtube playlist page open.
-
-Using [classic (disable-polymer=true) YouTube theme] ([source](https://gist.github.com/timothyarmstrong/10501804))
-
-`javascript:(function(){if(confirm('Remove all?')&&confirm('Are you sure?')){let c=[].slice.call(document.querySelectorAll('.pl-video-edit-remove')),iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;}c.pop().click();},200);}})();`
-
-Using [new YouTube theme] for Mac (https://www.youtube.com/new)
-
-`javascript:(function(){if(confirm('Remove all?')&&confirm('Are you sure?')){for(c=[].slice.call(document.querySelectorAll('ytd-playlist-video-renderer')),i=c.length;i--;c[i]=c[i].firstElementChild.nextElementSibling.nextElementSibling.lastElementChild.firstElementChild.lastElementChild);iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;};c.pop().click();setTimeout(()=>{d=[].slice.call(document.querySelectorAll('ytd-menu-service-item-renderer'));for(i=d.length;i--;d[i].innerText.indexOf("Remove")!=-1?d[i].click():void(0));}, 1);},400);}})();`
-
-Using [new YouTube theme] for Windows (https://www.youtube.com/new)
-
-`javascript:(function(){if(confirm('Remove all?')&&confirm('Are you sure?')){for(c=[].slice.call(document.querySelectorAll('ytd-playlist-video-renderer')),i=c.length;i--;c[i]=c[i].lastElementChild.lastElementChild.firstElementChild.lastElementChild.firstElementChild);iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;};c.pop().click();setTimeout(()=>{d=[].slice.call(document.querySelectorAll('ytd-menu-service-item-renderer'));for(i=d.length;i--;d[i].innerText.indexOf("Remove")!=-1?d[i].click():void(0));},1)},400);}})();`
-
-##### (Extra) Link to remove watched items from a youtube playlist (thanks to [saso5tr](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cy38z0f)):
-
-Same as above.
-
-Using [classic (disable-polymer=true) YouTube theme]
-
-`javascript:(function(){if(confirm('Remove all watched?')){for(c=[].slice.call(document.querySelectorAll('.resume-playback-background')),i=c.length;i--;c[i]=c[i].parentElement.parentElement.parentElement.querySelector('.pl-video-edit-remove'));iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;};c.pop().click();},400);}})();`
-
-Using [new YouTube theme] for Mac (https://www.youtube.com/new)
-
-`javascript:(function(){if(confirm('Remove all watched?')){for(c=[].slice.call(document.querySelectorAll('ytd-thumbnail-overlay-resume-playback-renderer')),i=c.length;i--;c[i]=c[i].parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.firstElementChild.nextElementSibling.nextElementSibling.lastElementChild.firstElementChild.lastElementChild);iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;};c.pop().click();setTimeout(()=>{d=[].slice.call(document.querySelectorAll('ytd-menu-service-item-renderer'));d[d.length-4].click()}, 1);},400);}})();`
-
-Using [new YouTube theme] for Windows (https://www.youtube.com/new)
-
-`javascript:(function(){if(confirm('Remove all watched?')){for(c=[].slice.call(document.querySelectorAll('ytd-thumbnail-overlay-resume-playback-renderer')),i=c.length;i--;c[i]=c[i].parentElement.parentElement.parentElement.parentElement.parentElement.firstElementChild.nextElementSibling.nextElementSibling.firstElementChild.firstElementChild.nextElementSibling.firstElementChild);iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;};c.pop().click();setTimeout(()=>{d=[].slice.call(document.querySelectorAll('ytd-menu-service-item-renderer'));d[d.length-4].click()}, 1);},400);}})();`
+#### (Extra) Link to remove all/watched items from a youtube playlist [here](./removeVidsFromPlaylist.md)
 
 # FAQ
 
