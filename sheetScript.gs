@@ -157,42 +157,10 @@ function updatePlaylists(sheet) {
 function getVideoIds(channelId, lastTimestamp) {
   var videoIds = [];
   
-  // First call
-  try {
-
-    var results = YouTube.Search.list('id', {
-      channelId: channelId,
-      maxResults: 50,
-      order: "date",
-      publishedAfter: lastTimestamp
-    });
-    if (!results || !results.items) {
-      Logger.log("YouTube video search returned invalid response for channel with id "+channelId)
-      return []
-    }
-  } catch (e) {
-    Logger.log("Cannot search YouTube with channel id "+channelId+", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
-    return [];
-  }
-
-  for (var j = 0; j < results.items.length; j++) {
-    var item = results.items[j];
-    if (!item.id) {
-      Logger.log("YouTube search result ("+item+") doesn't have id")
-      continue
-    } else if (!item.id.videoId) {
-      Logger.log("YouTube search result ("+item+") doesn't have videoId")
-      continue
-    }
-    videoIds.push(item.id.videoId);
-  }
-
-  // Other calls
-  var nextPageToken = results.nextPageToken;
-  for (var pageNo = 0; pageNo < (-1+Math.ceil(results.pageInfo.totalResults / 50.0)); pageNo++) {
-
+  var nextPageToken = '';
+  do {
     try {
-      results = YouTube.Search.list('id', {
+      var results = YouTube.Search.list('id', {
         channelId: channelId,
         maxResults: 50,
         order: "date",
@@ -221,7 +189,7 @@ function getVideoIds(channelId, lastTimestamp) {
     }
 
     nextPageToken = results.nextPageToken;
-  }
+  } while (nextPageToken != null);
 
   if (videoIds.length === 0) {
     try {
