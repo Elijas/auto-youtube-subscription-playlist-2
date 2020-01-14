@@ -245,6 +245,52 @@ function getVideoIds(channelId, lastTimestamp) {
   return videoIds;
 }
 
+function getVideoIdsWithLessQueries(channelId, lastTimestamp) {
+  var videoIds = [];
+  var uploadsPlaylistId;
+  try {
+    // Check Channel validity
+    var results = YouTube.Channels.list('contentDetails', {
+      id: channelId
+    });
+    if (!results || !results.items) {
+      Logger.log("YouTube channel search returned invalid response for channel with id "+channelId)
+      return []
+    } else if (results.items.length === 0) {
+      Logger.log("Cannot find channel with id "+channelId)
+      return []
+    } else {
+      uploadsPlaylistId = results.contentDetails.relatedPlaylists.uploads;
+    }
+  } catch (e) {
+    Logger.log("Cannot search Youtube for channel with id "+channelId+", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+    return [];
+  }
+
+  nextPageToken = ''
+  do {
+    try {
+      var results = YouTube.PlaylistItems.list('contentDetails', {
+        playlistId: uploadsPlaylistId,
+        maxResults: 50,
+        pageToken: nextPageToken
+      })
+      var videosToBeAdded = results.items.filter(function (vid) {return ((new Date(lastTimestamp)) <= (new Date(vid.contentDetails.videoPublishedAt)))})
+      if (videosToBeAdded.length == 0) {
+        break;
+      } else {
+        [].push.apply(videoIds, videosToBeAdded.map(function (vid) {return vid.contentDetails.videoId}));
+      }
+      nextPageToken = results.nextPageToken;
+    } catch (e) {
+      Logger.log("Cannot search YouTube with playlist id "+uploadsPlaylistId+", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+      return [];
+    }
+  } while (nextPageToken != null);
+  
+  return videoIds;
+}
+
 function getPlaylistVideoIds(playlistId, lastTimestamp) {
   var videoIds = [];
 
