@@ -77,7 +77,6 @@ function updatePlaylists(sheet) {
     }
 
     /// ...get videos from the channels...
-    var videoIds = [];
     var lastTimestamp = sheet.getRange(reservedTimestampCell).getValue();
     for (var i = 0; i < channelIds.length; i++) {
       var newVideoIds = getVideoIds(channelIds[i], lastTimestamp)
@@ -85,7 +84,7 @@ function updatePlaylists(sheet) {
       if (debugFlag_logWhenNoNewVideosFound && newVideoIds.length === 0) {
         Logger.log("Channel with id "+channelIds[i]+" has no new videos")
       }
-      else [].push.apply(videoIds, newVideoIds); // Append new videoIds array to the original one
+      else addVideosToPlaylist(playlistId, newVideoIds)
     }
     for (var i = 0; i < playlistIds.length; i++) {
       var newVideoIds = getPlaylistVideoIds(playlistIds[i], lastTimestamp)
@@ -93,17 +92,32 @@ function updatePlaylists(sheet) {
       if (debugFlag_logWhenNoNewVideosFound && newVideoIds.length === 0) {
         Logger.log("Playlist with id "+playlistIds[i]+" has no new videos")
       }
-      else [].push.apply(videoIds, newVideoIds);
+      else addVideosToPlaylist(playlistId, newVideoIds)
     }
     
-    Logger.log("Acquired "+videoIds.length+" videos ")
+    /// ...delete old vidoes in playlist
+    var daysBack = data[iRow][reservedDeleteDaysColumn];
+    if (!daysBack || !(daysBack > 0) ) continue;
     
-    //causes only first line to be updated
-    //if (!debugFlag_dontUpdateTimestamp) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date())); // Update timestamp
+    var deleteBeforeTimestamp = ISODateString(new Date((new Date()).getTime() - daysBack*MILLIS_PER_DAY));
+    Logger.log("Delete before: "+deleteBeforeTimestamp);
+    deletePlaylistItems(playlistId, deleteBeforeTimestamp);
+    
+  }
+  
+  // Prints logs to Debug sheet
+  var debugSheet = spreadsheet.getSheetByName("Debug")
+  if (!debugSheet) debugSheet = spreadsheet.insertSheet("Debug")
+  var newLogs = Logger.getLog().split("\n").slice(0, -1).map(function(log) {if(log.search("limit") != -1 && log.search("quota") != -1)errorflag=true;return log.split(" INFO: ")})
+  if (newLogs.length > 0) debugSheet.clear().getRange(1, 1, newLogs.length, 2).setValues(newLogs)
 
-    /// ...add videos to the playlist
+  if (errorflag) throw new Error(errorCount+" videos were not added to playlist correctly, please check Debug sheet. Timestamp has not been updated.")
+  if (!debugFlag_dontUpdateTimestamp) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date())); // Update timestamp
+}
+
+function addVideosToPlaylist(playlistId, videoIds) {
     var errorCount = 0;
-    if (!debugFlag_dontUpdatePlaylists && videoIds.length < 200) {
+    if (!debugFlag_dontUpdatePlaylists && videoIds.length < 200) { // check 200 vids over whole script?
       for (var i = 0; i < videoIds.length; i++) {
         try {
           YouTube.PlaylistItems.insert
@@ -130,28 +144,8 @@ function updatePlaylists(sheet) {
       Logger.log("Added "+(i -= errorCount)+" videos to playlist. Error for "+errorCount+" videos.")
     } else {
       Logger.log("The query contains "+videoIds.length+" videos. Script cannot add more than 200 videos. Try moving the timestamp closer to today.")
-      var errorflag = true;
+      errorflag = true;
     }
-    
-    
-    /// ...delete old vidoes in playlist
-    var daysBack = data[iRow][reservedDeleteDaysColumn];
-    if (!daysBack || !(daysBack > 0) ) continue;
-    
-    var deleteBeforeTimestamp = ISODateString(new Date((new Date()).getTime() - daysBack*MILLIS_PER_DAY));
-    Logger.log("Delete before: "+deleteBeforeTimestamp);
-    deletePlaylistItems(playlistId, deleteBeforeTimestamp);
-    
-  }
-  
-  // Prints logs to Debug sheet
-  var debugSheet = spreadsheet.getSheetByName("Debug")
-  if (!debugSheet) debugSheet = spreadsheet.insertSheet("Debug")
-  var newLogs = Logger.getLog().split("\n").slice(0, -1).map(function(log) {if(log.search("limit") != -1 && log.search("quota") != -1)errorflag=true;return log.split(" INFO: ")})
-  if (newLogs.length > 0) debugSheet.clear().getRange(1, 1, newLogs.length, 2).setValues(newLogs)
-
-  if (errorflag) throw new Error(errorCount+" videos were not added to playlist correctly, please check Debug sheet. Timestamp has not been updated.")
-  if (!debugFlag_dontUpdateTimestamp) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date())); // Update timestamp
 }
 
 function getVideoIds(channelId, lastTimestamp) {
