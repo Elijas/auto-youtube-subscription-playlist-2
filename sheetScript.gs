@@ -128,7 +128,7 @@ function addVideosToPlaylist(playlistId, videoIds) {
                kind: 'youtube#video'
               }
              }
-            }, 'snippet,contentDetails'
+            }, 'id'
           );
         } catch (e) {
           Logger.log("Couldn't update playlist with video ("+videoIds[i]+"), ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
