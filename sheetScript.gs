@@ -5,7 +5,8 @@
 // MAYBE TODO: NOT flags to include videos that are NOT from certain channels / do not contain text, etc
 
 var errorflag = false;
-var debugFlag_dontUpdateTimestamp = false;
+var totalErrorCount = 0;
+var debugFlag_dontUpdateTimestamp = true;
 var debugFlag_dontUpdatePlaylists = false;
 var debugFlag_logWhenNoNewVideosFound = false;
 
@@ -22,6 +23,21 @@ function doGet(e) {
     return t.evaluate();
 }
 
+function findNextRow(data) { // Finds the row with the earliest last updated time
+  var reservedTimestampColumn = 1;
+  var reservedTableRows = 3; // Start of the range of the PlaylistID+ChannelID data
+  var minTimestamp = data.slice(reservedTableRows).reduce(
+    function (min, row, index) {
+      if (row[reservedTimestampColumn].length != 0 && row[reservedTimestampColumn] < min[1]) {
+        return [index + 3, row[reservedTimestampColumn]]
+      } else {
+        return min;
+      }
+    }, [-1, "9999-99-99T99:99:99.999Z"]
+  );
+  return minTimestamp[0];
+}
+
 function updatePlaylists(sheet) {
   var sheetID = PropertiesService.getScriptProperties().getProperty("sheetID")
   if (!sheetID) onOpen()
@@ -29,26 +45,26 @@ function updatePlaylists(sheet) {
   if (!sheet || !sheet.toString || sheet.toString() != 'Sheet') sheet = spreadsheet.getSheets()[0];
   var MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
   var data = sheet.getDataRange().getValues();
-  var reservedTableRows = 3; // Start of the range of the PlaylistID+ChannelID data
-  var reservedTableColumns = 2; // Start of the range of the ChannelID data
-  var reservedDeleteDaysColumn = 1; // Column containing number of days before today until videos get deleted
-  var reservedTimestampCell = "F1";
-  //if (!sheet.getRange(reservedTimestampCell).getValue()) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date()));
-  if (!sheet.getRange(reservedTimestampCell).getValue()) {
-    var date = new Date();
-    date.setHours(date.getHours() - 24); // Subscriptions added starting with the last day
-    var isodate = date.toISOString();
-    sheet.getRange(reservedTimestampCell).setValue(isodate);
-  }
+  var reservedTableColumns = 3; // Start of the range of the ChannelID data
+  var reservedDeleteDaysColumn = 2; // Column containing number of days before today until videos get deleted
+  var reservedTimestampColumn = 1; // Column containing last update timestamp for that row
+  var debugSheet = spreadsheet.getSheetByName("Debug")
+  if (!debugSheet) debugSheet = spreadsheet.insertSheet("Debug")
+  debugSheet.clear();
+  var nextDebugRow = 1; // First empty row to add logs to
 
   /// For each playlist...
-  for (var iRow = reservedTableRows; iRow < sheet.getLastRow(); iRow++) {
+  for (var iRow = findNextRow(data); iRow < sheet.getLastRow(); iRow++) {
+    Logger.clear();
     var playlistId = data[iRow][0];
     if (!playlistId) continue;
 
     /// ...get channels...
     var channelIds = [];
     var playlistIds = [];
+    var plVideoCount = 0;
+    var plErrorCount = 0;
+    Logger.log("Row: " + (iRow+1))
     for (var iColumn = reservedTableColumns; iColumn < sheet.getLastColumn(); iColumn++) {
       var channel = data[iRow][iColumn];
       if (!channel) continue;
@@ -75,77 +91,95 @@ function updatePlaylists(sheet) {
       else
         channelIds.push(channel);
     }
+    
+    var lastTimestamp = sheet.getRange(iRow + 1, reservedTimestampColumn + 1).getValue();
+    if (!lastTimestamp) {
+      var date = new Date();
+      date.setHours(date.getHours() - 24); // Subscriptions added starting with the last day
+      var isodate = date.toISOString();
+      sheet.getRange(iRow + 1, reservedTimestampColumn + 1).setValue(isodate);
+      lastTimestamp = isodate;
+    }
 
     /// ...get videos from the channels...
-    var lastTimestamp = sheet.getRange(reservedTimestampCell).getValue();
     for (var i = 0; i < channelIds.length; i++) {
-      var newVideoIds = getVideoIds(channelIds[i], lastTimestamp)
+      var newVideoIds = getVideoIdsWithLessQueries(channelIds[i], lastTimestamp)
       if (!newVideoIds || typeof(newVideoIds) !== "object") Logger.log("Failed to get videos with channel id "+channelIds[i])
       if (debugFlag_logWhenNoNewVideosFound && newVideoIds.length === 0) {
         Logger.log("Channel with id "+channelIds[i]+" has no new videos")
+      } else { 
+        var counts = addVideosToPlaylist(playlistId, newVideoIds);
+        plVideoCount += counts[0];
+        plErrorCount += counts[1];
       }
-      else addVideosToPlaylist(playlistId, newVideoIds)
     }
     for (var i = 0; i < playlistIds.length; i++) {
       var newVideoIds = getPlaylistVideoIds(playlistIds[i], lastTimestamp)
       if (!newVideoIds || typeof(newVideoIds) !== "object") Logger.log("Failed to get videos with playlist id "+playlistIds[i])
       if (debugFlag_logWhenNoNewVideosFound && newVideoIds.length === 0) {
         Logger.log("Playlist with id "+playlistIds[i]+" has no new videos")
+      } else { 
+        var counts = addVideosToPlaylist(playlistId, newVideoIds);
+        plVideoCount += counts[0];
+        plErrorCount += counts[1];
       }
-      else addVideosToPlaylist(playlistId, newVideoIds)
     }
+    
+    Logger.log("Added " + (plVideoCount) + " videos to playlist (" + playlistId + "). Error for " + plErrorCount + " videos.")
     
     /// ...delete old vidoes in playlist
     var daysBack = data[iRow][reservedDeleteDaysColumn];
-    if (!daysBack || !(daysBack > 0) ) continue;
+    if (daysBack && (daysBack > 0)) {
+      var deleteBeforeTimestamp = ISODateString(new Date((new Date()).getTime() - daysBack*MILLIS_PER_DAY));
+      Logger.log("Delete before: "+deleteBeforeTimestamp);
+      deletePlaylistItems(playlistId, deleteBeforeTimestamp);
+    }
     
-    var deleteBeforeTimestamp = ISODateString(new Date((new Date()).getTime() - daysBack*MILLIS_PER_DAY));
-    Logger.log("Delete before: "+deleteBeforeTimestamp);
-    deletePlaylistItems(playlistId, deleteBeforeTimestamp);
-    
+    // Prints logs to Debug sheet
+    var newLogs = Logger.getLog().split("\n").slice(0, -1).map(function(log) {if(log.search("limit") != -1 && log.search("quota") != -1)errorflag=true;return log.split(" INFO: ")})
+    Logger.log(newLogs)
+    if (newLogs.length > 0) debugSheet.getRange(nextDebugRow, 1, newLogs.length, 2).setValues(newLogs)
+    nextDebugRow = debugSheet.getLastRow() + 1;
+    if (!errorflag && !debugFlag_dontUpdateTimestamp) sheet.getRange(iRow + 1, reservedTimestampColumn + 1).setValue(ISODateString(new Date())); // Update timestamp
+    errorflag = false;
+    totalErrorCount += plErrorCount;
   }
-  
-  // Prints logs to Debug sheet
-  var debugSheet = spreadsheet.getSheetByName("Debug")
-  if (!debugSheet) debugSheet = spreadsheet.insertSheet("Debug")
-  var newLogs = Logger.getLog().split("\n").slice(0, -1).map(function(log) {if(log.search("limit") != -1 && log.search("quota") != -1)errorflag=true;return log.split(" INFO: ")})
-  if (newLogs.length > 0) debugSheet.clear().getRange(1, 1, newLogs.length, 2).setValues(newLogs)
-
-  if (errorflag) throw new Error(errorCount+" videos were not added to playlist correctly, please check Debug sheet. Timestamp has not been updated.")
-  if (!debugFlag_dontUpdateTimestamp) sheet.getRange(reservedTimestampCell).setValue(ISODateString(new Date())); // Update timestamp
+  if (totalErrorCount > 0) throw new Error(totalErrorCount+" videos were not added to playlists correctly, please check Debug sheet. Timestamps for respective rows has not been updated.")
 }
 
 function addVideosToPlaylist(playlistId, videoIds) {
-    var errorCount = 0;
-    if (!debugFlag_dontUpdatePlaylists && videoIds.length < 200) { // check 200 vids over whole script?
-      for (var i = 0; i < videoIds.length; i++) {
-        try {
-          YouTube.PlaylistItems.insert
-          ( { snippet:
-             { playlistId: playlistId,
-              resourceId:
-              { videoId: videoIds[i],
-               kind: 'youtube#video'
-              }
-             }
-            }, 'id'
-          );
-        } catch (e) {
-          Logger.log("Couldn't update playlist with video ("+videoIds[i]+"), ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
-          if (e.details.code !== 409) { // Skip error count if Video exists in playlist already
-            var errorflag = true;
-          }
-          errorCount += 1;
-          continue;
+  var errorCount = 0;
+  var totalVids = videoIds.length;
+  if (!debugFlag_dontUpdatePlaylists) {
+    for (var i = 0; i < totalVids; i++) {
+      try {
+        YouTube.PlaylistItems.insert
+        ( { snippet:
+           { playlistId: playlistId,
+            resourceId:
+            { videoId: videoIds[i],
+             kind: 'youtube#video'
+            }
+           }
+          }, 'snippet'
+        );
+      } catch (e) {
+        Logger.log("Couldn't update playlist with video ("+videoIds[i]+"), ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+        if (e.details.code !== 409) { // Skip error count if Video exists in playlist already
+          var errorflag = true;
         }
-
-        Utilities.sleep(1000);
+        errorCount += 1;
+        continue;
       }
-      Logger.log("Added "+(i -= errorCount)+" videos to playlist. Error for "+errorCount+" videos.")
-    } else {
-      Logger.log("The query contains "+videoIds.length+" videos. Script cannot add more than 200 videos. Try moving the timestamp closer to today.")
-      errorflag = true;
+
+      Utilities.sleep(1000);
     }
+    errorflag = (errorCount > 0);
+  } else {
+    Logger.log("Don't Update Playlists debug flag is set");
+    errorflag = true;
+  }
+  return [totalVids - errorCount, errorCount];
 }
 
 function getVideoIds(channelId, lastTimestamp) {
@@ -200,7 +234,7 @@ function getVideoIds(channelId, lastTimestamp) {
         return []
       }
     } catch (e) {
-      Logger.log("Cannot search Youtube for channel with id "+channelId+", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+      Logger.log("Cannot search YouTube for channel with id "+channelId+", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
       return [];
     }
   }
@@ -223,10 +257,10 @@ function getVideoIdsWithLessQueries(channelId, lastTimestamp) {
       Logger.log("Cannot find channel with id "+channelId)
       return []
     } else {
-      uploadsPlaylistId = results.contentDetails.relatedPlaylists.uploads;
+      uploadsPlaylistId = results.items[0].contentDetails.relatedPlaylists.uploads;
     }
   } catch (e) {
-    Logger.log("Cannot search Youtube for channel with id "+channelId+", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+    Logger.log("Cannot search YouTube for channel with id "+channelId+", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
     return [];
   }
 
