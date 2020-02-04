@@ -36,7 +36,7 @@ function findNextRow(data) { // Finds the row with the earliest last updated tim
       }
     }, [-1, "9999-99-99T99:99:99.999Z"]
   );
-  return minTimestamp[0];
+  return (minTimestamp[0] == -1) ? reservedTableRows : minTimestamp[0];
 }
 
 function addError(s) {
