@@ -129,7 +129,7 @@ function updatePlaylists(sheet) {
     
     if (!errorflag) {
       // ...add videos to playlist...
-      var counts = addVideosToPlaylist(playlistId, newVideoIds);
+      addVideosToPlaylist(playlistId, newVideoIds);
       
       /// ...delete old vidoes in playlist
       var daysBack = data[iRow][reservedDeleteDaysColumn];
@@ -191,7 +191,6 @@ function addVideosToPlaylist(playlistId, videoIds) {
     Logger.log("Don't Update Playlists debug flag is set");
     errorflag = true;
   }
-  return [totalVids - errorCount, errorCount];
 }
 
 function getVideoIds(channelId, lastTimestamp) {
