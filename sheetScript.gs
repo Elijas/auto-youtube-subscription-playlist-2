@@ -102,29 +102,30 @@ function updatePlaylists(sheet) {
     }
 
     /// ...get videos from the channels...
+    var newVideoIds = [];
     for (var i = 0; i < channelIds.length; i++) {
-      var newVideoIds = getVideoIdsWithLessQueries(channelIds[i], lastTimestamp)
-      if (!newVideoIds || typeof(newVideoIds) !== "object") Logger.log("Failed to get videos with channel id "+channelIds[i])
-      if (debugFlag_logWhenNoNewVideosFound && newVideoIds.length === 0) {
+      var videoIds = getVideoIdsWithLessQueries(channelIds[i], lastTimestamp)
+      if (!videoIds || typeof(videoIds) !== "object") Logger.log("Failed to get videos with channel id "+channelIds[i])
+      else if (debugFlag_logWhenNoNewVideosFound && videoIds.length === 0) {
         Logger.log("Channel with id "+channelIds[i]+" has no new videos")
-      } else { 
-        var counts = addVideosToPlaylist(playlistId, newVideoIds);
-        plVideoCount += counts[0];
-        plErrorCount += counts[1];
+      } else {
+        [].push.apply(newVideoIds, videoIds);
       }
     }
     for (var i = 0; i < playlistIds.length; i++) {
-      var newVideoIds = getPlaylistVideoIds(playlistIds[i], lastTimestamp)
-      if (!newVideoIds || typeof(newVideoIds) !== "object") Logger.log("Failed to get videos with playlist id "+playlistIds[i])
-      if (debugFlag_logWhenNoNewVideosFound && newVideoIds.length === 0) {
+      var videoIds = getPlaylistVideoIds(playlistIds[i], lastTimestamp)
+      if (!videoIds || typeof(videoIds) !== "object") Logger.log("Failed to get videos with playlist id "+playlistIds[i])
+      if (debugFlag_logWhenNoNewVideosFound && videoIds.length === 0) {
         Logger.log("Playlist with id "+playlistIds[i]+" has no new videos")
-      } else { 
-        var counts = addVideosToPlaylist(playlistId, newVideoIds);
-        plVideoCount += counts[0];
-        plErrorCount += counts[1];
+      } else {
+        [].push.apply(newVideoIds, videoIds);
       }
     }
     
+    // ...add videos to playlist...
+    var counts = addVideosToPlaylist(playlistId, newVideoIds);
+    plVideoCount += counts[0];
+    plErrorCount += counts[1];
     Logger.log("Added " + (plVideoCount) + " videos to playlist (" + playlistId + "). Error for " + plErrorCount + " videos.")
     
     /// ...delete old vidoes in playlist
@@ -151,30 +152,35 @@ function addVideosToPlaylist(playlistId, videoIds) {
   var errorCount = 0;
   var totalVids = videoIds.length;
   if (!debugFlag_dontUpdatePlaylists) {
-    for (var i = 0; i < totalVids; i++) {
-      try {
-        YouTube.PlaylistItems.insert
-        ( { snippet:
-           { playlistId: playlistId,
-            resourceId:
-            { videoId: videoIds[i],
-             kind: 'youtube#video'
+    if (videoIds.length < 200) {
+      for (var i = 0; i < totalVids; i++) {
+        try {
+          YouTube.PlaylistItems.insert
+          ( { snippet:
+            { playlistId: playlistId,
+              resourceId:
+              { videoId: videoIds[i],
+              kind: 'youtube#video'
+              }
             }
-           }
-          }, 'snippet'
-        );
-      } catch (e) {
-        Logger.log("Couldn't update playlist with video ("+videoIds[i]+"), ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
-        if (e.details.code !== 409) { // Skip error count if Video exists in playlist already
-          var errorflag = true;
+            }, 'snippet'
+          );
+        } catch (e) {
+          Logger.log("Couldn't update playlist with video ("+videoIds[i]+"), ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+          if (e.details.code !== 409) { // Skip error count if Video exists in playlist already
+            var errorflag = true;
+          }
+          errorCount += 1;
+          continue;
         }
-        errorCount += 1;
-        continue;
-      }
 
-      Utilities.sleep(1000);
+        Utilities.sleep(1000);
+      }
+      errorflag = (errorCount > 0);
+    } else {
+      Logger.log("The query contains "+videoIds.length+" videos. Script cannot add more than 200 videos. Try moving the timestamp closer to today.")
+      errorflag = true;
     }
-    errorflag = (errorCount > 0);
   } else {
     Logger.log("Don't Update Playlists debug flag is set");
     errorflag = true;
