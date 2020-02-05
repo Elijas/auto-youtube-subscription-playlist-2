@@ -120,7 +120,7 @@ function updatePlaylists(sheet) {
     for (var i = 0; i < playlistIds.length; i++) {
       var videoIds = getPlaylistVideoIds(playlistIds[i], lastTimestamp)
       if (!videoIds || typeof(videoIds) !== "object") addError("Failed to get videos with playlist id "+playlistIds[i])
-      if (debugFlag_logWhenNoNewVideosFound && videoIds.length === 0) {
+      else if (debugFlag_logWhenNoNewVideosFound && videoIds.length === 0) {
         Logger.log("Playlist with id "+playlistIds[i]+" has no new videos")
       } else {
         [].push.apply(newVideoIds, videoIds);
