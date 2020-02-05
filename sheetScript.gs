@@ -30,13 +30,13 @@ function findNextRow(data) { // Finds the row with the earliest last updated tim
   var minTimestamp = data.slice(reservedTableRows).reduce(
     function (min, row, index) {
       if (row[reservedTimestampColumn].length != 0 && row[reservedTimestampColumn] < min[1]) {
-        return [index + 3, row[reservedTimestampColumn]]
+        return [index, row[reservedTimestampColumn]]
       } else {
         return min;
       }
     }, [-1, "9999-99-99T99:99:99.999Z"]
   );
-  return (minTimestamp[0] == -1) ? reservedTableRows : minTimestamp[0];
+  return reservedTableRows + ((minTimestamp[0] == -1) ? 0 : minTimestamp[0]);
 }
 
 function addError(s) {
@@ -142,7 +142,6 @@ function updatePlaylists(sheet) {
     
     // Prints logs to Debug sheet
     var newLogs = Logger.getLog().split("\n").slice(0, -1).map(function(log) {if(log.search("limit") != -1 && log.search("quota") != -1)errorflag=true;return log.split(" INFO: ")})
-    Logger.log(newLogs)
     if (newLogs.length > 0) debugSheet.getRange(nextDebugRow, 1, newLogs.length, 2).setValues(newLogs)
     nextDebugRow = debugSheet.getLastRow() + 1;
     if (!errorflag && !debugFlag_dontUpdateTimestamp) sheet.getRange(iRow + 1, reservedTimestampColumn + 1).setValue(ISODateString(new Date())); // Update timestamp
@@ -150,7 +149,7 @@ function updatePlaylists(sheet) {
     totalErrorCount += plErrorCount;
     plErrorCount = 0;
   }
-  if (totalErrorCount > 0) throw new Error(totalErrorCount+" videos were not added to playlists correctly, please check Debug sheet. Timestamps for respective rows has not been updated.")
+  if (totalErrorCount > 0) throw new Error(totalErrorCount+" video(s) were not added to playlists correctly, please check Debug sheet. Timestamps for respective rows has not been updated.")
 }
 
 function addVideosToPlaylist(playlistId, videoIds) {
@@ -160,20 +159,20 @@ function addVideosToPlaylist(playlistId, videoIds) {
     if (videoIds.length < 200) {
       for (var i = 0; i < totalVids; i++) {
         try {
-          YouTube.PlaylistItems.insert
-          ( { snippet:
-            { playlistId: playlistId,
-              resourceId:
-              { videoId: videoIds[i],
-              kind: 'youtube#video'
+          YouTube.PlaylistItems.insert({
+            snippet: {
+              playlistId: playlistId,
+              resourceId: {
+                videoId: videoIds[i],
+                kind: 'youtube#video'
               }
             }
-            }, 'snippet'
-          );
+          }, 'snippet');
         } catch (e) {
-          Logger.log("Couldn't update playlist with video ("+videoIds[i]+"), ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
           if (e.details.code !== 409) { // Skip error count if Video exists in playlist already
-            var errorflag = true;
+            addError("Couldn't update playlist with video ("+videoIds[i]+"), ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+          } else {
+            Logger.log("Couldn't update playlist with video ("+videoIds[i]+"), ERROR: Video already exists")
           }
           errorCount += 1;
           continue;
@@ -181,15 +180,13 @@ function addVideosToPlaylist(playlistId, videoIds) {
 
         Utilities.sleep(1000);
       }
-      Logger.log("Added "+(i -= errorCount)+" videos to playlist. Error for "+errorCount+" videos.")
+      Logger.log("Added "+(i -= errorCount)+" video(s) to playlist. Error for "+errorCount+" video(s).")
       errorflag = (errorCount > 0);
     } else {
-      Logger.log("The query contains "+videoIds.length+" videos. Script cannot add more than 200 videos. Try moving the timestamp closer to today.")
-      errorflag = true;
+      addError("The query contains "+videoIds.length+" videos. Script cannot add more than 200 videos. Try moving the timestamp closer to today.")
     }
   } else {
-    Logger.log("Don't Update Playlists debug flag is set");
-    errorflag = true;
+    addError("Don't Update Playlists debug flag is set");
   }
 }
 
