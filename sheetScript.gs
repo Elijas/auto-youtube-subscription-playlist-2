@@ -129,7 +129,11 @@ function updatePlaylists(sheet) {
     
     if (!errorflag) {
       // ...add videos to playlist...
-      addVideosToPlaylist(playlistId, newVideoIds);
+      if (!debugFlag_dontUpdatePlaylists) {
+        addVideosToPlaylist(playlistId, newVideoIds);
+      } else {
+        addError("Don't Update Playlists debug flag is set");
+      }
       
       /// ...delete old vidoes in playlist
       var daysBack = data[iRow][reservedDeleteDaysColumn];
@@ -149,44 +153,44 @@ function updatePlaylists(sheet) {
     totalErrorCount += plErrorCount;
     plErrorCount = 0;
   }
-  if (totalErrorCount > 0) throw new Error(totalErrorCount+" video(s) were not added to playlists correctly, please check Debug sheet. Timestamps for respective rows has not been updated.")
+  if (totalErrorCount > 0) {
+    throw new Error(totalErrorCount+" video(s) were not added to playlists correctly, please check Debug sheet. Timestamps for respective rows has not been updated.")
+  } else {
+    debugSheet.getRange(nextDebugRow, 1).setValue("Updated all rows, script successfully finished")
+  }
 }
 
 function addVideosToPlaylist(playlistId, videoIds) {
   var errorCount = 0;
   var totalVids = videoIds.length;
-  if (!debugFlag_dontUpdatePlaylists) {
-    if (videoIds.length < 200) {
-      for (var i = 0; i < totalVids; i++) {
-        try {
-          YouTube.PlaylistItems.insert({
-            snippet: {
-              playlistId: playlistId,
-              resourceId: {
-                videoId: videoIds[i],
-                kind: 'youtube#video'
-              }
+  if (videoIds.length < 200) {
+    for (var i = 0; i < totalVids; i++) {
+      try {
+        YouTube.PlaylistItems.insert({
+          snippet: {
+            playlistId: playlistId,
+            resourceId: {
+              videoId: videoIds[i],
+              kind: 'youtube#video'
             }
-          }, 'snippet');
-        } catch (e) {
-          if (e.details.code !== 409) { // Skip error count if Video exists in playlist already
-            addError("Couldn't update playlist with video ("+videoIds[i]+"), ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
-          } else {
-            Logger.log("Couldn't update playlist with video ("+videoIds[i]+"), ERROR: Video already exists")
           }
-          errorCount += 1;
-          continue;
+        }, 'snippet');
+      } catch (e) {
+        if (e.details.code !== 409) { // Skip error count if Video exists in playlist already
+          addError("Couldn't update playlist with video ("+videoIds[i]+"), ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+        } else {
+          Logger.log("Couldn't update playlist with video ("+videoIds[i]+"), ERROR: Video already exists")
         }
-
-        Utilities.sleep(1000);
+        errorCount += 1;
+        continue;
       }
-      Logger.log("Added "+(i -= errorCount)+" video(s) to playlist. Error for "+errorCount+" video(s).")
-      errorflag = (errorCount > 0);
-    } else {
-      addError("The query contains "+videoIds.length+" videos. Script cannot add more than 200 videos. Try moving the timestamp closer to today.")
+
+      Utilities.sleep(1000);
     }
+    Logger.log("Added "+(i -= errorCount)+" video(s) to playlist. Error for "+errorCount+" video(s).")
+    errorflag = (errorCount > 0);
   } else {
-    addError("Don't Update Playlists debug flag is set");
+    addError("The query contains "+videoIds.length+" videos. Script cannot add more than 200 videos. Try moving the timestamp closer to today.")
   }
 }
 
@@ -250,6 +254,7 @@ function getVideoIds(channelId, lastTimestamp) {
   return videoIds;
 }
 
+// slower and date ordering is a bit messy but less quota costs
 function getVideoIdsWithLessQueries(channelId, lastTimestamp) {
   var videoIds = [];
   var uploadsPlaylistId;
@@ -293,7 +298,7 @@ function getVideoIdsWithLessQueries(channelId, lastTimestamp) {
     }
   } while (nextPageToken != null);
   
-  return videoIds;
+  return videoIds.reverse(); // Reverse to get videos in ascending order by date
 }
 
 function getPlaylistVideoIds(playlistId, lastTimestamp) {
