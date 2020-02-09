@@ -127,7 +127,7 @@ function updatePlaylists(sheet) {
       }
     }
       
-    Logger.log("Acquired "+videoIds.length+" videos ")
+    Logger.log("Acquired "+newVideoIds.length+" videos")
     
     if (!errorflag) {
       // ...add videos to playlist...
