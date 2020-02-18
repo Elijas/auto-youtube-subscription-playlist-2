@@ -164,7 +164,7 @@ function updatePlaylists(sheet) {
     var newLogs = Logger.getLog().split("\n").slice(0, -1).map(function(log) {if(log.search("limit") != -1 && log.search("quota") != -1)errorflag=true;return log.split(" INFO: ")})
     if (newLogs.length > 0) debugSheet.getRange(nextDebugRow, 1, newLogs.length, 2).setValues(newLogs)
     nextDebugRow = debugSheet.getLastRow() + 1;
-    if (!errorflag && !debugFlag_dontUpdateTimestamp) sheet.getRange(iRow + 1, reservedColumnTimestamp).setValue(ISODateString(new Date())); // Update timestamp
+    if (!errorflag && !debugFlag_dontUpdateTimestamp) sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(ISODateString(new Date())); // Update timestamp
     errorflag = false;
     totalErrorCount += plErrorCount;
     plErrorCount = 0;
