@@ -19,7 +19,8 @@ var reservedColumnPlaylist = 0;   // Column containing playlist to add to
 var reservedColumnTimestamp = 1;  // Column containing last timestamp
 var reservedColumnFrequency = 2;  // Column containing number of hours until new check
 var reservedColumnDeleteDays = 3; // Column containing number of days before today until videos get deleted
-// If you use getRange remember those indices are one-based, so add + 1 in that call
+// If you use getRange remember those indices are one-based, so add + 1 in that call i.e.
+// sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(isodate);
 
 function doGet(e) {
     var sheetID = PropertiesService.getScriptProperties().getProperty("sheetID");
