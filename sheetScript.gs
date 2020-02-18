@@ -78,7 +78,7 @@ function updatePlaylists(sheet) {
   if (!sheetID) onOpen()
   var spreadsheet = SpreadsheetApp.openById(sheetID)
   if (!sheet || !sheet.toString || sheet.toString() != 'Sheet') sheet = spreadsheet.getSheets()[0];
-  var MILLIS_PER_HOUR = 1000 * 60 * 60 ;
+  var MILLIS_PER_HOUR = 1000 * 60 * 60;
   var MILLIS_PER_DAY = MILLIS_PER_HOUR * 24;
   var data = sheet.getDataRange().getValues();
   var debugSheet = spreadsheet.getSheetByName("Debug")
@@ -89,7 +89,7 @@ function updatePlaylists(sheet) {
   /// For each playlist...
   for (var iRow = findNextRow(data); iRow < sheet.getLastRow(); iRow++) {
     Logger.clear();
-    Logger.log("Row: " + (iRow+1))
+    Logger.log("Row: " + (iRow+1));
     var playlistId = data[iRow][reservedColumnPlaylist];
     if (!playlistId) continue;
 
@@ -109,6 +109,7 @@ function updatePlaylists(sheet) {
   if (nextTime && dateDiff <= nextTime) {
     Logger.log("Skipped: Not time yet");
   } else {
+    
       /// ...get channels...
       var channelIds = [];
       var playlistIds = [];
@@ -179,7 +180,7 @@ function updatePlaylists(sheet) {
         }
       }
     // Update timestamp
-    if (!errorflag && !debugFlag_dontUpdateTimestamp) sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(Date.now().toIsoString()); 
+    if (!errorflag && !debugFlag_dontUpdateTimestamp) sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(new Date().toIsoString()); 
     }
     // Prints logs to Debug sheet
     var newLogs = Logger.getLog().split("\n").slice(0, -1).map(function(log) {if(log.search("limit") != -1 && log.search("quota") != -1)errorflag=true;return log.split(" INFO: ")})
