@@ -70,7 +70,7 @@ function updatePlaylists(sheet) {
   /// For each playlist...
   for (var iRow = findNextRow(data); iRow < sheet.getLastRow(); iRow++) {
     Logger.clear();
-    Logger.log("Row: " + (iRow+1))
+    Logger.log("Row: " + (iRow+1));
     var playlistId = data[iRow][reservedColumnPlaylist];
     if (!playlistId) continue;
 
