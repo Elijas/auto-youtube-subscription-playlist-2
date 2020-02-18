@@ -84,7 +84,7 @@ function updatePlaylists(sheet) {
   var freqDate = new Date(lastTimestamp);
   var dateDiff = Date.now() - freqDate;
   var nextTime = sheet.getRange(iRow + 1, reservedColumnFrequency).getValue()  * 36e5;
-  if (dateDiff <= nextTime && nextTime) {
+  if (nextTime && dateDiff <= nextTime) {
     Logger.log("Skipped: Not time yet");
   } else {
       /// ...get channels...
