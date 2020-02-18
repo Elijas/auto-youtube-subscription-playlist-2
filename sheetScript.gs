@@ -73,7 +73,7 @@ function updatePlaylists(sheet) {
     var playlistId = data[iRow][reservedColumnPlaylist];
     if (!playlistId) continue;
 
-    var lastTimestamp = sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).getValue();
+    var lastTimestamp = data[iRow][reservedColumnTimestamp];
     if (!lastTimestamp) {
       var date = new Date();
       date.setHours(date.getHours() - 24); // Subscriptions added starting with the last day
@@ -85,7 +85,7 @@ function updatePlaylists(sheet) {
   // Check if it's time to update already
   var freqDate = new Date(lastTimestamp);
   var dateDiff = Date.now() - freqDate;
-  var nextTime = sheet.getRange(iRow + 1, reservedColumnFrequency + 1).getValue()  * MILLIS_PER_HOUR;
+  var nextTime = data[iRow][reservedColumnFrequency]  * MILLIS_PER_HOUR;
   if (nextTime && dateDiff <= nextTime) {
     Logger.log("Skipped: Not time yet");
   } else {
@@ -362,7 +362,7 @@ function getPlaylistVideoIds(playlistId, lastTimestamp) {
         return []
       }
     } catch (e) {
-      addError("Cannot lookup playlist with id "+playlistID+" on YouTube, ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+      addError("Cannot lookup playlist with id "+playlistId+" on YouTube, ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
       return [];
     }
   }
