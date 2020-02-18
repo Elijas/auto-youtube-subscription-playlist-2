@@ -79,83 +79,83 @@ function updatePlaylists(sheet) {
       sheet.getRange(iRow + 1, reservedColumnTimestamp).setValue(isodate);
       lastTimestamp = isodate;
     }
-	
-	// Check if it's time to update already
-	var freqDate = new Date(lastTimestamp);
-	var dateDiff = Date.now() - freqDate;
-	var nextTime = sheet.getRange(iRow + 1, reservedColumnFrequency).getValue()  * 36e5;
-	if (dateDiff <= nextTime && nextTime) {
-		Logger.log("Skipped: Not time yet");
-	} else {
-	    /// ...get channels...
-	    var channelIds = [];
-	    var playlistIds = [];
-	    for (var iColumn = reservedTableColumns; iColumn < sheet.getLastColumn(); iColumn++) {
-	      var channel = data[iRow][iColumn];
-	      if (!channel) continue;
-	      else if (channel == "ALL") {
-	        var newChannelIds = getAllChannelIds();
-	        if (!newChannelIds || newChannelIds.length === 0) addError("Could not find any subscriptions");
-	        else [].push.apply(channelIds, newChannelIds);
-	      } else if (channel.substring(0,2) == "PL" && channel.length > 10)  // Add videos from playlist. MaybeTODO: better validation, since might interpret a channel with a name "PL..." as a playlist ID
-	         playlistIds.push(channel);
-	      else if (!(channel.substring(0,2) == "UC" && channel.length > 10)) // Check if it is not a channel ID (therefore a username). MaybeTODO: do a better validation, since might interpret a channel with a name "UC..." as a channel ID
-	      {
-	        try {
-	          var user = YouTube.Channels.list('id', {forUsername: channel, maxResults: 1});
-	          if (!user || !user.items) addError("Cannot query for user " + channel)
-	          else if (user.items.length === 0) addError("No user with name " + channel)
-	          else if (user.items.length !== 1) addError("Multiple users with name " + channel)
-	          else if (!user.items[0].id) addError("Cannot get id from user " + channel)
-	          else channelIds.push(user.items[0].id);
-	        } catch (e) {
-	          addError("Cannot search for channel with name "+channel+", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
-	          continue;
-	        }
-	      }
-	      else
-	        channelIds.push(channel);
-	    }
-	    
-	    /// ...get videos from the channels...
-	    var newVideoIds = [];
-	    for (var i = 0; i < channelIds.length; i++) {
-	      var videoIds = getVideoIdsWithLessQueries(channelIds[i], lastTimestamp)
-	      if (!videoIds || typeof(videoIds) !== "object") addError("Failed to get videos with channel id "+channelIds[i])
-	      else if (debugFlag_logWhenNoNewVideosFound && videoIds.length === 0) {
-	        Logger.log("Channel with id "+channelIds[i]+" has no new videos")
-	      } else {
-	        [].push.apply(newVideoIds, videoIds);
-	      }
-	    }
-	    for (var i = 0; i < playlistIds.length; i++) {
-	      var videoIds = getPlaylistVideoIds(playlistIds[i], lastTimestamp)
-	      if (!videoIds || typeof(videoIds) !== "object") addError("Failed to get videos with playlist id "+playlistIds[i])
-	      else if (debugFlag_logWhenNoNewVideosFound && videoIds.length === 0) {
-	        Logger.log("Playlist with id "+playlistIds[i]+" has no new videos")
-	      } else {
-	        [].push.apply(newVideoIds, videoIds);
-	      }
-	    }
-	      
-	    Logger.log("Acquired "+newVideoIds.length+" videos")
-	    
-	    if (!errorflag) {
-	      // ...add videos to playlist...
-	      if (!debugFlag_dontUpdatePlaylists) {
-	        addVideosToPlaylist(playlistId, newVideoIds);
-	      } else {
-	        addError("Don't Update Playlists debug flag is set");
-	      }
-	      
-	      /// ...delete old vidoes in playlist
-	      var daysBack = data[iRow][reservedColumnDeleteDays];
-	      if (daysBack && (daysBack > 0)) {
-	        var deleteBeforeTimestamp = ISODateString(new Date((new Date()).getTime() - daysBack*MILLIS_PER_DAY));
-	        Logger.log("Delete before: "+deleteBeforeTimestamp);
-	        deletePlaylistItems(playlistId, deleteBeforeTimestamp);
-	      }
-	    }
+  
+  // Check if it's time to update already
+  var freqDate = new Date(lastTimestamp);
+  var dateDiff = Date.now() - freqDate;
+  var nextTime = sheet.getRange(iRow + 1, reservedColumnFrequency).getValue()  * 36e5;
+  if (dateDiff <= nextTime && nextTime) {
+    Logger.log("Skipped: Not time yet");
+  } else {
+      /// ...get channels...
+      var channelIds = [];
+      var playlistIds = [];
+      for (var iColumn = reservedTableColumns; iColumn < sheet.getLastColumn(); iColumn++) {
+        var channel = data[iRow][iColumn];
+        if (!channel) continue;
+        else if (channel == "ALL") {
+          var newChannelIds = getAllChannelIds();
+          if (!newChannelIds || newChannelIds.length === 0) addError("Could not find any subscriptions");
+          else [].push.apply(channelIds, newChannelIds);
+        } else if (channel.substring(0,2) == "PL" && channel.length > 10)  // Add videos from playlist. MaybeTODO: better validation, since might interpret a channel with a name "PL..." as a playlist ID
+           playlistIds.push(channel);
+        else if (!(channel.substring(0,2) == "UC" && channel.length > 10)) // Check if it is not a channel ID (therefore a username). MaybeTODO: do a better validation, since might interpret a channel with a name "UC..." as a channel ID
+        {
+          try {
+            var user = YouTube.Channels.list('id', {forUsername: channel, maxResults: 1});
+            if (!user || !user.items) addError("Cannot query for user " + channel)
+            else if (user.items.length === 0) addError("No user with name " + channel)
+            else if (user.items.length !== 1) addError("Multiple users with name " + channel)
+            else if (!user.items[0].id) addError("Cannot get id from user " + channel)
+            else channelIds.push(user.items[0].id);
+          } catch (e) {
+            addError("Cannot search for channel with name "+channel+", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+            continue;
+          }
+        }
+        else
+          channelIds.push(channel);
+      }
+      
+      /// ...get videos from the channels...
+      var newVideoIds = [];
+      for (var i = 0; i < channelIds.length; i++) {
+        var videoIds = getVideoIdsWithLessQueries(channelIds[i], lastTimestamp)
+        if (!videoIds || typeof(videoIds) !== "object") addError("Failed to get videos with channel id "+channelIds[i])
+        else if (debugFlag_logWhenNoNewVideosFound && videoIds.length === 0) {
+          Logger.log("Channel with id "+channelIds[i]+" has no new videos")
+        } else {
+          [].push.apply(newVideoIds, videoIds);
+        }
+      }
+      for (var i = 0; i < playlistIds.length; i++) {
+        var videoIds = getPlaylistVideoIds(playlistIds[i], lastTimestamp)
+        if (!videoIds || typeof(videoIds) !== "object") addError("Failed to get videos with playlist id "+playlistIds[i])
+        else if (debugFlag_logWhenNoNewVideosFound && videoIds.length === 0) {
+          Logger.log("Playlist with id "+playlistIds[i]+" has no new videos")
+        } else {
+          [].push.apply(newVideoIds, videoIds);
+        }
+      }
+        
+      Logger.log("Acquired "+newVideoIds.length+" videos")
+      
+      if (!errorflag) {
+        // ...add videos to playlist...
+        if (!debugFlag_dontUpdatePlaylists) {
+          addVideosToPlaylist(playlistId, newVideoIds);
+        } else {
+          addError("Don't Update Playlists debug flag is set");
+        }
+        
+        /// ...delete old vidoes in playlist
+        var daysBack = data[iRow][reservedColumnDeleteDays];
+        if (daysBack && (daysBack > 0)) {
+          var deleteBeforeTimestamp = ISODateString(new Date((new Date()).getTime() - daysBack*MILLIS_PER_DAY));
+          Logger.log("Delete before: "+deleteBeforeTimestamp);
+          deletePlaylistItems(playlistId, deleteBeforeTimestamp);
+        }
+      }
     }
     // Prints logs to Debug sheet
     var newLogs = Logger.getLog().split("\n").slice(0, -1).map(function(log) {if(log.search("limit") != -1 && log.search("quota") != -1)errorflag=true;return log.split(" INFO: ")})
