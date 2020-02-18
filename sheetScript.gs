@@ -12,13 +12,14 @@ var debugFlag_dontUpdatePlaylists = false;
 var debugFlag_logWhenNoNewVideosFound = false;
 
 
+// Define reserved Rows and Columns (zero-based)
 var reservedTableRows = 3;        // Start of the range of the PlaylistID+ChannelID data
-var reservedTableColumns = 5;     // Start of the range of the ChannelID data
-var reservedColumnPlaylist = 1;   // Column containing playlist to add to
-var reservedColumnTimestamp = 2;  // Column containing last timestamp
-var reservedColumnFrequency = 3;  // Column containing number of hours until new check
-var reservedColumnDeleteDays = 4; // Column containing number of days before today until videos get deleted
-
+var reservedTableColumns = 4;     // Start of the range of the ChannelID data
+var reservedColumnPlaylist = 0;   // Column containing playlist to add to
+var reservedColumnTimestamp = 1;  // Column containing last timestamp
+var reservedColumnFrequency = 2;  // Column containing number of hours until new check
+var reservedColumnDeleteDays = 3; // Column containing number of days before today until videos get deleted
+// If you use getRange remember those indices are one-based, so add + 1 in that call
 
 function doGet(e) {
     var sheetID = PropertiesService.getScriptProperties().getProperty("sheetID");
@@ -36,8 +37,8 @@ function doGet(e) {
 function findNextRow(data) { // Finds the row with the earliest last updated time
   var minTimestamp = data.slice(reservedTableRows).reduce(
     function (min, row, index) {
-      if (row[reservedColumnPlaylist].length != 0 && row[reservedColumnPlaylist] < min[1]) {
-        return [index, row[reservedColumnPlaylist]]
+      if (row[reservedColumnTimestamp].length != 0 && row[reservedColumnTimestamp] < min[1]) {
+        return [index, row[reservedColumnTimestamp]]
       } else {
         return min;
       }
@@ -57,7 +58,8 @@ function updatePlaylists(sheet) {
   if (!sheetID) onOpen()
   var spreadsheet = SpreadsheetApp.openById(sheetID)
   if (!sheet || !sheet.toString || sheet.toString() != 'Sheet') sheet = spreadsheet.getSheets()[0];
-  var MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
+  var MILLIS_PER_HOUR = 1000 * 60 * 60 ;
+  var MILLIS_PER_DAY = MILLIS_PER_HOUR * 24;
   var data = sheet.getDataRange().getValues();
   var debugSheet = spreadsheet.getSheetByName("Debug")
   if (!debugSheet) debugSheet = spreadsheet.insertSheet("Debug")
@@ -68,22 +70,22 @@ function updatePlaylists(sheet) {
   for (var iRow = findNextRow(data); iRow < sheet.getLastRow(); iRow++) {
     Logger.clear();
     Logger.log("Row: " + (iRow+1))
-    var playlistId = data[iRow][0];
+    var playlistId = data[iRow][reservedColumnPlaylist];
     if (!playlistId) continue;
 
-    var lastTimestamp = sheet.getRange(iRow + 1, reservedColumnTimestamp).getValue();
+    var lastTimestamp = sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).getValue();
     if (!lastTimestamp) {
       var date = new Date();
       date.setHours(date.getHours() - 24); // Subscriptions added starting with the last day
       var isodate = date.toISOString();
-      sheet.getRange(iRow + 1, reservedColumnTimestamp).setValue(isodate);
+      sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(isodate);
       lastTimestamp = isodate;
     }
   
   // Check if it's time to update already
   var freqDate = new Date(lastTimestamp);
   var dateDiff = Date.now() - freqDate;
-  var nextTime = sheet.getRange(iRow + 1, reservedColumnFrequency).getValue()  * 36e5;
+  var nextTime = sheet.getRange(iRow + 1, reservedColumnFrequency + 1).getValue()  * MILLIS_PER_HOUR;
   if (nextTime && dateDiff <= nextTime) {
     Logger.log("Skipped: Not time yet");
   } else {
@@ -511,6 +513,6 @@ function playlist(pl, sheetID){
     pl = sheet.getLastRow();
   }
 
-  var playlistId = data[pl][0];
+  var playlistId = data[pl][reservedColumnPlaylist];
   return playlistId
 }
