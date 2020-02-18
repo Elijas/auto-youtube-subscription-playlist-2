@@ -22,6 +22,25 @@ var reservedColumnDeleteDays = 3; // Column containing number of days before tod
 // If you use getRange remember those indices are one-based, so add + 1 in that call i.e.
 // sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(isodate);
 
+// Extend Date with Iso String with timzone support (Youtube needs IsoDates)
+// https://stackoverflow.com/questions/17415579/how-to-iso-8601-format-a-date-with-timezone-offset-in-javascript
+Date.prototype.toIsoString = function() {
+    var tzo = -this.getTimezoneOffset(),
+        dif = tzo >= 0 ? '+' : '-',
+        pad = function(num) {
+            var norm = Math.floor(Math.abs(num));
+            return (norm < 10 ? '0' : '') + norm;
+        };
+    return this.getFullYear() +
+        '-' + pad(this.getMonth() + 1) +
+        '-' + pad(this.getDate()) +
+        'T' + pad(this.getHours()) +
+        ':' + pad(this.getMinutes()) +
+        ':' + pad(this.getSeconds()) +
+        dif + pad(tzo / 60) +
+        ':' + pad(tzo % 60);
+}
+
 function doGet(e) {
     var sheetID = PropertiesService.getScriptProperties().getProperty("sheetID");
     if (e.parameter.update == "True") {
@@ -78,7 +97,7 @@ function updatePlaylists(sheet) {
     if (!lastTimestamp) {
       var date = new Date();
       date.setHours(date.getHours() - 24); // Subscriptions added starting with the last day
-      var isodate = date.toISOString();
+      var isodate = date.toIsoString();
       sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(isodate);
       lastTimestamp = isodate;
     }
@@ -154,17 +173,18 @@ function updatePlaylists(sheet) {
         /// ...delete old vidoes in playlist
         var daysBack = data[iRow][reservedColumnDeleteDays];
         if (daysBack && (daysBack > 0)) {
-          var deleteBeforeTimestamp = ISODateString(new Date((new Date()).getTime() - daysBack*MILLIS_PER_DAY));
+          var deleteBeforeTimestamp = new Date((new Date()).getTime() - daysBack*MILLIS_PER_DAY).toIsoString();
           Logger.log("Delete before: "+deleteBeforeTimestamp);
           deletePlaylistItems(playlistId, deleteBeforeTimestamp);
         }
       }
+    // Update timestamp
+    if (!errorflag && !debugFlag_dontUpdateTimestamp) sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(Date.now().toIsoString()); 
     }
     // Prints logs to Debug sheet
     var newLogs = Logger.getLog().split("\n").slice(0, -1).map(function(log) {if(log.search("limit") != -1 && log.search("quota") != -1)errorflag=true;return log.split(" INFO: ")})
     if (newLogs.length > 0) debugSheet.getRange(nextDebugRow, 1, newLogs.length, 2).setValues(newLogs)
     nextDebugRow = debugSheet.getLastRow() + 1;
-    if (!errorflag && !debugFlag_dontUpdateTimestamp) sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(ISODateString(new Date())); // Update timestamp
     errorflag = false;
     totalErrorCount += plErrorCount;
     plErrorCount = 0;
@@ -476,16 +496,6 @@ function getAllChannelIds_OLD() { // Note: this function is not used.
 
   Logger.log('Acquired subscriptions %s, Actual subscriptions %s', channelIds.length, results.pageInfo.totalResults);
   return channelIds;
-}
-
-function ISODateString(d) { // modified from src: http://stackoverflow.com/questions/7244246/generate-an-rfc-3339-timestamp-similar-to-google-tasks-api
- function pad(n){return n<10 ? '0'+n : n}
- return d.getUTCFullYear()+'-'
-      + pad(d.getUTCMonth()+1)+'-'
-      + pad(d.getUTCDate())+'T'
-      + pad(d.getUTCHours())+':'
-      + pad(d.getUTCMinutes())+':'
-      + pad(d.getUTCSeconds())+'.000Z'
 }
 
 function onOpen() {
