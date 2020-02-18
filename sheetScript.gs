@@ -67,6 +67,7 @@ function updatePlaylists(sheet) {
   /// For each playlist...
   for (var iRow = findNextRow(data); iRow < sheet.getLastRow(); iRow++) {
     Logger.clear();
+    Logger.log("Row: " + (iRow+1))
     var playlistId = data[iRow][0];
     if (!playlistId) continue;
 
@@ -89,7 +90,6 @@ function updatePlaylists(sheet) {
 	    /// ...get channels...
 	    var channelIds = [];
 	    var playlistIds = [];
-	    Logger.log("Row: " + (iRow+1))
 	    for (var iColumn = reservedTableColumns; iColumn < sheet.getLastColumn(); iColumn++) {
 	      var channel = data[iRow][iColumn];
 	      if (!channel) continue;
