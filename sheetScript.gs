@@ -13,8 +13,8 @@ var debugFlag_logWhenNoNewVideosFound = false;
 
 
 // Define reserved Rows and Columns (zero-based)
-var reservedTableRows = 2;        // Start of the range of the PlaylistID+ChannelID data
-var reservedTableColumns = 4;     // Start of the range of the ChannelID data
+var reservedTableRows = 3;        // Start of the range of the PlaylistID+ChannelID data 
+var reservedTableColumns = 5;     // Start of the range of the ChannelID data (0: A, 1: B, 2: C, 3: D, 4: E, 5: F, ...)
 var reservedColumnPlaylist = 0;   // Column containing playlist to add to
 var reservedColumnTimestamp = 1;  // Column containing last timestamp
 var reservedColumnFrequency = 2;  // Column containing number of hours until new check
