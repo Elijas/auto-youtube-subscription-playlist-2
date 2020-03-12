@@ -30,7 +30,15 @@ build:
     # A custom script step, name value is used in the UI
     # and the code value contains the command that get executed
     - script:
-        name: echo nodejs information
+        name: init .clasprc.json .clasp.json
         code: |
-          echo "node version $(node -v) running"
-          echo "npm version $(npm -v) running"
+          echo $CLASPRC_JSON > .clasprc.json
+          echo $CLASP_JSON > .clasp.json
+    - script:
+        name: login
+        code: |
+          npx clasp login
+    - script:
+        name: push
+        code: |
+          npx clasp push
