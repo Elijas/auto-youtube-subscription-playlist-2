@@ -35,10 +35,6 @@ build:
           echo $CLASPRC_JSON > .clasprc.json
           echo $CLASP_JSON > .clasp.json
     - script:
-        name: login
-        code: |
-          npx clasp login
-    - script:
         name: push
         code: |
           npx clasp push
