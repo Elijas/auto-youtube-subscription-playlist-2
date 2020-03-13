@@ -32,9 +32,9 @@ build:
     - script:
         name: init .clasprc.json .clasp.json
         code: |
-          echo $CLASPRC_JSON > .clasprc.json
+          echo $CLASPRC_JSON > ~/.clasprc.json
           echo $CLASP_JSON > .clasp.json
     - script:
         name: push
         code: |
-          npx clasp push
+          npm run deploy
