@@ -35,6 +35,10 @@ build:
           echo $CLASPRC_JSON > ~/.clasprc.json
           echo $CLASP_JSON > .clasp.json
     - script:
+        name: check clasprc
+        code: |
+          cat ~/.clasprc.json | head -2
+    - script:
         name: push
         code: |
           npm run deploy
