@@ -5,16 +5,9 @@ node_js:
 install:
   - npm install
 
-jobs:
-  include: 
-    - stage: init clasp variables
-      script:
-        - echo $CLASPRC_JSON > ~/.clasprc.json
-        - echo $CLASP_JSON > .clasp.json
-    - stage: check clasprc
-      script:
-        - cat ~/.clasprc.json | head -2
-    - stage: push
-      script:
-        - npm run deploy
+script:
+  - echo $CLASPRC_JSON > ~/.clasprc.json
+  - echo $CLASP_JSON > .clasp.json
+  - cat ~/.clasprc.json | head -2
+  - npm run deploy
   
