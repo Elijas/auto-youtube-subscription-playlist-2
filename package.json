@@ -11,7 +11,7 @@
     "@google/clasp": "^2.3.0"
   },
   "scripts": {
-    "deploy": "clasp push",
+    "deploy": "clasp login",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
