@@ -2,3 +2,4 @@ node_modules
 
 .clasp.json
 .clasprc.json
+creds.json

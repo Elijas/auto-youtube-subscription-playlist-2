@@ -1,0 +1,20 @@
+language: node_js
+node_js:
+  - 7
+  
+install:
+  - npm install
+
+jobs:
+  include: 
+    - stage: init clasp variables
+      script:
+        - echo $CLASPRC_JSON > ~/.clasprc.json
+        - echo $CLASP_JSON > .clasp.json
+    - stage: check clasprc
+      script:
+        - cat ~/.clasprc.json | head -2
+    - stage: push
+      script:
+        - npm run deploy
+  
