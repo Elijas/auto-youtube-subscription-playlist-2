@@ -57,8 +57,8 @@ function doGet(e) {
 function findNextRow(data) { // Finds the row with the earliest last updated time
   var minTimestamp = data.slice(reservedTableRows).reduce(
     function (min, row, index) {
-      if (row[reservedColumnPlaylist].length != 0 && row[reservedColumnPlaylist] < min[1]) {
-        return [index, row[reservedColumnPlaylist]]
+      if (row[reservedColumnPlaylist].length != 0 && row[reservedColumnTimestamp] < min[1]) {
+        return [index, row[reservedColumnTimestamp]]
       } else {
         return min;
       }
