@@ -13,8 +13,8 @@ var debugFlag_logWhenNoNewVideosFound = false;
 
 
 // Define reserved Rows and Columns (zero-based)
-var reservedTableRows = 3;        // Start of the range of the PlaylistID+ChannelID data
-var reservedTableColumns = 4;     // Start of the range of the ChannelID data
+var reservedTableRows = 3;        // Start of the range of the PlaylistID+ChannelID data 
+var reservedTableColumns = 5;     // Start of the range of the ChannelID data (0: A, 1: B, 2: C, 3: D, 4: E, 5: F, ...)
 var reservedColumnPlaylist = 0;   // Column containing playlist to add to
 var reservedColumnTimestamp = 1;  // Column containing last timestamp
 var reservedColumnFrequency = 2;  // Column containing number of hours until new check
@@ -57,8 +57,8 @@ function doGet(e) {
 function findNextRow(data) { // Finds the row with the earliest last updated time
   var minTimestamp = data.slice(reservedTableRows).reduce(
     function (min, row, index) {
-      if (row[reservedColumnTimestamp].length != 0 && row[reservedColumnTimestamp] < min[1]) {
-        return [index, row[reservedColumnTimestamp]]
+      if (row[reservedColumnPlaylist].length != 0 && row[reservedColumnPlaylist] < min[1]) {
+        return [index, row[reservedColumnPlaylist]]
       } else {
         return min;
       }
@@ -102,14 +102,13 @@ function updatePlaylists(sheet) {
       lastTimestamp = isodate;
     }
   
-  // Check if it's time to update already
-  var freqDate = new Date(lastTimestamp);
-  var dateDiff = Date.now() - freqDate;
-  var nextTime = data[iRow][reservedColumnFrequency]  * MILLIS_PER_HOUR;
-  if (nextTime && dateDiff <= nextTime) {
-    Logger.log("Skipped: Not time yet");
-  } else {
-    
+    // Check if it's time to update already
+    var freqDate = new Date(lastTimestamp);
+    var dateDiff = Date.now() - freqDate;
+    var nextTime = data[iRow][reservedColumnFrequency]  * MILLIS_PER_HOUR;
+    if (nextTime && dateDiff <= nextTime) {
+      Logger.log("Skipped: Not time yet");
+    } else {
       /// ...get channels...
       var channelIds = [];
       var playlistIds = [];
