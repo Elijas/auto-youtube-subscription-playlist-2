@@ -1,5 +1,5 @@
 {
-  "timeZone": "Europe/Bucharest",
+  "timeZone": "UTC",
   "dependencies": {
     "enabledAdvancedServices": [{
       "userSymbol": "YouTube",
@@ -8,5 +8,5 @@
     }]
   },
   "exceptionLogging": "STACKDRIVER",
-  "runtimeVersion": "DEPRECATED_ES5"
+  "runtimeVersion": "V8"
 }
