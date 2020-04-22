@@ -1,0 +1,26 @@
+{
+  "name": "auto-youtube-subscription-playlist-2",
+  "version": "1.0.0",
+  "description": "This is a Google Apps Script that automatically adds new Youtube videos to playlists (a replacement for Youtube Collections feature).",
+  "main": "Code.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "push": "clasp push",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Elijas/auto-youtube-subscription-playlist-2.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Elijas/auto-youtube-subscription-playlist-2/issues"
+  },
+  "homepage": "https://github.com/Elijas/auto-youtube-subscription-playlist-2#readme",
+  "devDependencies": {
+    "@google/clasp": "^2.3.0"
+  }
+}
