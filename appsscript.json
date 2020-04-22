@@ -8,8 +8,5 @@
     }]
   },
   "exceptionLogging": "STACKDRIVER",
-  "runtimeVersion": "V8",
-  "executionApi": {
-    "access": "ANYONE"
-  }
+  "runtimeVersion": "DEPRECATED_ES5"
 }
