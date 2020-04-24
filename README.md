@@ -53,6 +53,14 @@ If you ran into problems, here are some of the possible sources for solutions:
       - In Sheet's menu: `Functions` / `Update Playlists`
       - Grant access in the dialog
 
+4. (Optional) Adjust Timezone:
+      - In menu (of the Sheet): `Tools` / `Script Editor...`
+      - In script: `File` / `Project properties`
+      ![](https://user-images.githubusercontent.com/17478849/80022886-b38eac00-84aa-11ea-8720-d486ca03bcea.png)
+      - On tab: `Info` scroll down
+      - Choose `Time zone` from dropdown
+      - `Save`
+
 # Usage
 
 ##### Manual playlist update:
