@@ -233,7 +233,7 @@ function addVideosToPlaylist(playlistId, videoIds, idx = 0, successCount = 0, er
       }
     }
   } else {	
-    addError("The query contains "+videoIds.length+" videos. Script cannot add more than "+maxVideos+" videos. Try moving the timestamp closer to today.")	
+    addError("The query contains "+totalVids+" videos. Script cannot add more than "+maxVideos+" videos. Try moving the timestamp closer to today.")	
   }
 }
 
