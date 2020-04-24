@@ -4,6 +4,10 @@
 // MAYBE TODO: Filtering based on text (regexp?) in title and description
 // MAYBE TODO: NOT flags to include videos that are NOT from certain channels / do not contain text, etc
 
+// Adjustable to quota of Youtube API
+var maxVideos = 200;
+
+// Errorflags
 var errorflag = false;
 var plErrorCount = 0;
 var totalErrorCount = 0;
@@ -199,7 +203,7 @@ function updatePlaylists(sheet) {
 function addVideosToPlaylist(playlistId, videoIds) {
   var errorCount = 0;
   var totalVids = videoIds.length;
-  if (videoIds.length < 200) {
+  if (videoIds.length < maxVideos) {
     for (var i = 0; i < totalVids; i++) {
       try {
         YouTube.PlaylistItems.insert({
