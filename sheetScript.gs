@@ -4,6 +4,10 @@
 // MAYBE TODO: Filtering based on text (regexp?) in title and description
 // MAYBE TODO: NOT flags to include videos that are NOT from certain channels / do not contain text, etc
 
+// Adjustable to quota of Youtube API
+var maxVideos = 200;
+
+// Errorflags
 var errorflag = false;
 var plErrorCount = 0;
 var totalErrorCount = 0;
@@ -57,8 +61,8 @@ function doGet(e) {
 function findNextRow(data) { // Finds the row with the earliest last updated time
   var minTimestamp = data.slice(reservedTableRows).reduce(
     function (min, row, index) {
-      if (row[reservedColumnPlaylist].length != 0 && row[reservedColumnPlaylist] < min[1]) {
-        return [index, row[reservedColumnPlaylist]]
+      if (row[reservedColumnPlaylist].length != 0 && row[reservedColumnTimestamp] < min[1]) {
+        return [index, row[reservedColumnTimestamp]]
       } else {
         return min;
       }
