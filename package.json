@@ -8,7 +8,7 @@
   },
   "scripts": {
     "push": "clasp push",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "if clasp run test | tee /dev/stderr | grep -q 'All tests passed'; then exit 0; else exit 1; fi"
   },
   "repository": {
     "type": "git",
