@@ -203,7 +203,7 @@ function updatePlaylists(sheet) {
 function addVideosToPlaylist(playlistId, videoIds, idx = 0, successCount = 0, errorCount = 0) {
   var totalVids = videoIds.length;
   var success = 1;
-  if (totalVids > 0) {
+  if (0 < totalVids && totalVids < maxVideos) {
     try {
       YouTube.PlaylistItems.insert({
         snippet: {
@@ -232,6 +232,8 @@ function addVideosToPlaylist(playlistId, videoIds, idx = 0, successCount = 0, er
         addVideosToPlaylist(playlistId, videoIds, idx, successCount, errorCount);
       }
     }
+  } else {	
+    addError("The query contains "+videoIds.length+" videos. Script cannot add more than "+maxVideos+" videos. Try moving the timestamp closer to today.")	
   }
 }
 
