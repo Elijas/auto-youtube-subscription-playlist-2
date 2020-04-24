@@ -106,13 +106,13 @@ function updatePlaylists(sheet) {
       lastTimestamp = isodate;
     }
   
-  // Check if it's time to update already
-  var freqDate = new Date(lastTimestamp);
-  var dateDiff = Date.now() - freqDate;
-  var nextTime = data[iRow][reservedColumnFrequency]  * MILLIS_PER_HOUR;
-  if (nextTime && dateDiff <= nextTime) {
-    Logger.log("Skipped: Not time yet");
-  } else {
+    // Check if it's time to update already
+    var freqDate = new Date(lastTimestamp);
+    var dateDiff = Date.now() - freqDate;
+    var nextTime = data[iRow][reservedColumnFrequency]  * MILLIS_PER_HOUR;
+    if (nextTime && dateDiff <= nextTime) {
+      Logger.log("Skipped: Not time yet");
+    } else {
       /// ...get channels...
       var channelIds = [];
       var playlistIds = [];
