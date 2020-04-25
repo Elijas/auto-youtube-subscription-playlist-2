@@ -232,6 +232,8 @@ function addVideosToPlaylist(playlistId, videoIds, idx = 0, successCount = 0, er
         addVideosToPlaylist(playlistId, videoIds, idx, successCount, errorCount);
       }
     }
+  } else if (totalVids == 0) {	
+    Logger.log("No new videos yet.")	
   } else {	
     addError("The query contains "+totalVids+" videos. Script cannot add more than "+maxVideos+" videos. Try moving the timestamp closer to today.")	
   }
