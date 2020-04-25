@@ -202,7 +202,6 @@ function updatePlaylists(sheet) {
 
 function addVideosToPlaylist(playlistId, videoIds, idx = 0, successCount = 0, errorCount = 0) {
   var totalVids = videoIds.length;
-  var success = 1;
   if (0 < totalVids && totalVids < maxVideos) {
     try {
       YouTube.PlaylistItems.insert({
@@ -214,6 +213,7 @@ function addVideosToPlaylist(playlistId, videoIds, idx = 0, successCount = 0, er
           }
       }
       }, 'snippet');
+      var success = 1;
     } catch (e) {
       if (e.details.code !== 409) { // Skip error count if Video exists in playlist already
       addError("Couldn't update playlist with video ("+videoIds[idx]+"), ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
