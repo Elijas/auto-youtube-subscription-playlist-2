@@ -216,8 +216,8 @@ function addVideosToPlaylist(playlistId, videoIds, idx = 0, successCount = 0, er
       var success = 1;
     } catch (e) {
       if (e.details.code !== 409) { // Skip error count if Video exists in playlist already
-      addError("Couldn't update playlist with video ("+videoIds[idx]+"), ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
-    } else {
+        addError("Couldn't update playlist with video ("+videoIds[idx]+"), ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+      } else {
         Logger.log("Couldn't update playlist with video ("+videoIds[idx]+"), ERROR: Video already exists")
       }
       errorCount += 1;
