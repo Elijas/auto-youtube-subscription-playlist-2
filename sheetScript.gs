@@ -17,7 +17,7 @@ var debugFlag_logWhenNoNewVideosFound = false;
 
 
 // Define reserved Rows and Columns (zero-based)
-var reservedTableRows = 3;        // Start of the range of the PlaylistID+ChannelID data 
+var reservedTableRows = 3;        // Start of the range of the PlaylistID+ChannelID data
 var reservedTableColumns = 5;     // Start of the range of the ChannelID data (0: A, 1: B, 2: C, 3: D, 4: E, 5: F, ...)
 var reservedColumnPlaylist = 0;   // Column containing playlist to add to
 var reservedColumnTimestamp = 1;  // Column containing last timestamp
@@ -200,37 +200,42 @@ function updatePlaylists(sheet) {
   }
 }
 
-function addVideosToPlaylist(playlistId, videoIds) {
-  var errorCount = 0;
+function addVideosToPlaylist(playlistId, videoIds, idx = 0, successCount = 0, errorCount = 0) {
   var totalVids = videoIds.length;
-  if (videoIds.length < maxVideos) {
-    for (var i = 0; i < totalVids; i++) {
-      try {
-        YouTube.PlaylistItems.insert({
-          snippet: {
-            playlistId: playlistId,
-            resourceId: {
-              videoId: videoIds[i],
-              kind: 'youtube#video'
-            }
+  if (0 < totalVids && totalVids < maxVideos) {
+    try {
+      YouTube.PlaylistItems.insert({
+        snippet: {
+          playlistId: playlistId,
+          resourceId: {
+            videoId: videoIds[idx],
+            kind: 'youtube#video'
           }
-        }, 'snippet');
-      } catch (e) {
-        if (e.details.code !== 409) { // Skip error count if Video exists in playlist already
-          addError("Couldn't update playlist with video ("+videoIds[i]+"), ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
-        } else {
-          Logger.log("Couldn't update playlist with video ("+videoIds[i]+"), ERROR: Video already exists")
-        }
-        errorCount += 1;
-        continue;
       }
-
-      Utilities.sleep(1000);
+      }, 'snippet');
+      var success = 1;
+    } catch (e) {
+      if (e.details.code !== 409) { // Skip error count if Video exists in playlist already
+        addError("Couldn't update playlist with video ("+videoIds[idx]+"), ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+      } else {
+        Logger.log("Couldn't update playlist with video ("+videoIds[idx]+"), ERROR: Video already exists")
+      }
+      errorCount += 1;
+      success = 0;
+    } finally {
+      idx += 1;
+      successCount += success;
+      if (totalVids == idx) {
+        Logger.log("Added "+successCount+" video(s) to playlist. Error for "+errorCount+" video(s).")
+        errorflag = (errorCount > 0);
+      } else {
+        addVideosToPlaylist(playlistId, videoIds, idx, successCount, errorCount);
+      }
     }
-    Logger.log("Added "+(i -= errorCount)+" video(s) to playlist. Error for "+errorCount+" video(s).")
-    errorflag = (errorCount > 0);
-  } else {
-    addError("The query contains "+videoIds.length+" videos. Script cannot add more than 200 videos. Try moving the timestamp closer to today.")
+  } else if (totalVids == 0) {	
+    Logger.log("No new videos yet.")	
+  } else {	
+    addError("The query contains "+totalVids+" videos. Script cannot add more than "+maxVideos+" videos. Try moving the timestamp closer to today.")	
   }
 }
 
