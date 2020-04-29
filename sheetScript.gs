@@ -454,21 +454,6 @@ function deletePlaylistItems(playlistId, deleteBeforeTimestamp) {
 // Makes Web App, function call from Google Sheets, add errors, etc
 //
 
-function playlist(pl, sheetID){
-  var sheet = SpreadsheetApp.openById(sheetID).getSheets()[0];
-  var data = sheet.getDataRange().getValues();
-  if (pl == undefined){
-    pl = reservedTableRows;
-  } else {
-    pl = Number(pl) + reservedTableRows - 1;  // I like to think of the first playlist as being number 1.
-  }
-  if (pl > sheet.getLastRow()){
-    pl = sheet.getLastRow();
-  }
-  var playlistId = data[pl][reservedColumnPlaylist];
-  return playlistId
-}
-
 // Log errors in debug sheet and throw an error
 function addError(s) {
   Logger.log(s);
