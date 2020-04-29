@@ -485,11 +485,6 @@ function onOpen() {
   PropertiesService.getScriptProperties().setProperty("sheetID", ss.getId())
 }
 
-function insideUpdate(){
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
-  updatePlaylists(sheet);
-}
-
 // Function to publish Script as Web App
 function doGet(e) {
     var sheetID = PropertiesService.getScriptProperties().getProperty("sheetID");
