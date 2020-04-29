@@ -63,7 +63,7 @@ function updatePlaylists(sheet) {
   var nextDebugRow = 1; // First empty row to add logs to
 
   /// For each playlist...
-  for (var iRow = 1; iRow < sheet.getLastRow(); iRow++) {
+  for (var iRow = reservedTableRows; iRow < sheet.getLastRow(); iRow++) {
     Logger.clear();
     Logger.log("Row: " + (iRow+1));
     var playlistId = data[iRow][reservedColumnPlaylist];
