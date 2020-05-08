@@ -483,3 +483,19 @@ function doGet(e) {
     t.sheetID = sheetID
     return t.evaluate();
 }
+
+// Function to select playlist for Web App
+function playlist(pl, sheetID){
+  var sheet = SpreadsheetApp.openById(sheetID).getSheets()[0];
+  var data = sheet.getDataRange().getValues();
+  if (pl == undefined){
+    pl = reservedTableRows;
+  } else {
+    pl = Number(pl) + reservedTableRows - 1;  // I like to think of the first playlist as being number 1.
+  }
+  if (pl > sheet.getLastRow()){
+    pl = sheet.getLastRow();
+  }
+  var playlistId = data[pl][reservedColumnPlaylist];
+  return playlistId
+}
