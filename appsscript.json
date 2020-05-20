@@ -1,0 +1,19 @@
+{
+  "timeZone": "UTC",
+  "dependencies": {
+    "enabledAdvancedServices": [{
+      "userSymbol": "YouTube",
+      "serviceId": "youtube",
+      "version": "v3"
+    }]
+  },
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/youtube"
+  ],
+  "executionApi": {
+    "access": "MYSELF"
+  },
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8"
+}

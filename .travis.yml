@@ -1,0 +1,25 @@
+language: node_js
+node_js:
+  - node
+
+stages:
+  - test
+  - name: deploy
+    if: branch = master AND type = push AND fork = false
+
+jobs:
+  include:
+    - stage: test
+      name: "Test GAS"
+      script:
+        - echo $TEST_LOCAL_CLASPRC_JSON > .clasprc.json
+        - echo $TEST_GLOBAL_CLASPRC_JSON > ~/.clasprc.json
+        - echo $TEST_CLASP_JSON > .clasp.json
+        - npm run push
+        - npm run test
+    - stage: deploy
+      name: "Deploy to GCP"
+      script:
+        - echo $PROD_GLOBAL_CLASPRC_JSON > ~/.clasprc.json
+        - echo $PROD_CLASP_JSON > .clasp.json
+        - npm run push
