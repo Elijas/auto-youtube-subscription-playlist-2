@@ -1,8 +1,8 @@
-// MAYBE TODO: Better exception handling for Youtube API calls
-// MAYBE TODO: Deal with playlist limits (~ 200-218 videos)
-// MAYBE TODO: Special keyword "ALLOTHER" for all other (unmentioned yet in the app) channel ids
-// MAYBE TODO: Filtering based on text (regexp?) in title and description
-// MAYBE TODO: NOT flags to include videos that are NOT from certain channels / do not contain text, etc
+// Auto Youtube Subscription Playlist (2)
+// This is a Google Apps Script that automatically adds new Youtube videos to playlists (a replacement for Youtube Collections feature).
+// Code: https://github.com/Elijas/auto-youtube-subscription-playlist-2/
+// Copy Spreadsheet: 
+// https://docs.google.com/spreadsheets/d/1sZ9U52iuws6ijWPQTmQkXvaZSV3dZ3W9JzhnhNTX9GU/copy
 
 // Adjustable to quota of Youtube API
 var maxVideos = 200;
@@ -45,37 +45,9 @@ Date.prototype.toIsoString = function() {
         ':' + pad(tzo % 60);
 }
 
-function doGet(e) {
-    var sheetID = PropertiesService.getScriptProperties().getProperty("sheetID");
-    if (e.parameter.update == "True") {
-        var sheet = SpreadsheetApp.openById(sheetID).getSheets()[0];
-        updatePlaylists(sheet);
-    };
-
-    var t = HtmlService.createTemplateFromFile('index.html');
-    t.data = e.parameter.pl
-    t.sheetID = sheetID
-    return t.evaluate();
-}
-
-function findNextRow(data) { // Finds the row with the earliest last updated time
-  var minTimestamp = data.slice(reservedTableRows).reduce(
-    function (min, row, index) {
-      if (row[reservedColumnPlaylist].length != 0 && row[reservedColumnTimestamp] < min[1]) {
-        return [index, row[reservedColumnTimestamp]]
-      } else {
-        return min;
-      }
-    }, [-1, "9999-99-99T99:99:99.999Z"]
-  );
-  return reservedTableRows + ((minTimestamp[0] == -1) ? 0 : minTimestamp[0]);
-}
-
-function addError(s) {
-  Logger.log(s);
-  errorflag = true;
-  plErrorCount += 1;
-}
+//
+// Main Function to update all Playlists
+//
 
 function updatePlaylists(sheet) {
   var sheetID = PropertiesService.getScriptProperties().getProperty("sheetID")
@@ -91,7 +63,7 @@ function updatePlaylists(sheet) {
   var nextDebugRow = 1; // First empty row to add logs to
 
   /// For each playlist...
-  for (var iRow = findNextRow(data); iRow < sheet.getLastRow(); iRow++) {
+  for (var iRow = reservedTableRows; iRow < sheet.getLastRow(); iRow++) {
     Logger.clear();
     Logger.log("Row: " + (iRow+1));
     var playlistId = data[iRow][reservedColumnPlaylist];
@@ -200,48 +172,50 @@ function updatePlaylists(sheet) {
   }
 }
 
-function addVideosToPlaylist(playlistId, videoIds, idx = 0, successCount = 0, errorCount = 0) {
-  var totalVids = videoIds.length;
-  if (0 < totalVids && totalVids < maxVideos) {
-    try {
-      YouTube.PlaylistItems.insert({
-        snippet: {
-          playlistId: playlistId,
-          resourceId: {
-            videoId: videoIds[idx],
-            kind: 'youtube#video'
-          }
+//
+// Functions to obtain channel IDs to check
+//
+
+// Get Channel IDs from Subscriptions (ALL keyword)
+function getAllChannelIds() { // get YT Subscriptions-List, src: https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/
+  var AboResponse, AboList = [[],[]], nextPageToken = [], nptPage = 0, i, ix;
+  // Workaround: nextPageToken API-Bug (this Tokens are limited to 1000 Subscriptions... but you can add more Tokens.)
+  nextPageToken = ['','CDIQAA','CGQQAA','CJYBEAA','CMgBEAA','CPoBEAA','CKwCEAA','CN4CEAA','CJADEAA','CMIDEAA','CPQDEAA','CKYEEAA','CNgEEAA','CIoFEAA','CLwFEAA','CO4FEAA','CKAGEAA','CNIGEAA','CIQHEAA','CLYHEAA'];
+  try {
+    do {
+      AboResponse = YouTube.Subscriptions.list('snippet', {
+        mine: true,
+        maxResults: 50,
+        order: 'alphabetical',
+        pageToken: nextPageToken[nptPage],
+        fields: 'items(snippet(title,resourceId(channelId)))'
+      });
+      for (i = 0, ix = AboResponse.items.length; i < ix; i++) {
+        AboList[0].push(AboResponse.items[i].snippet.title)
+        AboList[1].push(AboResponse.items[i].snippet.resourceId.channelId)
       }
-      }, 'snippet');
-      var success = 1;
-    } catch (e) {
-      if (e.details.code !== 409) { // Skip error count if Video exists in playlist already
-        addError("Couldn't update playlist with video ("+videoIds[idx]+"), ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
-      } else {
-        Logger.log("Couldn't update playlist with video ("+videoIds[idx]+"), ERROR: Video already exists")
-      }
-      errorCount += 1;
-      success = 0;
-    } finally {
-      idx += 1;
-      successCount += success;
-      if (totalVids == idx) {
-        Logger.log("Added "+successCount+" video(s) to playlist. Error for "+errorCount+" video(s).")
-        errorflag = (errorCount > 0);
-      } else {
-        addVideosToPlaylist(playlistId, videoIds, idx, successCount, errorCount);
-      }
+      nptPage += 1;
+    } while (AboResponse.items.length > 0 && nptPage < 20);
+    if (AboList[0].length !== AboList[1].length) {
+      addError("While getting subscriptions, the number of titles ("+AboList[0].length+") did not match the number of channels ("+AboList[1].length+")."); // returns a string === error
+      return []
     }
-  } else if (totalVids == 0) {	
-    Logger.log("No new videos yet.")	
-  } else {	
-    addError("The query contains "+totalVids+" videos. Script cannot add more than "+maxVideos+" videos. Try moving the timestamp closer to today.")	
+  } catch (e) {
+    addError("Could not get subscribed channels, ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+    return [];
   }
+
+  Logger.log('Acquired subscriptions %s', AboList[1].length);
+  return AboList[1];
 }
 
+//
+// Functions to get Videos
+//
+
+// Get new videos from Channels
 function getVideoIds(channelId, lastTimestamp) {
   var videoIds = [];
-  
   var nextPageToken = '';
   do {
     try {
@@ -299,6 +273,7 @@ function getVideoIds(channelId, lastTimestamp) {
   return videoIds;
 }
 
+// Get videos from Channels but with less Quota use
 // slower and date ordering is a bit messy but less quota costs
 function getVideoIdsWithLessQueries(channelId, lastTimestamp) {
   var videoIds = [];
@@ -346,12 +321,11 @@ function getVideoIdsWithLessQueries(channelId, lastTimestamp) {
   return videoIds.reverse(); // Reverse to get videos in ascending order by date
 }
 
+// Get Video IDs from Playlist
 function getPlaylistVideoIds(playlistId, lastTimestamp) {
   var videoIds = [];
-
   var nextPageToken = '';
   while (nextPageToken != null){
-
     try {
       var results = YouTube.PlaylistItems.list('snippet', {
         playlistId: playlistId,
@@ -400,39 +374,51 @@ function getPlaylistVideoIds(playlistId, lastTimestamp) {
   return videoIds;
 }
 
-function getAllChannelIds() { // get YT Subscriptions-List, src: https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/
-  var AboResponse, AboList = [[],[]], nextPageToken = [], nptPage = 0, i, ix;
+//
+// Functions to Add and Delete videos to playlist
+//
 
-  // Workaround: nextPageToken API-Bug (this Tokens are limited to 1000 Subscriptions... but you can add more Tokens.)
-  nextPageToken = ['','CDIQAA','CGQQAA','CJYBEAA','CMgBEAA','CPoBEAA','CKwCEAA','CN4CEAA','CJADEAA','CMIDEAA','CPQDEAA','CKYEEAA','CNgEEAA','CIoFEAA','CLwFEAA','CO4FEAA','CKAGEAA','CNIGEAA','CIQHEAA','CLYHEAA'];
-  try {
-    do {
-      AboResponse = YouTube.Subscriptions.list('snippet', {
-        mine: true,
-        maxResults: 50,
-        order: 'alphabetical',
-        pageToken: nextPageToken[nptPage],
-        fields: 'items(snippet(title,resourceId(channelId)))'
-      });
-      for (i = 0, ix = AboResponse.items.length; i < ix; i++) {
-        AboList[0].push(AboResponse.items[i].snippet.title)
-        AboList[1].push(AboResponse.items[i].snippet.resourceId.channelId)
+// Add Videos to Playlist using Video IDs obtained before
+function addVideosToPlaylist(playlistId, videoIds, idx = 0, successCount = 0, errorCount = 0) {
+  var totalVids = videoIds.length;
+  if (0 < totalVids && totalVids < maxVideos) {
+    try {
+      YouTube.PlaylistItems.insert({
+        snippet: {
+          playlistId: playlistId,
+          resourceId: {
+            videoId: videoIds[idx],
+            kind: 'youtube#video'
+          }
       }
-      nptPage += 1;
-    } while (AboResponse.items.length > 0 && nptPage < 20);
-    if (AboList[0].length !== AboList[1].length) {
-      addError("While getting subscriptions, the number of titles ("+AboList[0].length+") did not match the number of channels ("+AboList[1].length+")."); // returns a string === error
-      return []
+      }, 'snippet');
+      var success = 1;
+    } catch (e) {
+      if (e.details.code !== 409) { // Skip error count if Video exists in playlist already
+        addError("Couldn't update playlist with video ("+videoIds[idx]+"), ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+      } else {
+        Logger.log("Couldn't update playlist with video ("+videoIds[idx]+"), ERROR: Video already exists")
+      }
+      errorCount += 1;
+      success = 0;
+    } finally {
+      idx += 1;
+      successCount += success;
+      if (totalVids == idx) {
+        Logger.log("Added "+successCount+" video(s) to playlist. Error for "+errorCount+" video(s).")
+        errorflag = (errorCount > 0);
+      } else {
+        addVideosToPlaylist(playlistId, videoIds, idx, successCount, errorCount);
+      }
     }
-  } catch (e) {
-    addError("Could not get subscribed channels, ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
-    return [];
+  } else if (totalVids == 0) {	
+    Logger.log("No new videos yet.")	
+  } else {	
+    addError("The query contains "+totalVids+" videos. Script cannot add more than "+maxVideos+" videos. Try moving the timestamp closer to today.")	
   }
-
-  Logger.log('Acquired subscriptions %s', AboList[1].length);
-  return AboList[1];
 }
 
+// Delete Videos from Playlist if they're older than the defined time
 function deletePlaylistItems(playlistId, deleteBeforeTimestamp) {
   var nextPageToken = '';
   while (nextPageToken != null){
@@ -463,63 +449,42 @@ function deletePlaylistItems(playlistId, deleteBeforeTimestamp) {
   }
 }
 
-function getAllChannelIds_OLD() { // Note: this function is not used.
-  var channelIds = [];
+//
+// Functions for Housekeeping
+// Makes Web App, function call from Google Sheets, add errors, etc
+//
 
-  // First call
-  try {
-    var results = YouTube.Subscriptions.list('snippet', {
-      mine: true,
-      maxResults: 50
-    });
-  } catch (e) {
-    Logger.log("ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
-    return;
-  }
-  for (var i = 0; i < results.items.length; i++) {
-    var item = results.items[i];
-    channelIds.push(item.snippet.resourceId.channelId);
-  }
-
-  // Other calls
-  var nextPageToken = results.nextPageToken;
-  for (var pageNo = 0; pageNo < (-1+Math.ceil(results.pageInfo.totalResults / 50.0)); pageNo++) {
-
-    try {
-      results = YouTube.Subscriptions.list('snippet', {
-        mine: true,
-        maxResults: 50,
-        pageToken: nextPageToken
-      });
-    } catch (e) {
-      Logger.log("ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
-      continue;
-    }
-    for (var i = 0; i < results.items.length; i++) {
-      var item = results.items[i];
-      channelIds.push(item.snippet.resourceId.channelId);
-    }
-
-    nextPageToken = results.nextPageToken;
-  }
-
-  Logger.log('Acquired subscriptions %s, Actual subscriptions %s', channelIds.length, results.pageInfo.totalResults);
-  return channelIds;
+// Log errors in debug sheet and throw an error
+function addError(s) {
+  Logger.log(s);
+  errorflag = true;
+  plErrorCount += 1;
 }
 
+// Function to Set Up Google Spreadsheet
 function onOpen() {
-  SpreadsheetApp.getActiveSpreadsheet().addMenu("Functions", [{name: "Update Playlists", functionName: "insideUpdate"}]);
+  SpreadsheetApp.getActiveSpreadsheet().addMenu("Youtube Controls", [{name: "Update Playlists", functionName: "updatePlaylists"}]);
   var ss = SpreadsheetApp.getActiveSpreadsheet()
   var sheet = ss.getSheets()[0]
   if (!sheet || sheet.getRange("A3").getValue() !== "Playlist ID") throw new Error("Cannot find playlist sheet, make sure the sheet with playlist IDs and channels is the first sheet (leftmost)")
   PropertiesService.getScriptProperties().setProperty("sheetID", ss.getId())
 }
 
-function insideUpdate(){
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
-  updatePlaylists(sheet);
+// Function to publish Script as Web App
+function doGet(e) {
+    var sheetID = PropertiesService.getScriptProperties().getProperty("sheetID");
+    if (e.parameter.update == "True") {
+        var sheet = SpreadsheetApp.openById(sheetID).getSheets()[0];
+        updatePlaylists(sheet);
+    };
+
+    var t = HtmlService.createTemplateFromFile('index.html');
+    t.data = e.parameter.pl
+    t.sheetID = sheetID
+    return t.evaluate();
 }
 
+// Function to select playlist for Web App
 function playlist(pl, sheetID){
   var sheet = SpreadsheetApp.openById(sheetID).getSheets()[0];
   var data = sheet.getDataRange().getValues();
@@ -528,11 +493,9 @@ function playlist(pl, sheetID){
   } else {
     pl = Number(pl) + reservedTableRows - 1;  // I like to think of the first playlist as being number 1.
   }
-
   if (pl > sheet.getLastRow()){
     pl = sheet.getLastRow();
   }
-
   var playlistId = data[pl][reservedColumnPlaylist];
   return playlistId
 }
