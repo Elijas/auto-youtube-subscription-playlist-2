@@ -313,7 +313,11 @@ function getVideoIdsWithLessQueries(channelId, lastTimestamp) {
       }
       nextPageToken = results.nextPageToken;
     } catch (e) {
-      addError("Cannot search YouTube with playlist id "+uploadsPlaylistId+", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+      if (e.details.code !== 404) { // Skip error count if Playlist isn't found, then channel is empty
+        addError("Cannot search YouTube with playlist id "+uploadsPlaylistId+", ERROR: Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+      } else {
+        Logger.log("Channel "+channelId+" does not have any uploads in "+uploadsPlaylistId+", Failed with error Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+      }
       return [];
     }
   } while (nextPageToken != null);
