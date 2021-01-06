@@ -6,19 +6,20 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 [(Older version here)](https://github.com/Elijas/auto-youtube-subscription-playlist)
 
 ### Features
-1. Adds all new videos to Youtube playlists (uploaded later than some date)
 
-  1.1. From ALL subscribed channels
+- Add all new videos to Youtube playlists (uploaded later than some date);
 
-  1.2. From any list of channels (by username or channel ID)
+    - from all subscribed channels;
 
-  1.3. From any other playlist (by playlist ID)
+    - from any list of channels (by username or channel ID);
 
-2. Optional - ability to set automatic interval for updates
+    - from any other playlist (by playlist ID);
 
-3. Optional - ability to deploy as a web app to update or show playlist.
+- Set automatic interval for updates (optional);
 
-4. Optional - remove videos in the playlists that are older than a certain number of days before the execution of the script 
+- Deploy as a web app to update or show playlist (optional);
+
+- Remove videos in the playlists that are older than a certain number of days before the execution of the script (optional).
 
 # Where to get help
 
