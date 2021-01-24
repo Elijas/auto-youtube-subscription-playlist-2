@@ -398,10 +398,23 @@ function addVideosToPlaylist(playlistId, videoIds, idx = 0, successCount = 0, er
       }, 'snippet');
       var success = 1;
     } catch (e) {
-      if (e.details.code !== 409) { // Skip error count if Video exists in playlist already
-        addError("Couldn't update playlist with video ("+videoIds[idx]+"), ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
-      } else {
+      if (e.details.code === 404) { // Skip error count if video is private (found when using getPlaylistVideoIds)
+        try {
+          var results = YouTube.Videos.list('snippet', {
+            id: videoIds[idx]
+          });
+          if (results.items.length === 0) {
+            Logger.log("Couldn't update playlist with video ("+videoIds[idx]+"), ERROR: Cannot find video, most likely private")
+          } else {
+            addError("Couldn't update playlist with video ("+videoIds[idx]+"), 404 on update, but found video with API, not sure what to do");
+          }
+        } catch (e) {
+          addError("Couldn't update playlist with video ("+videoIds[idx]+"), 404 on update, tried to search for video with id, got ERROR: Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+        }
+      } else if (e.details.code === 409) { // Skip error count if Video exists in playlist already
         Logger.log("Couldn't update playlist with video ("+videoIds[idx]+"), ERROR: Video already exists")
+      } else {
+        addError("Couldn't update playlist with video ("+videoIds[idx]+"), ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
       }
       errorCount += 1;
       success = 0;
