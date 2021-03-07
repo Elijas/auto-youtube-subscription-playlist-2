@@ -11,7 +11,7 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 
     - from all subscribed channels;
 
-    - from any list of channels (by username or channel ID);
+    - from any list of channels (by channel ID);
 
     - from any other playlist (by playlist ID);
 
