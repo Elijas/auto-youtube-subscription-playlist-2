@@ -143,7 +143,7 @@ In the sheet, channel usernames cannot be used, only channel ids. To get a chann
 2. click on the channel name
 3. the URL now contains the ID instead of the username
 
-![image](https://user-images.githubusercontent.com/17478849/110250095-a4d8a880-7f47-11eb-9526-228b5c71f8e2.png)
+![get url for custom chanels](https://user-images.githubusercontent.com/2620316/102909538-09b85280-4471-11eb-9828-5c2a52f71640.gif)
 
 ##### Q: I want to experiment with the error further
 
