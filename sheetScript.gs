@@ -411,6 +411,8 @@ function addVideosToPlaylist(playlistId, videoIds, idx = 0, successCount = 0, er
         } catch (e) {
           addError("Couldn't update playlist with video ("+videoIds[idx]+"), 404 on update, tried to search for video with id, got ERROR: Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
         }
+      } else if (e.details.code === 400 && e.details.errors[0].reason === "playlistOperationUnsupported") {
+        addError("Couldn't update watch later or watch history playlist with video, functionality deprecated; try adding videos to a different playlist")
       } else if (e.details.code === 409) { // Skip error count if Video exists in playlist already
         Logger.log("Couldn't update playlist with video ("+videoIds[idx]+"), ERROR: Video already exists")
       } else {
