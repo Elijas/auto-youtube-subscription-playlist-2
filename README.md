@@ -137,6 +137,15 @@ A: Make sure the sheet can access YouTube's API:
       - Scroll down and make sure `YouTube Data API` is enabled
   - Close the Developers Console and Script Editor, open the Sheet again
 
+##### Q: I get this error: `Cannot query for user <USERNAME>` where `<USERNAME>` is the channel's username found in the channel's shortened URL (i.e. `youtube.com/c/<USERNAME>` or `youtube.com/user/<USERNAME>`
+
+In the sheet, channel usernames cannot be used, only channel ids. To get a channel id for a specific channel, follow these steps:
+1. click on any of the videos on the channel
+2. click on the channel name
+3. the URL now contains the ID instead of the username
+
+![image](https://user-images.githubusercontent.com/17478849/110250095-a4d8a880-7f47-11eb-9526-228b5c71f8e2.png)
+
 ##### Q: I want to experiment with the error further
 
 A: Copy-paste the contents of the debug.gs file into your Script Editor
