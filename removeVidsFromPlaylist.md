@@ -18,7 +18,7 @@ To remove all playlist items, bookmark the link below and click on it while havi
 ### For Mac
 
 ```js
-javascript:(function(){if(confirm('Remove all?')&&confirm('Are you sure?')){for(c=[].slice.call(document.querySelectorAll('ytd-playlist-video-renderer')),i=c.length;i--;c[i]=c[i].lastElementChild.firstElementChild.lastElementChild);iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;};c.pop().click();setTimeout(()=>{d=[].slice.call(document.querySelectorAll('ytd-menu-service-item-renderer'));for(i=d.length;i--;d[i].innerText.indexOf("Remove")!=-1?d[i].click():void(0));}, 1);},400);}})();
+javascript:(function(){if(confirm('Remove all?')&&confirm('Are you sure?')){for(c=[].slice.call(document.querySelectorAll('ytd-playlist-video-renderer')),i=c.length;i--;c[i]=c[i].lastElementChild.previousElementSibling.firstElementChild.lastElementChild);iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;};c.pop().click();setTimeout(()=>{d=[].slice.call(document.querySelectorAll('ytd-menu-service-item-renderer'));for(i=d.length;i--;d[i].innerText.indexOf("Remove")!=-1?d[i].click():void(0));}, 1);},400);}})();
 ```
 
 ### For Windows
@@ -34,7 +34,7 @@ Same as above.
 ### For Mac
 
 ```js
-javascript:(function(){if(confirm('Remove all watched?')){for(c=[].slice.call(document.querySelectorAll('ytd-thumbnail-overlay-resume-playback-renderer')),i=c.length;i--;c[i]=c[i].parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.lastElementChild.firstElementChild.lastElementChild);iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;};c.pop().click();setTimeout(()=>{d=[].slice.call(document.querySelectorAll('ytd-menu-service-item-renderer'));d[d.length-4].click()}, 1);},400);}})();
+javascript:(function(){if(confirm('Remove all watched?')){for(c=[].slice.call(document.querySelectorAll('ytd-thumbnail-overlay-resume-playback-renderer')),i=c.length;i--;c[i]=c[i].parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.lastElementChild.previousElementSibling.firstElementChild.lastElementChild);iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;};c.pop().click();setTimeout(()=>{d=[].slice.call(document.querySelectorAll('ytd-menu-service-item-renderer'));d[d.length-4].click()}, 1);},400);}})();
 ```
 
 ### For Windows
