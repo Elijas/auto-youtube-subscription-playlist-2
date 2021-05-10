@@ -11,6 +11,8 @@
         - [For Windows](#for-windows)
     - [Using classic YouTube theme](#using-classic-youtube-theme)
 
+Note, the html of the YouTube page is constantly changing, meaning this script will become outdated often. The script is periodically updated, but feel free to add a GitHub issue to prompt one of us update it asap.
+
 ## Link to remove all items from a youtube playlist:
 
 To remove all playlist items, bookmark the link below and click on it while having the youtube playlist page open. Or, open javascript console, paste the script there and run.
