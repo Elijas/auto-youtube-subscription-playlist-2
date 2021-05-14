@@ -1,16 +1,5 @@
 # Scripts to remove videos from playlists
 
-- [Link to remove all items from a youtube playlist:](#link-to-remove-all-items-from-a-youtube-playlist)
-    - [Using new YouTube theme](#using-new-youtube-theme)
-        - [For Mac](#for-mac)
-        - [For Windows](#for-windows)
-    - [Using classic YouTube theme](#using-classic-youtube-theme)
-- [Link to remove watched items from a youtube playlist (thanks to saso5tr):](#link-to-remove-watched-items-from-a-youtube-playlist-thanks-to-saso5tr)
-    - [Using new YouTube theme](#using-new-youtube-theme)
-        - [For Mac](#for-mac)
-        - [For Windows](#for-windows)
-    - [Using classic YouTube theme](#using-classic-youtube-theme)
-
 Note, the html of the YouTube page is constantly changing, meaning this script will become outdated often. The script is periodically updated, but feel free to add a GitHub issue to prompt one of us update it asap.
 
 ## Link to remove all items from a youtube playlist:
