@@ -405,6 +405,7 @@ function addVideosToPlaylist(playlistId, videoIds, idx = 0, successCount = 0, er
           });
           if (results.items.length === 0) {
             Logger.log("Couldn't update playlist with video ("+videoIds[idx]+"), ERROR: Cannot find video, most likely private")
+            errorCount -= 1;
           } else {
             addError("Couldn't update playlist with video ("+videoIds[idx]+"), 404 on update, but found video with API, not sure what to do");
           }
