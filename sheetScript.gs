@@ -23,6 +23,9 @@ var reservedColumnPlaylist = 0;   // Column containing playlist to add to
 var reservedColumnTimestamp = 1;  // Column containing last timestamp
 var reservedColumnFrequency = 2;  // Column containing number of hours until new check
 var reservedColumnDeleteDays = 3; // Column containing number of days before today until videos get deleted
+var reservedDebugWrapRow = 900;   // Last row to fill before moving on to the next column in debug sheet
+var reservedDebugNumColumns = 26; // Number of columns to use in debug sheet
+var reservedDebugNumExecs = 900;  // Number of executions to display in viewer dropdown
 // If you use getRange remember those indices are one-based, so add + 1 in that call i.e.
 // sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(isodate);
 
@@ -57,10 +60,11 @@ function updatePlaylists(sheet) {
   var MILLIS_PER_HOUR = 1000 * 60 * 60;
   var MILLIS_PER_DAY = MILLIS_PER_HOUR * 24;
   var data = sheet.getDataRange().getValues();
-  var debugSheet = spreadsheet.getSheetByName("Debug")
-  if (!debugSheet) debugSheet = spreadsheet.insertSheet("Debug")
-  debugSheet.clear();
-  var nextDebugRow = 1; // First empty row to add logs to
+  var debugSheet = spreadsheet.getSheetByName("DebugData")
+  if (!debugSheet) debugSheet = spreadsheet.insertSheet("DebugData").hideSheet()
+  var nextDebugCol = getNextDebugCol(debugSheet);
+  var nextDebugRow = getNextDebugRow(debugSheet, nextDebugCol);
+  initDebugEntry(nextDebugCol, nextDebugRow);
 
   /// For each playlist...
   for (var iRow = reservedTableRows; iRow < sheet.getLastRow(); iRow++) {
@@ -159,8 +163,8 @@ function updatePlaylists(sheet) {
     }
     // Prints logs to Debug sheet
     var newLogs = Logger.getLog().split("\n").slice(0, -1).map(function(log) {if(log.search("limit") != -1 && log.search("quota") != -1)errorflag=true;return log.split(" INFO: ")})
-    if (newLogs.length > 0) debugSheet.getRange(nextDebugRow, 1, newLogs.length, 2).setValues(newLogs)
-    nextDebugRow = debugSheet.getLastRow() + 1;
+    if (newLogs.length > 0) debugSheet.getRange(nextDebugRow, nextDebugCol, newLogs.length, 2).setValues(newLogs)
+    nextDebugRow += newLogs.length;
     errorflag = false;
     totalErrorCount += plErrorCount;
     plErrorCount = 0;
@@ -168,7 +172,19 @@ function updatePlaylists(sheet) {
   if (totalErrorCount > 0) {
     throw new Error(totalErrorCount+" video(s) were not added to playlists correctly, please check Debug sheet. Timestamps for respective rows has not been updated.")
   } else {
-    debugSheet.getRange(nextDebugRow, 1).setValue("Updated all rows, script successfully finished")
+    debugSheet.getRange(nextDebugRow, nextDebugCol+1).setValue("Updated all rows, script successfully finished")
+  }
+  if (nextDebugRow >= reservedDebugWrapRow) {
+    var colIndex = 1;
+    if (nextDebugCol < reservedDebugNumColumns-1) {
+      colIndex = nextDebugCol+2;
+    }
+    debugSheet.getRange(1, colIndex, reservedDebugWrapRow, 2).clear();
+    var rowIndex = reservedDebugWrapRow+1;
+    while (debugSheet.getRange(rowIndex, colIndex, 1, 2).getValues()[0][1] != "") {
+      debugSheet.getRange(rowIndex, colIndex, 1, 2).clear();
+      rowIndex += 1;
+    }
   }
 }
 
@@ -467,6 +483,65 @@ function deletePlaylistItems(playlistId, deleteBeforeTimestamp) {
       nextPageToken = null;
     }
   }
+}
+
+//
+// Functions for maintaining debug logs
+//
+
+function getNextDebugCol(debugSheet) {
+  var data = debugSheet.getDataRange().getValues();
+  if (data.length < reservedDebugWrapRow) return 1;
+  for (var col = 0; col < reservedDebugNumColumns; col += 2) {
+    if (data[0].length < col+1) return col+1;
+    if (data[reservedDebugWrapRow-1][col+1] == "") return col+1;
+  }
+}
+
+function getNextDebugRow(debugSheet, nextDebugCol) {
+  var data = debugSheet.getDataRange().getValues();
+  if (data.length == 1 && data[0] == "") return 1;
+  if (data.length < reservedDebugWrapRow) return data.length+1;
+  if (data[0].length < nextDebugCol) return 1;
+  for (var row = reservedDebugWrapRow-1; row >= 0; row--) {
+    if (data[row][nextDebugCol] != "") return row+1+1;
+  }
+  return 1;
+}
+
+function initDebugEntry(nextDebugCol, nextDebugRow) {
+  var debugViewer = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Debug");
+  debugViewer.getRange("B2").clear();
+  Logger.log(debugViewer.getDataRange().getValues())
+  var nextRow = debugViewer.getDataRange().getLastRow()+1;
+  while (debugViewer.getRange(nextRow-1,1).getValue() == "") nextRow--;
+  debugViewer.getRange(nextRow, 1).setValue("=DebugData!"+debugViewer.getRange(nextDebugRow, nextDebugCol).getA1Notation())
+  if (nextRow >= reservedDebugNumExecs) {
+    var formulas = debugViewer.getRange(reservedDebugNumExecs/2, 1, reservedDebugNumExecs/2).getFormulas()
+    debugViewer.getRange(2, 1, reservedDebugNumExecs/2).setFormulas(formulas)
+    debugViewer.getRange(2+reservedDebugNumExecs/2,1, reservedDebugNumExecs/2).clear();
+  }
+  
+}
+
+function getLogs(timestamp) {
+  if (timestamp == "") return "";
+  var debugSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("DebugData");
+  if (!debugSheet) throw Error("No debug logs");
+  var data = debugSheet.getDataRange().getValues();
+  var results = []
+  for (var col = 0; col < data[0].length; col += 2) {
+    for (var row = 0; row < data.length; row++) {
+      if (data[row][col] == timestamp) {
+        for (; row < data.length; row++) {
+          if (data[row][col] == "") break;
+          results.push([data[row][col+1]]);
+        }
+        return results;
+      }
+    }
+  }
+  return ""
 }
 
 //
