@@ -169,22 +169,27 @@ function updatePlaylists(sheet) {
     totalErrorCount += plErrorCount;
     plErrorCount = 0;
   }
-  if (totalErrorCount > 0) {
-    throw new Error(totalErrorCount+" video(s) were not added to playlists correctly, please check Debug sheet. Timestamps for respective rows has not been updated.")
-  } else {
+  
+  if (totalErrorCount == 0) {
     debugSheet.getRange(nextDebugRow, nextDebugCol+1).setValue("Updated all rows, script successfully finished")
   }
+  // Clear next debug column if filled reservedDebugWrapRow rows
   if (nextDebugRow >= reservedDebugWrapRow) {
     var colIndex = 1;
     if (nextDebugCol < reservedDebugNumColumns-1) {
       colIndex = nextDebugCol+2;
     }
+    // Clear first reservedDebugWrapRow rows
     debugSheet.getRange(1, colIndex, reservedDebugWrapRow, 2).clear();
+    // Clear as many additional rows as necessary
     var rowIndex = reservedDebugWrapRow+1;
     while (debugSheet.getRange(rowIndex, colIndex, 1, 2).getValues()[0][1] != "") {
       debugSheet.getRange(rowIndex, colIndex, 1, 2).clear();
       rowIndex += 1;
     }
+  }
+  if (totalErrorCount > 0) {
+    throw new Error(totalErrorCount+" video(s) were not added to playlists correctly, please check Debug sheet. Timestamps for respective rows has not been updated.")
   }
 }
 
@@ -489,19 +494,28 @@ function deletePlaylistItems(playlistId, deleteBeforeTimestamp) {
 // Functions for maintaining debug logs
 //
 
+// Parse debug sheet to find column of cell to write debug logs to
 function getNextDebugCol(debugSheet) {
   var data = debugSheet.getDataRange().getValues();
+  // Only one column, not filled yet, return this column
   if (data.length < reservedDebugWrapRow) return 1;
   for (var col = 0; col < reservedDebugNumColumns; col += 2) {
+    // New column
     if (data[0].length < col+1) return col+1;
+    // Unfilled column
     if (data[reservedDebugWrapRow-1][col+1] == "") return col+1;
   }
+  throw Error("No empty spots")
 }
 
+// Parse debug sheet to find row of cell to write debug logs to
 function getNextDebugRow(debugSheet, nextDebugCol) {
   var data = debugSheet.getDataRange().getValues();
+  // Empty sheet, return first row
   if (data.length == 1 && data[0] == "") return 1;
+  // Only one column, not filled yet, return last row
   if (data.length < reservedDebugWrapRow) return data.length+1;
+  // New column, return first row
   if (data[0].length < nextDebugCol) return 1;
   for (var row = reservedDebugWrapRow-1; row >= 0; row--) {
     if (data[row][nextDebugCol] != "") return row+1+1;
@@ -509,21 +523,25 @@ function getNextDebugRow(debugSheet, nextDebugCol) {
   return 1;
 }
 
+// Add execution entry to debug viewer, maybe shift rows if enough executions already
 function initDebugEntry(nextDebugCol, nextDebugRow) {
   var debugViewer = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Debug");
+  // Clear currently viewing logs to get proper last row
   debugViewer.getRange("B2").clear();
-  Logger.log(debugViewer.getDataRange().getValues())
+  // Set next value to be timestamp of next log added to debug sheet
   var nextRow = debugViewer.getDataRange().getLastRow()+1;
   while (debugViewer.getRange(nextRow-1,1).getValue() == "") nextRow--;
   debugViewer.getRange(nextRow, 1).setValue("=DebugData!"+debugViewer.getRange(nextDebugRow, nextDebugCol).getA1Notation())
+  // Copy bottom half of executions onto top half and clear bottom half
   if (nextRow >= reservedDebugNumExecs) {
     var formulas = debugViewer.getRange(reservedDebugNumExecs/2, 1, reservedDebugNumExecs/2).getFormulas()
     debugViewer.getRange(2, 1, reservedDebugNumExecs/2).setFormulas(formulas)
     debugViewer.getRange(2+reservedDebugNumExecs/2,1, reservedDebugNumExecs/2).clear();
   }
-  
 }
 
+// Given an execution's (first log's) timestamp, return an array with the execution's logs
+// Returns "" or Error if can't find logs
 function getLogs(timestamp) {
   if (timestamp == "") return "";
   var debugSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("DebugData");
