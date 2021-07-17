@@ -531,7 +531,7 @@ function getNextDebugRow(debugSheet, nextDebugCol) {
 // Add execution entry to debug viewer, maybe shift rows if enough executions already
 function initDebugEntry(debugViewer, nextDebugCol, nextDebugRow) {
   // Clear currently viewing logs to get proper last row
-  debugViewer.getRange("B2").clear();
+  debugViewer.getRange("B3").clear();
   // Calculate number of existing executions
   var lastRow = debugViewer.getDataRange().getLastRow()+1;
   var maxSaved = debugViewer.getRange("B1").getValue()
