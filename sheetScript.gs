@@ -23,6 +23,8 @@ var reservedColumnPlaylist = 0;   // Column containing playlist to add to
 var reservedColumnTimestamp = 1;  // Column containing last timestamp
 var reservedColumnFrequency = 2;  // Column containing number of hours until new check
 var reservedColumnDeleteDays = 3; // Column containing number of days before today until videos get deleted
+var reservedDebugWrapRow = 900;   // Last row to fill before moving on to the next column in debug sheet
+var reservedDebugNumColumns = 26; // Number of columns to use in debug sheet
 // If you use getRange remember those indices are one-based, so add + 1 in that call i.e.
 // sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(isodate);
 
@@ -54,13 +56,19 @@ function updatePlaylists(sheet) {
   if (!sheetID) onOpen()
   var spreadsheet = SpreadsheetApp.openById(sheetID)
   if (!sheet || !sheet.toString || sheet.toString() != 'Sheet') sheet = spreadsheet.getSheets()[0];
+  if (!sheet || sheet.getRange("A3").getValue() !== "Playlist ID") {
+    additional = sheet ? ", instead found sheet with name "+ sheet.getName() : ""
+    throw new Error("Cannot find playlist sheet, make sure the sheet with playlist IDs and channels is the first sheet (leftmost)"+ additional)
+  }
   var MILLIS_PER_HOUR = 1000 * 60 * 60;
   var MILLIS_PER_DAY = MILLIS_PER_HOUR * 24;
   var data = sheet.getDataRange().getValues();
-  var debugSheet = spreadsheet.getSheetByName("Debug")
-  if (!debugSheet) debugSheet = spreadsheet.insertSheet("Debug")
-  debugSheet.clear();
-  var nextDebugRow = 1; // First empty row to add logs to
+  var debugSheet = spreadsheet.getSheetByName("DebugData")
+  if (!debugSheet) debugSheet = spreadsheet.insertSheet("DebugData").hideSheet()
+  var nextDebugCol = getNextDebugCol(debugSheet);
+  var nextDebugRow = getNextDebugRow(debugSheet, nextDebugCol);
+  var debugViewerSheet = spreadsheet.getSheetByName("Debug");
+  initDebugEntry(debugViewerSheet, nextDebugCol, nextDebugRow);
 
   /// For each playlist...
   for (var iRow = reservedTableRows; iRow < sheet.getLastRow(); iRow++) {
@@ -159,16 +167,34 @@ function updatePlaylists(sheet) {
     }
     // Prints logs to Debug sheet
     var newLogs = Logger.getLog().split("\n").slice(0, -1).map(function(log) {if(log.search("limit") != -1 && log.search("quota") != -1)errorflag=true;return log.split(" INFO: ")})
-    if (newLogs.length > 0) debugSheet.getRange(nextDebugRow, 1, newLogs.length, 2).setValues(newLogs)
-    nextDebugRow = debugSheet.getLastRow() + 1;
+    if (newLogs.length > 0) debugSheet.getRange(nextDebugRow, nextDebugCol, newLogs.length, 2).setValues(newLogs)
+    nextDebugRow += newLogs.length;
     errorflag = false;
     totalErrorCount += plErrorCount;
     plErrorCount = 0;
   }
+  
+  if (totalErrorCount == 0) {
+    debugSheet.getRange(nextDebugRow, nextDebugCol+1).setValue("Updated all rows, script successfully finished")
+  }
+  // Clear next debug column if filled reservedDebugWrapRow rows
+  if (nextDebugRow >= reservedDebugWrapRow) {
+    var colIndex = 1;
+    if (nextDebugCol < reservedDebugNumColumns-1) {
+      colIndex = nextDebugCol+2;
+    }
+    // Clear first reservedDebugWrapRow rows
+    debugSheet.getRange(1, colIndex, reservedDebugWrapRow, 2).clear();
+    // Clear as many additional rows as necessary
+    var rowIndex = reservedDebugWrapRow+1;
+    while (debugSheet.getRange(rowIndex, colIndex, 1, 2).getValues()[0][1] != "") {
+      debugSheet.getRange(rowIndex, colIndex, 1, 2).clear();
+      rowIndex += 1;
+    }
+  }
+  loadLastDebugLog(debugViewerSheet);
   if (totalErrorCount > 0) {
     throw new Error(totalErrorCount+" video(s) were not added to playlists correctly, please check Debug sheet. Timestamps for respective rows has not been updated.")
-  } else {
-    debugSheet.getRange(nextDebugRow, 1).setValue("Updated all rows, script successfully finished")
   }
 }
 
@@ -470,6 +496,86 @@ function deletePlaylistItems(playlistId, deleteBeforeTimestamp) {
 }
 
 //
+// Functions for maintaining debug logs
+//
+
+// Parse debug sheet to find column of cell to write debug logs to
+function getNextDebugCol(debugSheet) {
+  var data = debugSheet.getDataRange().getValues();
+  // Only one column, not filled yet, return this column
+  if (data.length < reservedDebugWrapRow) return 1;
+  for (var col = 0; col < reservedDebugNumColumns; col += 2) {
+    // New column
+    if (data[0].length < col+1) return col+1;
+    // Unfilled column
+    if (data[reservedDebugWrapRow-1][col+1] == "") return col+1;
+  }
+  throw Error("No empty spots")
+}
+
+// Parse debug sheet to find row of cell to write debug logs to
+function getNextDebugRow(debugSheet, nextDebugCol) {
+  var data = debugSheet.getDataRange().getValues();
+  // Empty sheet, return first row
+  if (data.length == 1 && data[0] == "") return 1;
+  // Only one column, not filled yet, return last row
+  if (data.length < reservedDebugWrapRow) return data.length+1;
+  // New column, return first row
+  if (data[0].length < nextDebugCol) return 1;
+  for (var row = reservedDebugWrapRow-1; row >= 0; row--) {
+    if (data[row][nextDebugCol] != "") return row+1+1;
+  }
+  return 1;
+}
+
+// Add execution entry to debug viewer, maybe shift rows if enough executions already
+function initDebugEntry(debugViewer, nextDebugCol, nextDebugRow) {
+  // Clear currently viewing logs to get proper last row
+  debugViewer.getRange("B3").clear();
+  // Calculate number of existing executions
+  var lastRow = debugViewer.getDataRange().getLastRow()+1;
+  var maxSaved = debugViewer.getRange("B1").getValue()
+  var toCopy = maxSaved - 1
+  if (lastRow - 2 < maxSaved - 1) {
+    toCopy = lastRow - 2
+  }
+  // Copy existing executions up to maximum
+  debugViewer.getRange(4, 1, toCopy, 1).setValues(debugViewer.getRange(3, 1, toCopy, 1).getValues())
+  if (lastRow - 2 - (toCopy + 1) > 0) {
+    debugViewer.getRange(4+toCopy, 1, lastRow - 2 - (toCopy + 1), 1).clear()
+  }
+  // Copy new execution
+  debugViewer.getRange(3, 1).setValue("=DebugData!"+debugViewer.getRange(nextDebugRow, nextDebugCol).getA1Notation())
+}
+
+// Set currently viewed execution logs to most recent execution
+function loadLastDebugLog(debugViewer) {
+  debugViewer.getRange("B3").setValue(debugViewer.getRange("A3").getValue());
+}
+
+// Given an execution's (first log's) timestamp, return an array with the execution's logs
+// Returns "" or Error if can't find logs
+function getLogs(timestamp) {
+  if (timestamp == "") return "";
+  var debugSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("DebugData");
+  if (!debugSheet) throw Error("No debug logs");
+  var data = debugSheet.getDataRange().getValues();
+  var results = []
+  for (var col = 0; col < data[0].length; col += 2) {
+    for (var row = 0; row < data.length; row++) {
+      if (data[row][col] == timestamp) {
+        for (; row < data.length; row++) {
+          if (data[row][col] == "") break;
+          results.push([data[row][col+1]]);
+        }
+        return results;
+      }
+    }
+  }
+  return ""
+}
+
+//
 // Functions for Housekeeping
 // Makes Web App, function call from Google Sheets, add errors, etc
 //
@@ -486,7 +592,10 @@ function onOpen() {
   SpreadsheetApp.getActiveSpreadsheet().addMenu("Youtube Controls", [{name: "Update Playlists", functionName: "updatePlaylists"}]);
   var ss = SpreadsheetApp.getActiveSpreadsheet()
   var sheet = ss.getSheets()[0]
-  if (!sheet || sheet.getRange("A3").getValue() !== "Playlist ID") throw new Error("Cannot find playlist sheet, make sure the sheet with playlist IDs and channels is the first sheet (leftmost)")
+  if (!sheet || sheet.getRange("A3").getValue() !== "Playlist ID") {
+    additional = sheet ? ", instead found sheet with name "+ sheet.getName() : ""
+    throw new Error("Cannot find playlist sheet, make sure the sheet with playlist IDs and channels is the first sheet (leftmost)"+ additional)
+  }
   PropertiesService.getScriptProperties().setProperty("sheetID", ss.getId())
 }
 
@@ -495,6 +604,10 @@ function doGet(e) {
     var sheetID = PropertiesService.getScriptProperties().getProperty("sheetID");
     if (e.parameter.update == "True") {
         var sheet = SpreadsheetApp.openById(sheetID).getSheets()[0];
+        if (!sheet || sheet.getRange("A3").getValue() !== "Playlist ID") {
+          additional = sheet ? ", instead found sheet with name "+ sheet.getName() : ""
+          throw new Error("Cannot find playlist sheet, make sure the sheet with playlist IDs and channels is the first sheet (leftmost)"+ additional)
+        }
         updatePlaylists(sheet);
     };
 
