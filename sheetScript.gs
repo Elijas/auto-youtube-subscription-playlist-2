@@ -176,6 +176,8 @@ function updatePlaylists(sheet) {
   
   if (totalErrorCount == 0) {
     debugSheet.getRange(nextDebugRow, nextDebugCol+1).setValue("Updated all rows, script successfully finished")
+  } else {
+    debugSheet.getRange(nextDebugRow, nextDebugCol+1).setValue("Script did not successfully finish")
   }
   // Clear next debug column if filled reservedDebugWrapRow rows
   if (nextDebugRow >= reservedDebugWrapRow) {
