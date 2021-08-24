@@ -48,6 +48,7 @@ If you ran into problems, here are some of the possible sources for solutions:
       - Channel ID (last part (after last `/`) in `https://www.youtube.com/channel/UCzMVH2jEyEwXPBvyht8xQNw`)
       - Playlist ID (last part (after `?list=` in `https://www.youtube.com/playlist?list=PLd0LhgZxFkVKh_JNXcdHoPYo832Wu9fub`)
       - `ALL`, to add all new videos from all of your subscriptions
+      - NOTE: custom URLs cannnot be used (i.e. the last part of `https://www.youtube.com/c/skate702`). Please get the channel's ID as described in the Troubleshooting section under `Cannot query for user <USERNAME>`
     - Optionally add a number of days in the grey column (B). Videos in the playlist that have been published that many days before are going to be removed from the playlist.
 
 3. Run the script:
@@ -138,7 +139,7 @@ A: Make sure the sheet can access YouTube's API:
 
 ##### Q: I get this error: `Cannot query for user <USERNAME>` where `<USERNAME>` is the channel's username found in the channel's shortened URL (i.e. `youtube.com/c/<USERNAME>` or `youtube.com/user/<USERNAME>`
 
-In the sheet, channel usernames cannot be used, only channel ids. To get a channel id for a specific channel, follow these steps:
+In the sheet, channel usernames and custom URLs cannot be used, only channel ids. To get a channel id for a specific channel, follow these steps:
 1. click on any of the videos on the channel
 2. click on the channel name
 3. the URL now contains the ID instead of the username
