@@ -1,19 +1,44 @@
-# Scripts to remove videos from playlists
+# Scripts to remove videos from YouTube playlists
 
-Note, the html of the YouTube page is constantly changing, meaning this script will become outdated often. The script is periodically updated, but feel free to add a GitHub issue to prompt one of us update it asap.
+> Note: the HTML of the YouTube playlist page may change at any moment and possibly render these scripts non-functioning. They are updated periodically, but feel free to create a GitHub issue to prompt one of us to fix them asap.
 
-## Link to remove all items from a youtube playlist:
+There are two ways to run these scripts:
 
-To remove all playlist items, bookmark the link below and click on it while having the youtube playlist page open. Or, open javascript console, paste the script there and run.
+1. As a bookmarklet
+    - Create a new bookmark and name it how you want to.
+    - Copy a script below to the clipboard.
+    - Edit your newly created bookmark and paste the script as the URL.
+    - Click the bookmark (while on a YouTube playlist page).
+2. Via the Console
+    - Copy a script below to the clipboard.
+    - Open your browser's JavaScript console.
+    - Paste the script and press Enter (while on a YouTube playlist page).
+  
+
+## Remove all videos:
 
 ```js
 javascript:(function(){if(confirm('Remove all?')&&confirm('Are you sure?')){for(c=[].slice.call(document.querySelectorAll('ytd-playlist-video-renderer')),i=c.length;i--;c[i]=c[i].lastElementChild.lastElementChild.lastElementChild);iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;};c.pop().click();setTimeout(()=>{d=[].slice.call(document.querySelectorAll('ytd-menu-service-item-renderer'));for(i=d.length;i--;d[i].innerText.indexOf("Remove")!=-1?d[i].click():void(0));}, 1);},400);}})();
 ```
 
-## Link to remove watched items from a youtube playlist (thanks to [saso5tr](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cy38z0f)):
-
-Same as above.
+## Remove all watched videos (thanks to [saso5tr](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cy38z0f)):
 
 ```js
 javascript:(function(){if(confirm('Remove all watched?')){for(c=[].slice.call(document.querySelectorAll('ytd-thumbnail-overlay-resume-playback-renderer')),i=c.length;i--;c[i]=c[i].parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.lastElementChild.lastElementChild.lastElementChild);iid=window.setInterval(function(){if(!c[0]){window.clearInterval(iid);return;};c.pop().click();setTimeout(()=>{d=[].slice.call(document.querySelectorAll('ytd-menu-service-item-renderer'));d[d.length-4].click()}, 1);},400);}})();
+```
+
+## Remove a specified amount of videos:
+
+Running this script will prompt you to enter a number for the amount of videos to remove, as well as an offset from where to start. Written by [@deepfriedmind](https://github.com/deepfriedmind).
+
+```js
+javascript:(()=>{const a=()=>{Array.from(document.querySelectorAll("ytd-playlist-video-renderer #video-title")).forEach((a,b)=>{a.innerText=`#${b+1} - ${a.innerText.replace(/^#\d{1,3} - /,"")}`})},b=(b=0,c=1)=>{c--;const d=Array.from(document.querySelectorAll("ytd-playlist-video-renderer #interaction")).slice(c,b+c);let e,f;const g=()=>{if(0===d.length)return cancelAnimationFrame(e),cancelAnimationFrame(f),setTimeout(()=>alert(`Finished removing ${b} videos.`),1),setTimeout(a,1);d.shift().click();e=requestAnimationFrame(()=>{for(const a of document.querySelectorAll("ytd-menu-service-item-renderer"))if(a.querySelector("yt-formatted-string").innerText.includes("Remove"))return a.click()}),f=requestAnimationFrame(g)};g()},c=(a=null)=>null!==a&&(isNaN(a)?(alert(`"${a}" is not a number.`),!1):1>parseInt(a,10)?(alert("Must be a positive number."),!1):parseInt(a,10));a(),setTimeout(()=>{let a=prompt("How many videos should be removed? (descending)");if(a=c(a),a){let d=prompt(`Remove ${a} videos starting with #…`,1);d=c(d),d&&b(a,d)}},1)})();
+```
+
+## Remove videos based on a keyword/regex:
+
+Running this script will prompt you to enter a keyword or regex pattern for videos to remove. The query is case sensitive unless `/pattern/i` is used. All found matches will be listed in the console for confirmation before removing. Written by [@deepfriedmind](https://github.com/deepfriedmind).
+
+```JS
+javascript:(()=>{let a;const b=(a=!1)=>{if(!a)return!1;const b=a.split("/");let c=a,d="";1<b.length&&(c=b[1],d=b[2]);try{return new RegExp(c,d)}catch(a){return!1}},c=(b=!1)=>{if(!b)return alert(`"${a}" is not a valid regex pattern.`),d();let c,e;const f=()=>{if(0===g.length)return cancelAnimationFrame(c),cancelAnimationFrame(e),setTimeout(()=>alert(`Finished removing ${h} videos.`),1);g.shift().click();c=requestAnimationFrame(()=>{for(const a of document.querySelectorAll("ytd-menu-service-item-renderer"))if(a.querySelector("yt-formatted-string").innerText.includes("Remove"))return a.click()}),e=requestAnimationFrame(f)};let g=Array.from(document.querySelectorAll("ytd-playlist-video-renderer")).filter(a=>b.test(a.querySelector("#video-title").innerText));const h=g.length;if(0===h)return alert(`Found no videos matching "${a}".`),d();const i=[];g=g.map((a,b)=>{const c=a.querySelector("#video-title").innerText,d=(b+1).toString().padStart(h.toString().length,"0");return i.push(`${d}: ${c}`),a.querySelector("#interaction")});const j=i.reduce((c,a)=>c.length>a.length?c:a),k=" Titles matched ",l="\u2500".repeat(j.length),m="\u2500".repeat(j.length/2-k.length/2+1);console.log(`\n\n${m}${k}${m}\n\n`);for(const a of i)a.replace(b,(b,c)=>{console.log(`%c${a.substring(0,c)}%c${b}%c${a.substring(c+b.length)}`,"color:#a7b3be","color:#98c379","color:#a7b3be")});console.log(`\n${l}`);const n=`Delete ${h} matching ${1===h?"video":"videos"}? (see console output for exact matches):\n\n${i.join("\n")}`;confirm(n)?f():d()},d=()=>{a=prompt("Enter keyword/regex for videos to remove.\n(case sensitive unless \"/pattern/i\" is used)",localStorage.getItem("__yt_regexInput")||""),null!==a&&(localStorage.setItem("__yt_regexInput",a),c(b(a)))};d()})();
 ```
