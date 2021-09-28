@@ -21,6 +21,8 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 
 - Remove videos in the playlists that are older than a certain number of days before the execution of the script (optional).
 
+### (Extra) Scripts to easily remove multiple items from a youtube playlist [here](./removeVidsFromPlaylist.md)
+
 # Where to get help
 
 [![issuehunt](./docs/issuehunt-button-v1.svg)](https://issuehunt.io/r/Elijas/auto-youtube-subscription-playlist-2)
@@ -86,8 +88,6 @@ If you ran into problems, here are some of the possible sources for solutions:
 6. Usage: append `?pl=N` to select the Nth playlist in the spreadsheet.
   - append `?update=True` to force update all the playlists.
   - e.g. `tiny.cc/myplaylist?update=True&pl=3` will force update and open the third playlist.
-
-#### (Extra) Link to remove all/watched items from a youtube playlist [here](./removeVidsFromPlaylist.md)
 
 # FAQ
 
