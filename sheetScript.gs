@@ -1,4 +1,4 @@
-// Auto Youtube Subscription Playlist (2)
+// Auto Youtube Subscription Playlist (2) 1 day update version
 // This is a Google Apps Script that automatically adds new Youtube videos to playlists (a replacement for Youtube Collections feature).
 // Code: https://github.com/Elijas/auto-youtube-subscription-playlist-2/
 // Copy Spreadsheet: 
@@ -125,8 +125,12 @@ function updatePlaylists(sheet) {
       
       /// ...get videos from the channels...
       var newVideoIds = [];
+      var endTimestamp = new Date(lastTimestamp)
+      endTimestamp.setDate((new Date(lastTimestamp)).getDate()+1)
+      if (endTimestamp > new Date()) endTimestamp = new Date()
+      endTimestamp = endTimestamp.toIsoString()
       for (var i = 0; i < channelIds.length; i++) {
-        var videoIds = getVideoIdsWithLessQueries(channelIds[i], lastTimestamp)
+        var videoIds = getVideoIdsWithLessQueries(channelIds[i], lastTimestamp, endTimestamp)
         if (!videoIds || typeof(videoIds) !== "object") addError("Failed to get videos with channel id "+channelIds[i])
         else if (debugFlag_logWhenNoNewVideosFound && videoIds.length === 0) {
           Logger.log("Channel with id "+channelIds[i]+" has no new videos")
@@ -135,7 +139,7 @@ function updatePlaylists(sheet) {
         }
       }
       for (var i = 0; i < playlistIds.length; i++) {
-        var videoIds = getPlaylistVideoIds(playlistIds[i], lastTimestamp)
+        var videoIds = getPlaylistVideoIds(playlistIds[i], lastTimestamp, endTimestamp)
         if (!videoIds || typeof(videoIds) !== "object") addError("Failed to get videos with playlist id "+playlistIds[i])
         else if (debugFlag_logWhenNoNewVideosFound && videoIds.length === 0) {
           Logger.log("Playlist with id "+playlistIds[i]+" has no new videos")
@@ -162,8 +166,8 @@ function updatePlaylists(sheet) {
           deletePlaylistItems(playlistId, deleteBeforeTimestamp);
         }
       }
-    // Update timestamp
-    if (!errorflag && !debugFlag_dontUpdateTimestamp) sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(new Date().toIsoString()); 
+      // Update timestamp
+      if (!errorflag && !debugFlag_dontUpdateTimestamp) sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(endTimestamp); 
     }
     // Prints logs to Debug sheet
     var newLogs = Logger.getLog().split("\n").slice(0, -1).map(function(log) {if(log.search("limit") != -1 && log.search("quota") != -1)errorflag=true;return log.split(" INFO: ")})
@@ -242,7 +246,7 @@ function getAllChannelIds() { // get YT Subscriptions-List, src: https://www.red
 //
 
 // Get new videos from Channels
-function getVideoIds(channelId, lastTimestamp) {
+function getVideoIds(channelId, lastTimestamp, endTimestamp) {
   var videoIds = [];
   var nextPageToken = '';
   do {
@@ -252,6 +256,7 @@ function getVideoIds(channelId, lastTimestamp) {
         maxResults: 50,
         order: "date",
         publishedAfter: lastTimestamp,
+        publisedBefore: endTimestamp,
         pageToken: nextPageToken,
         type: "video"
       });
@@ -303,7 +308,7 @@ function getVideoIds(channelId, lastTimestamp) {
 
 // Get videos from Channels but with less Quota use
 // slower and date ordering is a bit messy but less quota costs
-function getVideoIdsWithLessQueries(channelId, lastTimestamp) {
+function getVideoIdsWithLessQueries(channelId, lastTimestamp, endTimestamp) {
   var videoIds = [];
   var uploadsPlaylistId;
   try {
@@ -333,8 +338,13 @@ function getVideoIdsWithLessQueries(channelId, lastTimestamp) {
         maxResults: 50,
         pageToken: nextPageToken
       })
-      var videosToBeAdded = results.items.filter(function (vid) {return ((new Date(lastTimestamp)) <= (new Date(vid.contentDetails.videoPublishedAt)))})
-      if (videosToBeAdded.length == 0) {
+      var lastVidTimestamp = new Date(2000, 1)
+      var videosToBeAdded = results.items.filter(function (vid) {
+        lastVidTimestamp = lastVidTimestamp > (new Date(vid.contentDetails.videoPublishedAt)) ? lastVidTimestamp : new Date(vid.contentDetails.videoPublishedAt)
+        return (new Date(lastTimestamp)) <= (new Date(vid.contentDetails.videoPublishedAt)) &&
+          (new Date(endTimestamp)) >= (new Date(vid.contentDetails.videoPublishedAt))
+      })
+      if (videosToBeAdded.length == 0 && lastVidTimestamp < new Date(lastTimestamp)) {
         break;
       } else {
         [].push.apply(videoIds, videosToBeAdded.map(function (vid) {return vid.contentDetails.videoId}));
@@ -354,7 +364,7 @@ function getVideoIdsWithLessQueries(channelId, lastTimestamp) {
 }
 
 // Get Video IDs from Playlist
-function getPlaylistVideoIds(playlistId, lastTimestamp) {
+function getPlaylistVideoIds(playlistId, lastTimestamp, endTimestamp) {
   var videoIds = [];
   var nextPageToken = '';
   while (nextPageToken != null){
@@ -363,7 +373,6 @@ function getPlaylistVideoIds(playlistId, lastTimestamp) {
         playlistId: playlistId,
         maxResults: 50,
         order: "date",
-        publishedAfter: lastTimestamp,
         pageToken: nextPageToken
       });
       if (!results || !results.items) {
@@ -377,7 +386,7 @@ function getPlaylistVideoIds(playlistId, lastTimestamp) {
 
     for (var j = 0; j < results.items.length; j++) {
       var item = results.items[j];
-      if (item.snippet.publishedAt > lastTimestamp)
+      if (new Date(item.snippet.publishedAt) > new Date(lastTimestamp) && new Date(item.snippet.publishedAt) < new Date(endTimestamp))
         videoIds.push(item.snippet.resourceId.videoId);
     }
 
