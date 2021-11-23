@@ -54,16 +54,17 @@ If you ran into problems, here are some of the possible sources for solutions:
     - Optionally add a number of days in the grey column (B). Videos in the playlist that have been published that many days before are going to be removed from the playlist.
 
 3. Run the script:
-      - In Sheet's menu: `Functions` / `Update Playlists`
+      - In Sheet's menu: `YouTube Controls` / `Update Playlists`
       - Grant access in the dialog
 
 4. (Optional) Adjust Timezone:
-      - In menu (of the Sheet): `Tools` / `Script Editor...`
-      - In script: `File` / `Project properties`
-      ![](https://user-images.githubusercontent.com/17478849/80022886-b38eac00-84aa-11ea-8720-d486ca03bcea.png)
-      - On tab: `Info` scroll down
-      - Choose `Time zone` from dropdown
-      - `Save`
+      - In menu (of the Sheet): `Extensions` / `Apps Script`
+      - If you don't see an `appsscript.json` file in the editor, got to `Project Settings` tab and select `
+Show "appsscript.json" manifest file in editor`
+      - Select `appsscript.json` in the editor
+      - Change the string after `timeZone` to your timezone. Pick one from [this list](https://developers.google.com/adwords/api/docs/appendix/codes-formats#timezone-ids)
+      ![image](https://user-images.githubusercontent.com/17478849/143072670-b5926552-94e5-4799-bee6-b348a40e69b0.png)
+      - `Save Project`/`Ctrl+S`
 
 # Usage
 
@@ -73,17 +74,18 @@ If you ran into problems, here are some of the possible sources for solutions:
 
 ##### Scheduled playlist update:
 
-1. In menu (of the Sheet): `Tools` / `Script Editor...`
-2. In menu: `Resources` / `Current project triggers`
-3. `updatePlaylists` -> `Time driven` -> `Hour timer` -> `Every hour`
-4. `Save`
+1. In menu (of the Sheet): `Extensions` / `Apps Script`
+2. Go to `Triggers` tab
+3. Press the blue button in the lower right corner `+ Add Trigger`
+4. Select `updatePlaylists` -> `Head` -> `Time driven` -> `Hour timer` -> `Every hour`
+5. `Save`
 
 ##### Deploy as a web app:
 
-1. In menu (of the Sheet): `Tools` / `Script Editor...`
-1. Click on `Deploy`
+1. In menu (of the Sheet): `Extensions` / `Apps Script`
+1. Click on `Deploy` -> `New Deployment`
 1. Use the cog beside `Select type`. Ensure `web app` is selected.
-4. `Publish` (you will get a special link to use)
+4. Click `Deploy` (you will get a special link to use)
 5. Optional - create a tiny.cc redirect link for easy acess (tiny.cc is recommended as it allows you to pass parameters to the url)
 6. Usage: append `?pl=N` to select the Nth playlist in the spreadsheet.
   - append `?update=True` to force update all the playlists.
@@ -132,9 +134,8 @@ A: If it only happens sometimes, it can be safely ignored, the next round will w
 ##### Q: I get `Quota` or `Cannot (Search) YouTube` errors
 
 A: Make sure the sheet can access YouTube's API:
-  - Open the `Script Editor` (in menu: `Tools` / `Script Editor...`) of the Sheet
-      - In menu: `Resources` / `Advanced Google Services`
-      - Scroll down and make sure `YouTube Data API` is enabled
+  - Open the `Script Editor` (in menu: `Extensions` / `Apps Script`) of the Sheet
+      - Under the `Services` section, make sure `YouTube` is there, otherwise use the plus button beside `Services` and search for `YouTube Data API v3`.
   - Close the Developers Console and Script Editor, open the Sheet again
 
 ##### Q: I get this error: `Cannot query for user <USERNAME>` where `<USERNAME>` is the channel's username found in the channel's shortened URL (i.e. `youtube.com/c/<USERNAME>` or `youtube.com/user/<USERNAME>`
