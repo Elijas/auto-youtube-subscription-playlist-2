@@ -469,6 +469,7 @@ function addVideosToPlaylist(playlistId, videoIds, idx = 0, successCount = 0, er
 // Delete Videos from Playlist if they're older than the defined time
 function deletePlaylistItems(playlistId, deleteBeforeTimestamp) {
   var nextPageToken = '';
+  var allVideos = [];
   while (nextPageToken != null){
 
     try {
@@ -485,6 +486,8 @@ function deletePlaylistItems(playlistId, deleteBeforeTimestamp) {
         { 
           Logger.log("Del: | "+item.contentDetails.videoPublishedAt)
           YouTube.PlaylistItems.remove(item.id)
+        } else {
+          allVideos.push(item);
         }
       }
       
@@ -494,6 +497,26 @@ function deletePlaylistItems(playlistId, deleteBeforeTimestamp) {
       addError("Problem deleting existing videos from playlist with id "+playlistId+", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
       nextPageToken = null;
     }
+  }
+
+  // Delete Duplicates Videos by videoId
+  try {
+    let tempVideos = [];
+    let duplicateVideos = [];
+
+    allVideos.forEach(x => {
+      if (tempVideos.find(y => y.contentDetails.videoId === x.contentDetails.videoId)) {
+        duplicateVideos.push(x);
+      } else {
+        tempVideos.push(x);
+      }
+    });
+
+    duplicateVideos.forEach(x => {
+      YouTube.PlaylistItems.remove(x.id);
+    });
+  } catch (e) {
+    addError("Problem deleting duplicate videos from playlist with id "+playlistId+", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
   }
 }
 
