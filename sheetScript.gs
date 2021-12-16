@@ -480,14 +480,14 @@ function deletePlaylistItems(playlistId, deleteBeforeTimestamp) {
         publishedBefore: deleteBeforeTimestamp, // this compares the timestamp when the video was added to playlist
         pageToken: nextPageToken});
         
-      results.items.forEach(x => allVideos.push(x));
-
       for (var j = 0; j < results.items.length; j++) {
         var item = results.items[j];
         if (item.contentDetails.videoPublishedAt < deleteBeforeTimestamp) // this compares the timestamp when the video was published
         { 
           Logger.log("Del: | "+item.contentDetails.videoPublishedAt)
           YouTube.PlaylistItems.remove(item.id)
+        } else {
+          allVideos.push(item);
         }
       }
       
