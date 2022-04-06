@@ -16,17 +16,18 @@ var debugFlag_dontUpdatePlaylists = false;
 var debugFlag_logWhenNoNewVideosFound = false;
 
 
-// Define reserved Rows and Columns (zero-based)
+// Reserved Row and Column indices (zero-based)
+// If you use getRange remember those indices are one-based, so add + 1 in that call i.e.
+// sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(isodate);
 var reservedTableRows = 3;        // Start of the range of the PlaylistID+ChannelID data
 var reservedTableColumns = 5;     // Start of the range of the ChannelID data (0: A, 1: B, 2: C, 3: D, 4: E, 5: F, ...)
 var reservedColumnPlaylist = 0;   // Column containing playlist to add to
 var reservedColumnTimestamp = 1;  // Column containing last timestamp
 var reservedColumnFrequency = 2;  // Column containing number of hours until new check
 var reservedColumnDeleteDays = 3; // Column containing number of days before today until videos get deleted
-var reservedDebugWrapRow = 900;   // Last row to fill before moving on to the next column in debug sheet
-var reservedDebugNumColumns = 26; // Number of columns to use in debug sheet
-// If you use getRange remember those indices are one-based, so add + 1 in that call i.e.
-// sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(isodate);
+// Reserved lengths
+var reservedDebugNumRows = 900;   // Number of rows to use in a column before moving on to the next column in debug sheet
+var reservedDebugNumColumns = 26; // Number of columns to use in debug sheet, must be at least 4 to allow infinite cycle
 
 // Extend Date with Iso String with timzone support (Youtube needs IsoDates)
 // https://stackoverflow.com/questions/17415579/how-to-iso-8601-format-a-date-with-timezone-offset-in-javascript
@@ -167,32 +168,27 @@ function updatePlaylists(sheet) {
     }
     // Prints logs to Debug sheet
     var newLogs = Logger.getLog().split("\n").slice(0, -1).map(function(log) {if(log.search("limit") != -1 && log.search("quota") != -1)errorflag=true;return log.split(" INFO: ")})
-    if (newLogs.length > 0) debugSheet.getRange(nextDebugRow, nextDebugCol, newLogs.length, 2).setValues(newLogs)
+    if (newLogs.length > 0) debugSheet.getRange(nextDebugRow + 1, nextDebugCol + 1, newLogs.length, 2).setValues(newLogs)
     nextDebugRow += newLogs.length;
     errorflag = false;
     totalErrorCount += plErrorCount;
     plErrorCount = 0;
   }
   
+  // Log finished script, only populate second column to signify end of execution when retrieving logs
   if (totalErrorCount == 0) {
-    debugSheet.getRange(nextDebugRow, nextDebugCol+1).setValue("Updated all rows, script successfully finished")
+    debugSheet.getRange(nextDebugRow + 1, nextDebugCol + 2).setValue("Updated all rows, script successfully finished")
   } else {
-    debugSheet.getRange(nextDebugRow, nextDebugCol+1).setValue("Script did not successfully finish")
+    debugSheet.getRange(nextDebugRow + 1, nextDebugCol + 2).setValue("Script did not successfully finish")
   }
-  // Clear next debug column if filled reservedDebugWrapRow rows
-  if (nextDebugRow >= reservedDebugWrapRow) {
-    var colIndex = 1;
-    if (nextDebugCol < reservedDebugNumColumns-1) {
-      colIndex = nextDebugCol+2;
+  nextDebugRow += 1;
+  // Clear next debug column if filled reservedDebugNumRows rows
+  if (nextDebugRow > reservedDebugNumRows - 1) {
+    var colIndex = 0;
+    if (nextDebugCol < reservedDebugNumColumns - 2) {
+      colIndex = nextDebugCol + 2;
     }
-    // Clear first reservedDebugWrapRow rows
-    debugSheet.getRange(1, colIndex, reservedDebugWrapRow, 2).clear();
-    // Clear as many additional rows as necessary
-    var rowIndex = reservedDebugWrapRow+1;
-    while (debugSheet.getRange(rowIndex, colIndex, 1, 2).getValues()[0][1] != "") {
-      debugSheet.getRange(rowIndex, colIndex, 1, 2).clear();
-      rowIndex += 1;
-    }
+    clearDebugCol(debugSheet, colIndex)
   }
   loadLastDebugLog(debugViewerSheet);
   if (totalErrorCount > 0) {
@@ -528,49 +524,64 @@ function deletePlaylistItems(playlistId, deleteBeforeTimestamp) {
 function getNextDebugCol(debugSheet) {
   var data = debugSheet.getDataRange().getValues();
   // Only one column, not filled yet, return this column
-  if (data.length < reservedDebugWrapRow) return 1;
+  if (data.length < reservedDebugNumRows) return 0;
+  // Need to iterate since next col might be in middle of data
   for (var col = 0; col < reservedDebugNumColumns; col += 2) {
     // New column
-    if (data[0].length < col+1) return col+1;
+    // Necessary check since data is list of lists and col might be out of bounds
+    if (data[0].length < col + 1) return col
     // Unfilled column
-    if (data[reservedDebugWrapRow-1][col+1] == "") return col+1;
+    if (data[reservedDebugNumRows - 1][col + 1] == "") return col;
   }
-  throw Error("No empty spots")
+  clearDebugCol(debugSheet, 0)
+  return 0;
 }
 
 // Parse debug sheet to find row of cell to write debug logs to
 function getNextDebugRow(debugSheet, nextDebugCol) {
   var data = debugSheet.getDataRange().getValues();
   // Empty sheet, return first row
-  if (data.length == 1 && data[0] == "") return 1;
-  // Only one column, not filled yet, return last row
-  if (data.length < reservedDebugWrapRow) return data.length+1;
-  // New column, return first row
-  if (data[0].length < nextDebugCol) return 1;
-  for (var row = reservedDebugWrapRow-1; row >= 0; row--) {
-    if (data[row][nextDebugCol] != "") return row+1+1;
+  if (data.length == 1 && data[0].length == 0) return 0;
+  // Only one column, not filled yet, return last row + 1
+  // Second check needed in case reservedDebugNumRows has expanded while other columns are filled
+  if (data.length < reservedDebugNumRows && data[0][0] != "") return data.length;
+  for (var row = 0; row < reservedDebugNumRows; row++) {
+    // Found empty row
+    if (data[row][nextDebugCol + 1] == "") return row;
   }
-  return 1;
+  return 0;
 }
 
-// Add execution entry to debug viewer, maybe shift rows if enough executions already
+// Clear column in debug sheet for next execution's logs
+function clearDebugCol(debugSheet, colIndex) {
+  // Clear first reservedDebugNumRows rows
+  debugSheet.getRange(1, colIndex + 1, reservedDebugNumRows, 2).clear();
+  // Clear as many additional rows as necessary
+  var rowIndex = reservedDebugNumRows;
+  while (debugSheet.getRange(rowIndex + 1, colIndex + 1, 1, 2).getValues()[0][1] != "") {
+    debugSheet.getRange(rowIndex + 1, colIndex + 1, 1, 2).clear();
+    rowIndex += 1;
+  }
+}
+
+// Add execution entry to debug viewer, shift previous executions and remove earliest if too many
 function initDebugEntry(debugViewer, nextDebugCol, nextDebugRow) {
   // Clear currently viewing logs to get proper last row
   debugViewer.getRange("B3").clear();
   // Calculate number of existing executions
-  var lastRow = debugViewer.getDataRange().getLastRow()+1;
-  var maxSaved = debugViewer.getRange("B1").getValue()
-  var toCopy = maxSaved - 1
-  if (lastRow - 2 < maxSaved - 1) {
-    toCopy = lastRow - 2
+  var numExecutionsRecorded = debugViewer.getDataRange().getLastRow() - 2;
+  var maxToCopy = debugViewer.getRange("B1").getValue() - 1
+  var numToCopy = numExecutionsRecorded
+  if (numToCopy > maxToCopy) {
+    numToCopy = maxToCopy
   }
-  // Copy existing executions up to maximum
-  debugViewer.getRange(4, 1, toCopy, 1).setValues(debugViewer.getRange(3, 1, toCopy, 1).getValues())
-  if (lastRow - 2 - (toCopy + 1) > 0) {
-    debugViewer.getRange(4+toCopy, 1, lastRow - 2 - (toCopy + 1), 1).clear()
+  // Shift existing executions
+  debugViewer.getRange(4, 1, numToCopy, 1).setValues(debugViewer.getRange(3, 1, numToCopy, 1).getValues())
+  if (numExecutionsRecorded - numToCopy > 0) {
+    debugViewer.getRange(4+numToCopy, 1, numExecutionsRecorded - numToCopy, 1).clear()
   }
   // Copy new execution
-  debugViewer.getRange(3, 1).setValue("=DebugData!"+debugViewer.getRange(nextDebugRow, nextDebugCol).getA1Notation())
+  debugViewer.getRange(3, 1).setValue("=DebugData!"+debugViewer.getRange(nextDebugRow + 1, nextDebugCol + 1).getA1Notation())
 }
 
 // Set currently viewed execution logs to most recent execution
@@ -591,7 +602,7 @@ function getLogs(timestamp) {
       if (data[row][col] == timestamp) {
         for (; row < data.length; row++) {
           if (data[row][col] == "") break;
-          results.push([data[row][col+1]]);
+          results.push([data[row][col + 1]]);
         }
         return results;
       }
