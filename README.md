@@ -91,6 +91,14 @@ Show "appsscript.json" manifest file in editor`
   - append `?update=True` to force update all the playlists.
   - e.g. `tiny.cc/myplaylist?update=True&pl=3` will force update and open the third playlist.
 
+# Update script
+
+Often, changes will be made to the script which you will need to add to your copy of the sheet. There are two ways to do this:
+1. Get a new [copy](http://bit.ly/subscriptionPlaylistsCopy) of the sheet and copy your data from your old one to the new one
+2. Edit the script in your existing sheet:
+    - In menu (of the sheet) click on: `Extensions` / `Apps Script`
+    - Replace the script (Code.gs) with the new script found [here](./sheetScript.gs)
+
 # FAQ
 
 ##### Q: I followed the instructions and nothing happened?
