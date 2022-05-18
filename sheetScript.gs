@@ -541,7 +541,7 @@ function getNextDebugCol(debugSheet) {
 function getNextDebugRow(debugSheet, nextDebugCol) {
   var data = debugSheet.getDataRange().getValues();
   // Empty sheet, return first row
-  if (data.length == 1 && data[0].length == 0) return 0;
+  if (data.length == 1 && data[0].length == 1 && data[0][0] == "") return 0;
   // Only one column, not filled yet, return last row + 1
   // Second check needed in case reservedDebugNumRows has expanded while other columns are filled
   if (data.length < reservedDebugNumRows && data[0][0] != "") return data.length;
