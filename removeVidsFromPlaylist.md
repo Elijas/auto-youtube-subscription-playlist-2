@@ -18,13 +18,13 @@ There are two ways to run these scripts:
 ## Remove all videos:
 
 ```js
-javascript:(()=>{d=Array.from(document.querySelectorAll("ytd-playlist-video-renderer #interaction"));g=(c=0)=>{if (!d.length)return alert(`Finished removing ${c} videos.`);d.shift().click();requestAnimationFrame(()=>Array.from(document.querySelectorAll("ytd-menu-service-item-renderer")).filter(a=>a.querySelector("yt-formatted-string").innerText.includes("Remove"))[0].click());setTimeout(()=>requestAnimationFrame(()=>g(c+1)),50);};g()})()
+javascript:(()=>{d=Array.from(document.querySelectorAll("ytd-playlist-video-renderer #interaction"));g=(c=0)=>{if (!d.length)return alert(`Finished removing ${c} videos.`);d.shift().click();requestAnimationFrame(()=>Array.from(document.querySelectorAll("ytd-menu-service-item-renderer")).filter(a=>a.querySelector("yt-formatted-string").innerText.includes("Remove"))[0].click());setTimeout(()=>requestAnimationFrame(()=>g(c+1)),100);};g()})()
 ```
 
 ## Remove all watched videos (thanks to [saso5tr](https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/cy38z0f)):
 
 ```js
-javascript:(()=>{d=Array.from(document.querySelectorAll("ytd-playlist-video-renderer")).filter((a)=>a.querySelector("ytd-thumbnail-overlay-resume-playback-renderer")!=null).map((a)=>a.querySelector("#interaction"));g=(c=0)=>{if (!d.length)return alert(`Finished removing ${c} videos.`);d.shift().click();requestAnimationFrame(()=>Array.from(document.querySelectorAll("ytd-menu-service-item-renderer")).filter(a=>a.querySelector("yt-formatted-string").innerText.includes("Remove"))[0].click());setTimeout(()=>requestAnimationFrame(()=>g(c+1)),50);};g()})()
+javascript:(()=>{d=Array.from(document.querySelectorAll("ytd-playlist-video-renderer")).filter((a)=>a.querySelector("ytd-thumbnail-overlay-resume-playback-renderer")!=null).map((a)=>a.querySelector("#interaction"));g=(c=0)=>{if (!d.length)return alert(`Finished removing ${c} videos.`);d.shift().click();requestAnimationFrame(()=>Array.from(document.querySelectorAll("ytd-menu-service-item-renderer")).filter(a=>a.querySelector("yt-formatted-string").innerText.includes("Remove"))[0].click());setTimeout(()=>requestAnimationFrame(()=>g(c+1)),100);};g()})()
 ```
 
 ## Remove a specified amount of videos:
