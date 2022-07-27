@@ -281,10 +281,10 @@ function getVideoIds(channelId, lastTimestamp) {
       var results = YouTube.Channels.list('id', {
         id: channelId
       });
-      if (!results || !results.items) {
+      if (!results) {
         addError("YouTube channel search returned invalid response for channel with id "+channelId)
         return []
-      } else if (results.items.length === 0) {
+      } else if (!results.items || results.items.length === 0) {
         addError("Cannot find channel with id "+channelId)
         return []
       }
@@ -307,10 +307,10 @@ function getVideoIdsWithLessQueries(channelId, lastTimestamp) {
     var results = YouTube.Channels.list('contentDetails', {
       id: channelId
     });
-    if (!results || !results.items) {
+    if (!results) {
       addError("YouTube channel search returned invalid response for channel with id "+channelId)
       return []
-    } else if (results.items.length === 0) {
+    } else if (!results.items || results.items.length === 0) {
       addError("Cannot find channel with id "+channelId)
       return []
     } else {
