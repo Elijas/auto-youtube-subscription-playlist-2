@@ -51,7 +51,7 @@ If you ran into problems, here are some of the possible sources for solutions:
       - Playlist ID (last part (after `?list=` in `https://www.youtube.com/playlist?list=PLd0LhgZxFkVKh_JNXcdHoPYo832Wu9fub`)
       - `ALL`, to add all new videos from all of your subscriptions
       - NOTE: custom URLs cannnot be used (i.e. the last part of `https://www.youtube.com/c/skate702`). Please get the channel's ID as described in the Troubleshooting section under `Cannot query for user <USERNAME>`
-    - Optionally add a number of days in the grey column (B). Videos in the playlist that have been published that many days before are going to be removed from the playlist.
+    - Optionally add a number of days in column D. Videos in the playlist that have been published that many days before are going to be removed from the playlist.
 
 3. Run the script:
       - In Sheet's menu: `YouTube Controls` / `Update Playlists`
