@@ -200,6 +200,47 @@ function updatePlaylists(sheet) {
 // Functions to obtain channel IDs to check
 //
 
+// Display dialog to get channel ID from channel name
+function getChannelId() {
+  var ui = SpreadsheetApp.getUi();
+
+  var result = ui.prompt(
+    'Get Channel ID',
+    'Please input a channel name:',
+    ui.ButtonSet.OK_CANCEL);
+  var button = result.getSelectedButton();
+  var text = result.getResponseText();
+
+  if (button == ui.Button.OK) {
+    var results = YouTube.Search.list('id', {
+      q: text,
+      type: "channel",
+      maxResults: 50,
+    });
+
+    for (var i = 0; i < results.items.length; i++) {
+      var result = ui.alert(
+        'Please confirm',
+        'Is this the link to the channel you want?\n\nhttps://youtube.com/channel/' + results.items[i].id.channelId + '',
+        ui.ButtonSet.YES_NO);
+      if (result == ui.Button.YES) {
+        ui.alert('The channel ID is ' + results.items[i].id.channelId);
+        return;
+      } else if (result == ui.Button.NO) {
+        continue;
+      } else {
+        return;
+      }
+    }
+
+    ui.alert('No results found for ' + text + '.');
+  } else if (button == ui.Button.CANCEL) {
+    return;
+  } else if (button == ui.Button.CLOSE) {
+    return;
+  }
+}
+
 // Get Channel IDs from Subscriptions (ALL keyword)
 function getAllChannelIds() { // get YT Subscriptions-List, src: https://www.reddit.com/r/youtube/comments/3br98c/a_way_to_automatically_add_subscriptions_to/
   var AboResponse, AboList = [[],[]], nextPageToken = [], nptPage = 0, i, ix;
@@ -624,7 +665,10 @@ function addError(s) {
 
 // Function to Set Up Google Spreadsheet
 function onOpen() {
-  SpreadsheetApp.getActiveSpreadsheet().addMenu("Youtube Controls", [{name: "Update Playlists", functionName: "updatePlaylists"}]);
+  SpreadsheetApp.getActiveSpreadsheet().addMenu("Youtube Controls", [
+    {name: "Update Playlists", functionName: "updatePlaylists"},
+    {name: "Get Channel ID", functionName: "getChannelId"}
+  ]);
   var ss = SpreadsheetApp.getActiveSpreadsheet()
   var sheet = ss.getSheets()[0]
   if (!sheet || sheet.getRange("A3").getValue() !== "Playlist ID") {
