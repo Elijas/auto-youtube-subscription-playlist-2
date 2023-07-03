@@ -146,14 +146,9 @@ A: Make sure the sheet can access YouTube's API:
       - Under the `Services` section, make sure `YouTube` is there, otherwise use the plus button beside `Services` and search for `YouTube Data API v3`.
   - Close the Developers Console and Script Editor, open the Sheet again
 
-##### Q: I get this error: `Cannot query for user <USERNAME>` where `<USERNAME>` is the channel's username found in the channel's shortened URL (i.e. `youtube.com/c/<USERNAME>` or `youtube.com/user/<USERNAME>`
+##### Q: I get this error: `Cannot query for user <USERNAME>` where `<USERNAME>` is the channel's username found in the channel's shortened URL (i.e. `youtube.com/c/<USERNAME>` or `youtube.com/user/<USERNAME>` or `youtube.com/@<USERNAME>`
 
-In the sheet, channel usernames and custom URLs cannot be used, only channel ids. To get a channel id for a specific channel, follow these steps:
-1. click on any of the videos on the channel
-2. click on the channel name
-3. the URL now contains the ID instead of the username
-
-![get url for custom chanels](https://user-images.githubusercontent.com/2620316/102909538-09b85280-4471-11eb-9828-5c2a52f71640.gif)
+In the sheet, channel usernames and custom URLs cannot be used, only channel ids. To get a channel id for a specific channel, use the `Get Channel ID` function in the custom menu. After inputting a channel's name and hitting Ok, it will give you channel URLs to verify it has found the right one. Once it's correct, click Yes and it will give you the channel ID, which you should then copy and paste into the spreadsheet.
 
 ##### Q: I want to experiment with the error further
 
