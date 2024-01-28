@@ -19,12 +19,13 @@ var debugFlag_logWhenNoNewVideosFound = false;
 // Reserved Row and Column indices (zero-based)
 // If you use getRange remember those indices are one-based, so add + 1 in that call i.e.
 // sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(isodate);
-var reservedTableRows = 3;        // Start of the range of the PlaylistID+ChannelID data
-var reservedTableColumns = 5;     // Start of the range of the ChannelID data (0: A, 1: B, 2: C, 3: D, 4: E, 5: F, ...)
-var reservedColumnPlaylist = 0;   // Column containing playlist to add to
-var reservedColumnTimestamp = 1;  // Column containing last timestamp
-var reservedColumnFrequency = 2;  // Column containing number of hours until new check
-var reservedColumnDeleteDays = 3; // Column containing number of days before today until videos get deleted
+var reservedTableRows = 3;          // Start of the range of the PlaylistID+ChannelID data
+var reservedTableColumns = 6;       // Start of the range of the ChannelID data (0: A, 1: B, 2: C, 3: D, 4: E, 5: F, ...)
+var reservedColumnPlaylist = 0;     // Column containing playlist to add to
+var reservedColumnTimestamp = 1;    // Column containing last timestamp
+var reservedColumnFrequency = 2;    // Column containing number of hours until new check
+var reservedColumnDeleteDays = 3;   // Column containing number of days before today until videos get deleted
+var reservedColumnShortsFilter = 4; // Column containing switch for using shorts filter
 // Reserved lengths
 var reservedDebugNumRows = 900;   // Number of rows to use in a column before moving on to the next column in debug sheet
 var reservedDebugNumColumns = 26; // Number of columns to use in debug sheet, must be at least 4 to allow infinite cycle
@@ -146,6 +147,10 @@ function updatePlaylists(sheet) {
       }
         
       Logger.log("Acquired "+newVideoIds.length+" videos")
+
+      newVideoIds = applyFilters(newVideoIds, sheet, iRow);
+        
+      Logger.log("Filtering finished, left with "+newVideoIds.length+" videos")
       
       if (!errorflag) {
         // ...add videos to playlist...
@@ -557,6 +562,49 @@ function deletePlaylistItems(playlistId, deleteBeforeTimestamp) {
 }
 
 //
+// Functions for filtering videos
+//
+
+// Returns a new filtered array of videos based on the filters selected in the sheet
+function applyFilters(videoIds, sheet, iRow) {
+  let filters = []
+  // Removes all shorts if enabled
+  if (sheet.getRange(iRow + 1, reservedColumnShortsFilter + 1).getValue() == "No") {
+    Logger.log("Removing shorts");
+    filters.push(removeShortsFilter);
+  }
+  return videoIds.filter(videoId => filters.reduce((acc, cur) => acc && cur(videoId), true));
+}
+
+// Returns false if video is a short by checking if its length is less than a minute
+// There might be better/more accurate ways
+function removeShortsFilter(videoId) {
+  let response = YouTube.Videos.list('contentDetails', {
+    id: videoId,
+  });
+  if (response.items && response.items.length) {
+    let duration = response.items[0].contentDetails.duration;
+    return !isLessThanAMinute(duration)
+  }
+  return false;
+}
+
+// Checks if an ISO 8601 duration is less or equal than a minute.
+// Verifying the duration is of the form PT1M or PTXXX.XXXS where X represents digits.
+function isLessThanAMinute(duration) {
+  // Check if duration is 1 minute
+  // Since there can be a 1 second variation, we check for 1 minute + 1 second too, due to following bug
+  // https://stackoverflow.com/questions/72459082/yt-api-pulling-different-video-lengths-for-youtube-videos
+  if (duration == "PT1M" || duration == "PT1M1S") return true;
+  if (duration.slice(0,2) != "PT") return false;
+  for (let i = 2; i < duration.length - 1; i++) {
+    // Check if is digit
+    if (duration[i] > '9') return false;
+  }
+  return duration[duration.length - 1] == 'S';
+}
+
+//
 // Functions for maintaining debug logs
 //
 
@@ -710,4 +758,25 @@ function playlist(pl, sheetID){
   }
   var playlistId = data[pl][reservedColumnPlaylist];
   return playlistId
+}
+
+function test1() {
+  Logger.log("hi")
+  // let duration = "";
+  // Logger.log(duration[duration.length - 1]);
+  // let videoId = "FAyKDaXEAgc";
+  // let response = YouTube.Videos.list('contentDetails', {
+  //   id: videoId,
+  // });
+  // if (response.items && response.items.length) {
+  //   let duration = response.items[0].contentDetails.duration;
+  //   if (isLessThanAMinute(duration)) {
+  //     Logger.log("Is a short");
+  //   } else {
+  //     Logger.log("Is not a short");
+  //   }
+  // }
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+  let videoIds = ["FAyKDaXEAgc", "_y_QLeVOpqs", "7KEA5_8rd0A", "LTiI6tvU48c"];
+  Logger.log(applyFilters(videoIds, sheet));
 }
