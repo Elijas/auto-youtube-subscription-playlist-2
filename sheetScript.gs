@@ -171,11 +171,8 @@ function updatePlaylists(sheet) {
           deletePlaylistItems(playlistId, deleteBeforeTimestamp);
         }
       }
-
-      // Update timestamp and days to add
-      if (!errorflag && !debugFlag_dontUpdateTimestamp) {
-        sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(new Date().toIsoString());
-      }
+    // Update timestamp
+    if (!errorflag && !debugFlag_dontUpdateTimestamp) sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(new Date().toIsoString()); 
     }
     // Prints logs to Debug sheet
     var newLogs = Logger.getLog().split("\n").slice(0, -1).map(function(log) {if(log.search("limit") != -1 && log.search("quota") != -1)errorflag=true;return log.split(" INFO: ")})
