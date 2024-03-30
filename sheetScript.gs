@@ -20,12 +20,13 @@ var debugFlag_logWhenNoNewVideosFound = false;
 // If you use getRange remember those indices are one-based, so add + 1 in that call i.e.
 // sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(isodate);
 var reservedTableRows = 3;          // Start of the range of the PlaylistID+ChannelID data
-var reservedTableColumns = 6;       // Start of the range of the ChannelID data (0: A, 1: B, 2: C, 3: D, 4: E, 5: F, ...)
+var reservedTableColumns = 7;       // Start of the range of the ChannelID data (0: A, 1: B, 2: C, 3: D, 4: E, 5: F, 6: G, ...)
 var reservedColumnPlaylist = 0;     // Column containing playlist to add to
 var reservedColumnTimestamp = 1;    // Column containing last timestamp
-var reservedColumnFrequency = 2;    // Column containing number of hours until new check
-var reservedColumnDeleteDays = 3;   // Column containing number of days before today until videos get deleted
-var reservedColumnShortsFilter = 4; // Column containing switch for using shorts filter
+var reservedColumnAddDays = 2;      // Column containing number of days after last timestamp to add
+var reservedColumnFrequency = 3;    // Column containing number of hours until new check
+var reservedColumnDeleteDays = 4;   // Column containing number of days before today until videos get deleted
+var reservedColumnShortsFilter = 5; // Column containing switch for using shorts filter
 // Reserved lengths
 var reservedDebugNumRows = 900;   // Number of rows to use in a column before moving on to the next column in debug sheet
 var reservedDebugNumColumns = 26; // Number of columns to use in debug sheet, must be at least 4 to allow infinite cycle
@@ -89,9 +90,11 @@ function updatePlaylists(sheet) {
     }
   
     // Check if it's time to update already
+    var addDays = data[iRow][reservedColumnAddDays];
     var freqDate = new Date(lastTimestamp);
+    var nextTime = (data[iRow][reservedColumnFrequency] ?? 0) * MILLIS_PER_HOUR;
+    var addTime = !addDays ? Date.now() : freqDate.getTime() + Math.max(addDays * MILLIS_PER_DAY, nextTime);
     var dateDiff = Date.now() - freqDate;
-    var nextTime = data[iRow][reservedColumnFrequency]  * MILLIS_PER_HOUR;
     if (nextTime && dateDiff <= nextTime) {
       Logger.log("Skipped: Not time yet");
     } else {
@@ -168,8 +171,11 @@ function updatePlaylists(sheet) {
           deletePlaylistItems(playlistId, deleteBeforeTimestamp);
         }
       }
-    // Update timestamp
-    if (!errorflag && !debugFlag_dontUpdateTimestamp) sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(new Date().toIsoString()); 
+
+      // Update timestamp and days to add
+      if (!errorflag && !debugFlag_dontUpdateTimestamp) {
+        sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(new Date().toIsoString());
+      }
     }
     // Prints logs to Debug sheet
     var newLogs = Logger.getLog().split("\n").slice(0, -1).map(function(log) {if(log.search("limit") != -1 && log.search("quota") != -1)errorflag=true;return log.split(" INFO: ")})
@@ -455,7 +461,7 @@ function getPlaylistVideoIds(playlistId, lastTimestamp) {
 // Add Videos to Playlist using Video IDs obtained before
 function addVideosToPlaylist(playlistId, videoIds, idx = 0, successCount = 0, errorCount = 0) {
   var totalVids = videoIds.length;
-  if (0 < totalVids && totalVids < maxVideos) {
+  if (0 < totalVids && totalVids <= maxVideos) {
     try {
       YouTube.PlaylistItems.insert({
         snippet: {
@@ -758,25 +764,4 @@ function playlist(pl, sheetID){
   }
   var playlistId = data[pl][reservedColumnPlaylist];
   return playlistId
-}
-
-function test1() {
-  Logger.log("hi")
-  // let duration = "";
-  // Logger.log(duration[duration.length - 1]);
-  // let videoId = "FAyKDaXEAgc";
-  // let response = YouTube.Videos.list('contentDetails', {
-  //   id: videoId,
-  // });
-  // if (response.items && response.items.length) {
-  //   let duration = response.items[0].contentDetails.duration;
-  //   if (isLessThanAMinute(duration)) {
-  //     Logger.log("Is a short");
-  //   } else {
-  //     Logger.log("Is not a short");
-  //   }
-  // }
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
-  let videoIds = ["FAyKDaXEAgc", "_y_QLeVOpqs", "7KEA5_8rd0A", "LTiI6tvU48c"];
-  Logger.log(applyFilters(videoIds, sheet));
 }
