@@ -90,11 +90,11 @@ function updatePlaylists(sheet) {
     }
   
     // Check if it's time to update already
-    var addDays = data[iRow][reservedColumnAddDays];
     var freqDate = new Date(lastTimestamp);
-    var nextTime = (data[iRow][reservedColumnFrequency] ?? 0) * MILLIS_PER_HOUR;
-    var addTime = !addDays ? Date.now() : freqDate.getTime() + Math.max(addDays * MILLIS_PER_DAY, nextTime);
     var dateDiff = Date.now() - freqDate;
+    var nextTime = (data[iRow][reservedColumnFrequency] ?? 0) * MILLIS_PER_HOUR;
+    var addDays = data[iRow][reservedColumnAddDays];
+    var addTime = !addDays ? Date.now() : freqDate.getTime() + Math.max(addDays * MILLIS_PER_DAY, nextTime);
     if (nextTime && dateDiff <= nextTime) {
       Logger.log("Skipped: Not time yet");
     } else {
