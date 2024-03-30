@@ -458,7 +458,7 @@ function getPlaylistVideoIds(playlistId, lastTimestamp) {
 // Add Videos to Playlist using Video IDs obtained before
 function addVideosToPlaylist(playlistId, videoIds, idx = 0, successCount = 0, errorCount = 0) {
   var totalVids = videoIds.length;
-  if (0 < totalVids && totalVids <= maxVideos) {
+  if (0 < totalVids && totalVids < maxVideos) {
     try {
       YouTube.PlaylistItems.insert({
         snippet: {
@@ -761,4 +761,25 @@ function playlist(pl, sheetID){
   }
   var playlistId = data[pl][reservedColumnPlaylist];
   return playlistId
+}
+
+function test1() {
+  Logger.log("hi")
+  // let duration = "";
+  // Logger.log(duration[duration.length - 1]);
+  // let videoId = "FAyKDaXEAgc";
+  // let response = YouTube.Videos.list('contentDetails', {
+  //   id: videoId,
+  // });
+  // if (response.items && response.items.length) {
+  //   let duration = response.items[0].contentDetails.duration;
+  //   if (isLessThanAMinute(duration)) {
+  //     Logger.log("Is a short");
+  //   } else {
+  //     Logger.log("Is not a short");
+  //   }
+  // }
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+  let videoIds = ["FAyKDaXEAgc", "_y_QLeVOpqs", "7KEA5_8rd0A", "LTiI6tvU48c"];
+  Logger.log(applyFilters(videoIds, sheet));
 }
