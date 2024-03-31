@@ -94,6 +94,7 @@ function updatePlaylists(sheet) {
     var nextTime = data[iRow][reservedColumnFrequency] * MILLIS_PER_HOUR;
     var addDays = data[iRow][reservedColumnAddDays];
     var addTimestamp = !addDays ? Date.now() : lastTimestamp + Math.max(addDays * MILLIS_PER_DAY, nextTime);
+    var addDate = new Date(addTimestamp);
     if (nextTime && dateDiff <= nextTime) {
       Logger.log("Skipped: Not time yet");
     } else {
@@ -130,7 +131,7 @@ function updatePlaylists(sheet) {
       /// ...get videos from the channels...
       var newVideoIds = [];
       for (var i = 0; i < channelIds.length; i++) {
-        var videoIds = getVideoIdsWithLessQueries(channelIds[i], freqDate, new Date(addTimestamp));
+        var videoIds = getVideoIdsWithLessQueries(channelIds[i], freqDate, addDate);
         if (!videoIds || typeof (videoIds) !== "object") addError("Failed to get videos with channel id " + channelIds[i])
         else if (debugFlag_logWhenNoNewVideosFound && videoIds.length === 0) {
           Logger.log("Channel with id " + channelIds[i] + " has no new videos")
@@ -171,7 +172,7 @@ function updatePlaylists(sheet) {
         }
       }
       // Update timestamp
-      if (!errorflag && !debugFlag_dontUpdateTimestamp) sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(new Date().toIsoString());
+      if (!errorflag && !debugFlag_dontUpdateTimestamp) sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(addDate.toIsoString());
     }
     // Prints logs to Debug sheet
     var newLogs = Logger.getLog().split("\n").slice(0, -1).map(function (log) { if (log.search("limit") != -1 && log.search("quota") != -1) errorflag = true; return log.split(" INFO: ") })
@@ -378,7 +379,7 @@ function getVideoIdsWithLessQueries(channelId, startDate, endDate) {
         pageToken: nextPageToken
       })
       var videosToBeAdded = results.items.filter(function (vid) {
-        var vidDate = new Date(vid.contentDetails.videoPublishedAt)
+        var vidDate = new Date(vid.contentDetails.videoPublishedAt);
         return startDate <= vidDate && vidDate <= endDate;
       })
       if (videosToBeAdded.length == 0) {
@@ -518,7 +519,6 @@ function deletePlaylistItems(playlistId, deleteBeforeTimestamp) {
   var nextPageToken = '';
   var allVideos = [];
   while (nextPageToken != null) {
-
     try {
       var results = YouTube.PlaylistItems.list('contentDetails', {
         playlistId: playlistId,
