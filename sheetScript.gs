@@ -89,12 +89,16 @@ function updatePlaylists(sheet) {
     }
 
     // Check if it's time to update already
+    var now = Date.now();
     var freqDate = new Date(lastTimestamp);
-    var dateDiff = Date.now() - freqDate;
+    var lastTime = freqDate.getTime();
+    var dateDiff = now - freqDate;
     var nextTime = data[iRow][reservedColumnFrequency] * MILLIS_PER_HOUR;
     var addDays = data[iRow][reservedColumnAddDays];
-    var addTimestamp = !addDays ? Date.now() : lastTimestamp + Math.max(addDays * MILLIS_PER_DAY, nextTime);
-    var addDate = new Date(addTimestamp);
+    var addTime = !addDays ? now : lastTime + Math.max(addDays * MILLIS_PER_DAY, nextTime);
+    if (addTime > now) addTime = now;
+    var addDate = new Date(addTime);
+    var addTimestamp = addDate.toISOString();
     if (nextTime && dateDiff <= nextTime) {
       Logger.log("Skipped: Not time yet");
     } else {
@@ -172,7 +176,7 @@ function updatePlaylists(sheet) {
         }
       }
       // Update timestamp
-      if (!errorflag && !debugFlag_dontUpdateTimestamp) sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(addDate.toIsoString());
+      if (!errorflag && !debugFlag_dontUpdateTimestamp) sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(addTimestamp);
     }
     // Prints logs to Debug sheet
     var newLogs = Logger.getLog().split("\n").slice(0, -1).map(function (log) { if (log.search("limit") != -1 && log.search("quota") != -1) errorflag = true; return log.split(" INFO: ") })
@@ -389,7 +393,7 @@ function getVideoIdsWithLessQueries(channelId, startDate, endDate) {
       }
       nextPageToken = results.nextPageToken;
     } catch (e) {
-      if (e.details.code !== 404) { // Skip error count if Playlist isn't found, then channel is empty
+      if (e.details && e.details.code && e.details.code !== 404) { // Skip error count if Playlist isn't found, then channel is empty
         addError("Cannot search YouTube with playlist id " + uploadsPlaylistId + ", ERROR: Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
       } else {
         Logger.log("Warning: Channel " + channelId + " does not have any uploads in " + uploadsPlaylistId + ", ignore if this is intentional as this will not fail the script. API error details for troubleshooting: " + JSON.stringify(e.details));
