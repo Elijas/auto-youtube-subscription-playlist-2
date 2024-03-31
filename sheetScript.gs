@@ -15,7 +15,6 @@ var debugFlag_dontUpdateTimestamp = false;
 var debugFlag_dontUpdatePlaylists = false;
 var debugFlag_logWhenNoNewVideosFound = false;
 
-
 // Reserved Row and Column indices (zero-based)
 // If you use getRange remember those indices are one-based, so add + 1 in that call i.e.
 // sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(isodate);
@@ -94,7 +93,7 @@ function updatePlaylists(sheet) {
     var dateDiff = Date.now() - freqDate;
     var nextTime = data[iRow][reservedColumnFrequency] * MILLIS_PER_HOUR;
     var addDays = data[iRow][reservedColumnAddDays];
-    var addTimestamp = !addDays ? Date.now() : freqDate.getTime() + Math.max(addDays * MILLIS_PER_DAY, nextTime);
+    var addTimestamp = !addDays ? Date.now() : lastTimestamp + Math.max(addDays * MILLIS_PER_DAY, nextTime);
     if (nextTime && dateDiff <= nextTime) {
       Logger.log("Skipped: Not time yet");
     } else {
