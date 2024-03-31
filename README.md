@@ -7,7 +7,7 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 
 ### Features
 
-- Add all new videos to Youtube playlists (uploaded later than some date);
+- Add all new videos to Youtube playlists (uploaded later than some date and optionally prior to some number of days);
 
     - from all subscribed channels;
 
@@ -53,9 +53,10 @@ If you ran into problems, here are some of the possible sources for solutions:
       - Playlist ID (last part (after `?list=` in `https://www.youtube.com/playlist?list=PLd0LhgZxFkVKh_JNXcdHoPYo832Wu9fub`)
       - `ALL`, to add all new videos from all of your subscriptions
       - NOTE: custom URLs cannnot be used (i.e. the last part of `https://www.youtube.com/c/skate702`). Please get the channel's ID as described in the Troubleshooting section under `Cannot query for user <USERNAME>`
-    - Optionally add a number of days in column C. The playlist in this row will not be updated until that many days have passed.
-    - Optionally add a number of days in column D. Videos in the playlist that have been published that many days before are going to be removed from the playlist.
-    - Optionally add `No` to column E to remove all new videos under 1 minute in length from being added to the playlist.
+    - Optionally add a number of days in column C. The playlist in this row will only add videos published up to that many days after the date in column A.
+    - Optionally add a number of days in column D. The playlist in this row will not be updated until that many days have passed.
+    - Optionally add a number of days in column E. Videos in the playlist that have been published that many days before are going to be removed from the playlist.
+    - Optionally add `No` to column F to remove all new videos under 1 minute in length from being added to the playlist.
 
 3. Run the script:
       - In Sheet's menu: `YouTube Controls` / `Update Playlists`
