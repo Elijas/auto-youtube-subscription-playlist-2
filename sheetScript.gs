@@ -92,14 +92,14 @@ function updatePlaylists(sheet) {
     var now = Date.now();
     var freqDate = new Date(lastTimestamp);
     var lastTime = freqDate.getTime();
-    var dateDiff = now - freqDate;
-    var nextTime = data[iRow][reservedColumnFrequency] * MILLIS_PER_HOUR;
+    var dateDiff = now - lastTime;
+    var nextTimeDiff = data[iRow][reservedColumnFrequency] * MILLIS_PER_HOUR;
     var addDays = data[iRow][reservedColumnAddDays];
-    var addTime = !addDays ? now : lastTime + Math.max(addDays * MILLIS_PER_DAY, nextTime);
+    var addTime = !addDays ? now : lastTime + addDays * MILLIS_PER_DAY;
     if (addTime > now) addTime = now;
     var addDate = new Date(addTime);
     var addTimestamp = addDate.toISOString();
-    if (nextTime && dateDiff <= nextTime) {
+    if (nextTimeDiff && dateDiff <= nextTimeDiff) {
       Logger.log("Skipped: Not time yet");
     } else {
       /// ...get channels...
