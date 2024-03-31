@@ -92,7 +92,7 @@ function updatePlaylists(sheet) {
     // Check if it's time to update already
     var freqDate = new Date(lastTimestamp);
     var dateDiff = Date.now() - freqDate;
-    var nextTime = (data[iRow][reservedColumnFrequency] ?? 0) * MILLIS_PER_HOUR;
+    var nextTime = data[iRow][reservedColumnFrequency] * MILLIS_PER_HOUR;
     var addDays = data[iRow][reservedColumnAddDays];
     var addTime = !addDays ? Date.now() : freqDate.getTime() + Math.max(addDays * MILLIS_PER_DAY, nextTime);
     if (nextTime && dateDiff <= nextTime) {
@@ -378,7 +378,9 @@ function getVideoIdsWithLessQueries(channelId, lastTimestamp) {
         maxResults: 50,
         pageToken: nextPageToken
       })
-      var videosToBeAdded = results.items.filter(function (vid) {return ((new Date(lastTimestamp)) <= (new Date(vid.contentDetails.videoPublishedAt)))})
+      var videosToBeAdded = results.items.filter(function (vid) {
+        return ((new Date(lastTimestamp)) <= (new Date(vid.contentDetails.videoPublishedAt)))
+      })
       if (videosToBeAdded.length == 0) {
         break;
       } else {
