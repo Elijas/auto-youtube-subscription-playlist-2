@@ -94,7 +94,7 @@ function updatePlaylists(sheet) {
     var dateDiff = Date.now() - freqDate;
     var nextTime = data[iRow][reservedColumnFrequency] * MILLIS_PER_HOUR;
     var addDays = data[iRow][reservedColumnAddDays];
-    var addTime = !addDays ? Date.now() : freqDate.getTime() + Math.max(addDays * MILLIS_PER_DAY, nextTime);
+    var addTimestamp = !addDays ? Date.now() : freqDate.getTime() + Math.max(addDays * MILLIS_PER_DAY, nextTime);
     if (nextTime && dateDiff <= nextTime) {
       Logger.log("Skipped: Not time yet");
     } else {
@@ -131,7 +131,7 @@ function updatePlaylists(sheet) {
       /// ...get videos from the channels...
       var newVideoIds = [];
       for (var i = 0; i < channelIds.length; i++) {
-        var videoIds = getVideoIdsWithLessQueries(channelIds[i], lastTimestamp)
+        var videoIds = getVideoIdsWithLessQueries(channelIds[i], freqDate, new Date(addTimestamp));
         if (!videoIds || typeof(videoIds) !== "object") addError("Failed to get videos with channel id "+channelIds[i])
         else if (debugFlag_logWhenNoNewVideosFound && videoIds.length === 0) {
           Logger.log("Channel with id "+channelIds[i]+" has no new videos")
@@ -140,7 +140,7 @@ function updatePlaylists(sheet) {
         }
       }
       for (var i = 0; i < playlistIds.length; i++) {
-        var videoIds = getPlaylistVideoIds(playlistIds[i], lastTimestamp)
+        var videoIds = getPlaylistVideoIds(playlistIds[i], lastTimestamp, addTimestamp)
         if (!videoIds || typeof(videoIds) !== "object") addError("Failed to get videos with playlist id "+playlistIds[i])
         else if (debugFlag_logWhenNoNewVideosFound && videoIds.length === 0) {
           Logger.log("Playlist with id "+playlistIds[i]+" has no new videos")
@@ -348,7 +348,7 @@ function getVideoIds(channelId, lastTimestamp) {
 
 // Get videos from Channels but with less Quota use
 // slower and date ordering is a bit messy but less quota costs
-function getVideoIdsWithLessQueries(channelId, lastTimestamp) {
+function getVideoIdsWithLessQueries(channelId, startDate, endDate) {
   var videoIds = [];
   var uploadsPlaylistId;
   try {
@@ -379,7 +379,8 @@ function getVideoIdsWithLessQueries(channelId, lastTimestamp) {
         pageToken: nextPageToken
       })
       var videosToBeAdded = results.items.filter(function (vid) {
-        return ((new Date(lastTimestamp)) <= (new Date(vid.contentDetails.videoPublishedAt)))
+        var vidDate = new Date(vid.contentDetails.videoPublishedAt)
+        return startDate <= vidDate && vidDate <= endDate;
       })
       if (videosToBeAdded.length == 0) {
         break;
@@ -401,7 +402,7 @@ function getVideoIdsWithLessQueries(channelId, lastTimestamp) {
 }
 
 // Get Video IDs from Playlist
-function getPlaylistVideoIds(playlistId, lastTimestamp) {
+function getPlaylistVideoIds(playlistId, startTimestamp, endTimestamp) {
   var videoIds = [];
   var nextPageToken = '';
   while (nextPageToken != null){
@@ -410,7 +411,8 @@ function getPlaylistVideoIds(playlistId, lastTimestamp) {
         playlistId: playlistId,
         maxResults: 50,
         order: "date",
-        publishedAfter: lastTimestamp,
+        publishedBefore: endTimestamp,
+        publishedAfter: startTimestamp,
         pageToken: nextPageToken
       });
       if (!results || !results.items) {
@@ -424,7 +426,7 @@ function getPlaylistVideoIds(playlistId, lastTimestamp) {
 
     for (var j = 0; j < results.items.length; j++) {
       var item = results.items[j];
-      if (item.snippet.publishedAt > lastTimestamp)
+      if (item.snippet.publishedAt >= startTimestamp && item.snippet.publishedAt <= endTimestamp)
         videoIds.push(item.snippet.resourceId.videoId);
     }
 
