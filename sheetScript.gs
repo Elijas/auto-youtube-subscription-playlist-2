@@ -89,10 +89,9 @@ function updatePlaylists(sheet) {
     }
 
     // Check if it's time to update already
-    var now = Date.now();
     var lastDate = new Date(lastTimestamp);
     var lastTime = lastDate.getTime();
-    var dateDiff = now - lastTime;
+    var dateDiff = Date.now() - lastTime;
     var nextTimeDiff = data[iRow][reservedColumnFrequency] * MILLIS_PER_HOUR;
     if (nextTimeDiff && dateDiff <= nextTimeDiff) {
       Logger.log("Skipped: Not time yet");
@@ -131,53 +130,53 @@ function updatePlaylists(sheet) {
       }
 
       /// ...get videos from the channels...
-      var newVideoSnippets = [];
+      var newVideos = [];
       for (var i = 0; i < channelIds.length; i++) {
-        var videoSnippets = getChannelVideoSnippets(channelIds[i], lastDate);
-        if (!videoSnippets || typeof (videoSnippets) !== "object") {
+        var videos = getChannelVideos(channelIds[i], lastDate);
+        if (!videos || typeof (videos) !== "object") {
           addError("Failed to get videos with channel id " + channelIds[i])
-        } else if (debugFlag_logWhenNoNewVideosFound && videoSnippets.length === 0) {
+        } else if (debugFlag_logWhenNoNewVideosFound && videos.length === 0) {
           Logger.log("Channel with id " + channelIds[i] + " has no new videos")
         } else {
-          [].push.apply(newVideoSnippets, videoSnippets);
+          [].push.apply(newVideos, videos);
         }
       }
       for (var i = 0; i < playlistIds.length; i++) {
-        var videoSnippets = getPlaylistVideoSnippets(playlistIds[i], lastDate)
-        if (!videoSnippets || typeof (videoSnippets) !== "object") {
+        var videos = getPlaylistVideos(playlistIds[i], lastDate)
+        if (!videos || typeof (videos) !== "object") {
           addError("Failed to get videos with playlist id " + playlistIds[i])
-        } else if (debugFlag_logWhenNoNewVideosFound && videoSnippets.length === 0) {
+        } else if (debugFlag_logWhenNoNewVideosFound && videos.length === 0) {
           Logger.log("Playlist with id " + playlistIds[i] + " has no new videos")
         } else {
-          [].push.apply(newVideoSnippets, videoSnippets);
+          [].push.apply(newVideos, videos);
         }
       }
 
-      Logger.log("Acquired " + newVideoSnippets.length + " videos")
+      Logger.log("Acquired " + newVideos.length + " videos")
 
-      newVideoSnippets = applyFilters(newVideoSnippets, sheet, iRow);
+      newVideos = applyFilters(newVideos, sheet, iRow);
 
-      Logger.log("Filtering finished, left with " + newVideoSnippets.length + " videos")
+      Logger.log("Filtering finished, left with " + newVideos.length + " videos")
 
-      // Sort videos by upload time
-      newVideoSnippets.sort((vid1, vid2) => {
-        var date1 = new Date(vid1.snippet.publishedAt);
-        var date2 = new Date(vid2.snippet.publishedAt);
+      // Sort videos by ascending upload time
+      newVideos.sort((vid1, vid2) => {
+        var date1 = new Date(vid1.contentDetails.videoPublishedAt);
+        var date2 = new Date(vid2.contentDetails.videoPublishedAt);
         if (date1 > date2)
           return -1;
         if (date1 < date2)
           return 1;
         return 0;
       })
-      Logger.log(newVideoSnippets[0].snippet.publishedAt);
-      Logger.log(newVideoSnippets[1].snippet.publishedAt);
-      Logger.log(newVideoSnippets[2].snippet.publishedAt);
+      Logger.log(newVideos[0].contentDetails.videoPublishedAt);
+      Logger.log(newVideos[1].contentDetails.videoPublishedAt);
+      Logger.log(newVideos[2].contentDetails.videoPublishedAt);
       break;
 
       if (!errorflag) {
         // ...add videos to playlist...
         if (!debugFlag_dontUpdatePlaylists) {
-          addVideosToPlaylist(playlistId, newVideoSnippets);
+          addVideosToPlaylist(playlistId, newVideos);
         } else {
           addError("Don't Update Playlists debug flag is set");
         }
@@ -317,9 +316,9 @@ function getAllChannelIds() {
 // Functions to get Videos
 //
 
-// Get video snippet metadata from Channels but with less Quota use
+// Get video metadata from Channels but with less Quota use
 // slower and date ordering is a bit messy but less quota costs
-function getChannelVideoSnippets(channelId, startDate) {
+function getChannelVideos(channelId, startDate) {
   if (quotaExceeded) {
     addError("Skipping getting all channel ID " + channelId + " uploads due to exceeded quota!")
     return [];
@@ -348,21 +347,21 @@ function getChannelVideoSnippets(channelId, startDate) {
     return [];
   }
 
-  return getPlaylistVideoSnippets(uploadsPlaylistId, startDate);
+  return getPlaylistVideos(uploadsPlaylistId, startDate);
 }
 
-// Get Video snippet metadata from Playlist
-function getPlaylistVideoSnippets(playlistId, startDate) {
+// Get Video metadata from Playlist
+function getPlaylistVideos(playlistId, startDate) {
   if (quotaExceeded) {
     addError("Skipping getting all videos in playlist ID " + playlistId + " due to exceeded quota!")
     return [];
   }
 
-  var videoSnippets = [];
+  var videos = [];
   var nextPageToken = '';
   while (nextPageToken != null) {
     try {
-      var results = YouTube.PlaylistItems.list('snippet', {
+      var results = YouTube.PlaylistItems.list('contentDetails', {
         playlistId: playlistId,
         maxResults: 50,
         publishedAfter: startDate.toIsoString(), // According to documentation this isn't supported with YouTube.PlaylistItems.list but it seems to help...
@@ -388,11 +387,11 @@ function getPlaylistVideoSnippets(playlistId, startDate) {
       }
       break;
     }
-    [].push.apply(videoSnippets, results.items);
+    [].push.apply(videos, results.items);
     nextPageToken = results.nextPageToken;
   }
 
-  if (videoSnippets.length === 0) {
+  if (videos.length === 0) {
     try {
       // Check Playlist validity
       var results = YouTube.Playlists.list('id', {
@@ -414,8 +413,8 @@ function getPlaylistVideoSnippets(playlistId, startDate) {
     }
   }
 
-  videoSnippets.filter((item) => startDate >= new Date(item.snippet.publishedAt));
-  return videoSnippets;
+  videos.filter((item) => startDate >= new Date(item.contentDetails.videoPublishedAt));
+  return videos;
 }
 
 //
@@ -548,20 +547,39 @@ function deletePlaylistItems(playlistId, deleteBeforeTimestamp) {
 //
 
 // Returns a new filtered array of videos based on the filters selected in the sheet
-function applyFilters(videoSnippets, sheet, iRow) {
+function applyFilters(videos, sheet, iRow) {
+  if (quotaExceeded) {
+    addError("Skipping filtering videos due to exceeded quota!")
+    return [];
+  }
+
   let filters = []
   // Removes all shorts if enabled
   if (sheet.getRange(iRow + 1, reservedColumnShortsFilter + 1).getValue() == "No") {
     Logger.log("Removing shorts");
     filters.push(removeShortsFilter);
   }
-  return videoSnippets.filter(video => filters.reduce((acc, cur) => acc && cur(video), true));
+  return videos.filter(video => filters.reduce((acc, cur) => acc && cur(video.contentDetails.videoId), true));
 }
 
 // Returns false if video is a short by checking if its length is less than a minute
 // There might be better/more accurate ways
-function removeShortsFilter(videoSnippet) {
-  return !isLessThanAMinute(videoSnippet.snippet.duration);
+function removeShortsFilter(videoId) {
+  try {
+    let response = YouTube.Videos.list('contentDetails', {
+      id: videoId,
+    });
+    if (response.items && response.items.length) {
+      let duration = response.items[0].contentDetails.duration;
+      return !isLessThanAMinute(duration)
+    }
+  } catch (e) {
+    if (e.details && e.details.reason == "quotaExceeded") {
+      quotaExceeded = true;
+    }
+    addError("Problem filtering shorts for video with id " + videoId + ", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+  }
+  return false;
 }
 
 // Checks if an ISO 8601 duration is less or equal than a minute.
