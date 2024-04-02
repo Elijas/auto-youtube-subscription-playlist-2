@@ -20,7 +20,7 @@ var debugFlag_logWhenNoNewVideosFound = false;
 // If you use getRange remember those indices are one-based, so add + 1 in that call i.e.
 // sheet.getRange(iRow + 1, reservedColumnTimestamp + 1).setValue(isodate);
 var reservedTableRows = 3;          // Start of the range of the PlaylistID+ChannelID data
-var reservedTableColumns = 6;       // Start of the range of the ChannelID data (0: A, 1: B, 2: C, 3: D, 4: E, 5: F, 6: G, ...)
+var reservedTableColumns = 6;       // Start of the range of the ChannelID data (0: A, 1: B, 2: C, 3: D, 4: E, 5: F, ...)
 var reservedColumnPlaylist = 0;     // Column containing playlist to add to
 var reservedColumnTimestamp = 1;    // Column containing last timestamp
 var reservedColumnFrequency = 2;    // Column containing number of hours until new check
@@ -548,27 +548,20 @@ function deletePlaylistItems(playlistId, deleteBeforeTimestamp) {
 //
 
 // Returns a new filtered array of videos based on the filters selected in the sheet
-function applyFilters(videoIdTuples, sheet, iRow) {
+function applyFilters(videoSnippets, sheet, iRow) {
   let filters = []
   // Removes all shorts if enabled
   if (sheet.getRange(iRow + 1, reservedColumnShortsFilter + 1).getValue() == "No") {
     Logger.log("Removing shorts");
     filters.push(removeShortsFilter);
   }
-  return videoIdTuples.filter(videoIdTuple => filters.reduce((acc, cur) => acc && cur(videoIdTuple[0]), true));
+  return videoSnippets.filter(video => filters.reduce((acc, cur) => acc && cur(video), true));
 }
 
 // Returns false if video is a short by checking if its length is less than a minute
 // There might be better/more accurate ways
-function removeShortsFilter(videoId) {
-  let response = YouTube.Videos.list('contentDetails', {
-    id: videoId,
-  });
-  if (response.items && response.items.length) {
-    let duration = response.items[0].contentDetails.duration;
-    return !isLessThanAMinute(duration)
-  }
-  return false;
+function removeShortsFilter(videoSnippet) {
+  return !isLessThanAMinute(videoSnippet.snippet.duration);
 }
 
 // Checks if an ISO 8601 duration is less or equal than a minute.
