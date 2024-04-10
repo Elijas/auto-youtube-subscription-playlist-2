@@ -107,7 +107,7 @@ function updatePlaylists(sheet) {
       var playlistIds = [];
       for (var iColumn = reservedTableColumns; iColumn < sheet.getLastColumn(); iColumn++) {
         var channel = data[iRow][iColumn];
-        if (!channel || channel.substring(0, 1) == "#")
+        if (!channel)
           continue;
         else if (channel == "ALL") {
           var newChannelIds = getAllChannelIds();
