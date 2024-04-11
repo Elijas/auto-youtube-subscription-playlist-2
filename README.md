@@ -16,6 +16,7 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 - Set automatic interval for updates (optional);
 - Deploy as a web app to update or show playlist (optional);
 - Remove videos in the playlists that are older than a certain number of days before the execution of the script (optional).
+    - simultaneously removes duplicates
 - Remove videos less than 1 minute in length (e.g. shorts) (optional)
 
 ### (Extra) Scripts to easily remove multiple items from a youtube playlist [here](./removeVidsFromPlaylist.md)
