@@ -511,62 +511,52 @@ function addVideosToPlaylist(playlistId, videos) {
   return lastSuccessTimestamp;
 }
 
-// Delete Videos from Playlist if they're older than the defined time
+// Delete Videos from Playlist if they're older than the defined time or dupes
 function deletePlaylistItems(playlistId, deleteBeforeTimestamp) {
   var nextPageToken = '';
-  var allVideos = [];
+  var oldIds = [];
+  var videoIdMap = new Map();
   while (nextPageToken != null) {
     try {
       var results = YouTube.PlaylistItems.list('contentDetails', {
         playlistId: playlistId,
         maxResults: 50,
         order: "date",
-        publishedBefore: deleteBeforeTimestamp, // this compares the timestamp when the video was added to playlist
         pageToken: nextPageToken
       });
 
-      for (var j = 0; j < results.items.length; j++) {
-        var item = results.items[j];
-        if (item.contentDetails.videoPublishedAt < deleteBeforeTimestamp) // this compares the timestamp when the video was published
-        {
-          Logger.log("Del: | " + item.contentDetails.videoPublishedAt)
-          YouTube.PlaylistItems.remove(item.id)
+      results.items.forEach(video => {
+        if (video.contentDetails.videoPublishedAt < deleteBeforeTimestamp) { // this compares the timestamp when the video was published
+          Logger.log("Del: | " + video.contentDetails)
+          oldIds.push(video.id);
         } else {
-          allVideos.push(item);
+          if (!videoIdMap.has(video.contentDetails.videoId))
+            videoIdMap.set(video.contentDetails.videoId, [video.id])
+          else
+            videoIdMap.get(video.contentDetails.videoId).push(video.id);
         }
-      }
+      });
 
       nextPageToken = results.nextPageToken;
-
     } catch (e) {
-      if (e.details && e.details.errors.some(error => error.reason == quotaExceededReason)) {
-        quotaExceeded = true;
-      }
-      addError("Problem deleting existing videos from playlist with id " + playlistId + ", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
-      nextPageToken = null;
+      addError("Problem getting existing videos from playlist with id " + playlistId + ", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+      break;
     }
   }
 
-  // Delete Duplicates Videos by videoId
+  // Delete old videos
   try {
-    let tempVideos = [];
-    let duplicateVideos = [];
-
-    allVideos.forEach(x => {
-      if (tempVideos.find(y => y.contentDetails.videoId === x.contentDetails.videoId)) {
-        duplicateVideos.push(x);
-      } else {
-        tempVideos.push(x);
-      }
-    });
-
-    duplicateVideos.forEach(x => {
-      YouTube.PlaylistItems.remove(x.id);
-    });
+    oldIds.forEach(id => YouTube.PlaylistItems.remove(id));
   } catch (e) {
-    if (e.details && e.details.errors.some(error => error.reason == quotaExceededReason)) {
-      quotaExceeded = true;
-    }
+    addError("Problem deleting old videos from playlist with id " + playlistId + ", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+  }
+
+  // Delete duplicates by PlaylistItem id
+  try {
+    var duplicateIds = [];
+    videoIdMap.forEach((ids, key, map) => [].push.apply(duplicateIds, ids.slice(1)));
+    duplicateIds.forEach(id => YouTube.PlaylistItems.remove(id));
+  } catch (e) {
     addError("Problem deleting duplicate videos from playlist with id " + playlistId + ", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
   }
 }
