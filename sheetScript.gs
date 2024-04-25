@@ -419,7 +419,7 @@ function getPlaylistVideoIds(playlistId, lastTimestamp) {
 
     for (var j = 0; j < results.items.length; j++) {
       var item = results.items[j];
-      if (item.snippet.publishedAt > lastTimestamp)
+      if ((new Date(item.snippet.publishedAt)) > (new Date(lastTimestamp)))
         videoIds.push(item.snippet.resourceId.videoId);
     }
 
@@ -523,7 +523,7 @@ function deletePlaylistItems(playlistId, deleteBeforeTimestamp) {
         
       for (var j = 0; j < results.items.length; j++) {
         var item = results.items[j];
-        if (item.contentDetails.videoPublishedAt < deleteBeforeTimestamp) // this compares the timestamp when the video was published
+        if ((new Date(item.contentDetails.videoPublishedAt)) < (new Date(deleteBeforeTimestamp))) // this compares the timestamp when the video was published
         { 
           Logger.log("Del: | "+item.contentDetails.videoPublishedAt)
           YouTube.PlaylistItems.remove(item.id)
