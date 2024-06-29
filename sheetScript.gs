@@ -582,9 +582,8 @@ function removeShortsFilter(videoId) {
   let response = YouTube.Videos.list('contentDetails', {
     id: videoId,
   });
-  if (response.items && response.items.length) {
-    let duration = response.items[0].contentDetails.duration;
-    return !isLessThanAMinute(duration)
+  if (response.items && response.items.length && response.items[0].contentDetails.duration) {
+    return !isLessThanAMinute(response.items[0].contentDetails.duration)
   }
   return false;
 }
