@@ -36,35 +36,33 @@ If you ran into problems, here are some of the possible sources for solutions:
 # Set-up Instructions
 1. [Copy](http://bit.ly/subscriptionPlaylistsCopy) the Sheet to your Google Drive. 
    Afterwards you might want to update the script to the latest version of sheetScript.gs
-
 1. Setup your playlists and channels (white cells in the Sheet):
-  - Clear all existing white rows, they are just examples (i.e. delete the 3 rows).
-  - For each new playlist you want to use:
-    - In a new row:
-    - Add your Playlist ID in the first white column (you can find it in the URLs of your playlists, after `?list=`)
-    - Add your Channels (in other white columns of the same row) ([Example of a successful set-up](https://gyazo.com/39ea428c97f5326ec5082712b9a306c0), from user `topdogmsn`)
-      - Any of the following:
-      - User ID (last part (after last `/`) in `https://www.youtube.com/user/someusername`)
-      - Channel ID (last part (after last `/`) in `https://www.youtube.com/channel/UCzMVH2jEyEwXPBvyht8xQNw`)
-      - Playlist ID (last part (after `?list=` in `https://www.youtube.com/playlist?list=PLd0LhgZxFkVKh_JNXcdHoPYo832Wu9fub`)
-      - `ALL`, to add all new videos from all of your subscriptions
-      - NOTE: custom URLs cannnot be used (i.e. the last part of `https://www.youtube.com/c/skate702`). Please get the channel's ID as described in the Troubleshooting section under `Cannot query for user <USERNAME>`
+    - Clear all existing white rows, they are just examples (i.e. delete the 3 rows).
+    - For each new playlist you want to use:
+        - In a new row:
+        - Add your Playlist ID in the first white column (you can find it in the URLs of your playlists, after `?list=`)
+        - Add your Channels (in other white columns of the same row) ([Example of a successful set-up](https://gyazo.com/39ea428c97f5326ec5082712b9a306c0), from user `topdogmsn`)
+            - Any of the following:
+            - User ID (last part (after last `/`) in `https://www.youtube.com/user/someusername`)
+            - Channel ID (last part (after last `/`) in `https://www.youtube.com/channel/UCzMVH2jEyEwXPBvyht8xQNw`)
+            - Playlist ID (last part (after `?list=` in `https://www.youtube.com/playlist?list=PLd0LhgZxFkVKh_JNXcdHoPYo832Wu9fub`)
+            - `ALL`, to add all new videos from all of your subscriptions
+            - NOTE: custom URLs cannnot be used (i.e. the last part of `https://www.youtube.com/c/skate702`). Please get the channel's ID as described in the Troubleshooting section under `Cannot query for user <USERNAME>`
     - Optionally add a number of days in column C. The playlist in this row will not be updated until that many days have passed.
     - Optionally add a number of days in column D. Videos in the playlist that have been published that many days before are going to be removed from the playlist.
     - Optionally add `No` to column E to remove all new videos under 1 minute in length from being added to the playlist.
 
 1. Run the script:
-      - In Sheet's menu: `YouTube Controls` / `Update Playlists`
-      - Grant access in the dialog
+    - In Sheet's menu: `YouTube Controls` / `Update Playlists`
+    - Grant access in the dialog
 
 1. (Optional) Adjust Timezone:
-      - In menu (of the Sheet): `Extensions` / `Apps Script`
-      - If you don't see an `appsscript.json` file in the editor, got to `Project Settings` tab and select `
-Show "appsscript.json" manifest file in editor`
-      - Select `appsscript.json` in the editor
-      - Change the string after `timeZone` to your timezone. Pick one from [this list](https://developers.google.com/adwords/api/docs/appendix/codes-formats#timezone-ids)
-      ![image](https://user-images.githubusercontent.com/17478849/143072670-b5926552-94e5-4799-bee6-b348a40e69b0.png)
-      - `Save Project`/`Ctrl+S`
+    - In menu (of the Sheet): `Extensions` / `Apps Script`
+    - If you don't see an `appsscript.json` file in the editor, got to `Project Settings` tab and select `Show "appsscript.json" manifest file in editor`
+    - Select `appsscript.json` in the editor
+    - Change the string after `timeZone` to your timezone. Pick one from [this list](https://developers.google.com/adwords/api/docs/appendix/codes-formats#timezone-ids)
+    ![image](https://user-images.githubusercontent.com/17478849/143072670-b5926552-94e5-4799-bee6-b348a40e69b0.png)
+    - `Save Project`/`Ctrl+S`
 
 # Usage
 
@@ -88,8 +86,8 @@ Show "appsscript.json" manifest file in editor`
 1. Click `Deploy` (you will get a special link to use)
 1. Optional - create a tiny.cc redirect link for easy acess (tiny.cc is recommended as it allows you to pass parameters to the url)
 1. Usage: append `?pl=N` to select the Nth playlist in the spreadsheet.
-  - append `?update=True` to force update all the playlists.
-  - e.g. `tiny.cc/myplaylist?update=True&pl=3` will force update and open the third playlist.
+    - append `?update=True` to force update all the playlists.
+    - e.g. `tiny.cc/myplaylist?update=True&pl=3` will force update and open the third playlist.
 
 # Update script
 
@@ -142,9 +140,9 @@ A: If it only happens sometimes, it can be safely ignored, the next round will w
 ##### Q: I get `Quota` or `Cannot (Search) YouTube` errors
 
 A: Make sure the sheet can access YouTube's API:
-  - Open the `Script Editor` (in menu: `Extensions` / `Apps Script`) of the Sheet
-      - Under the `Services` section, make sure `YouTube` is there, otherwise use the plus button beside `Services` and search for `YouTube Data API v3`.
-  - Close the Developers Console and Script Editor, open the Sheet again
+    - Open the `Script Editor` (in menu: `Extensions` / `Apps Script`) of the Sheet
+        - Under the `Services` section, make sure `YouTube` is there, otherwise use the plus button beside `Services` and search for `YouTube Data API v3`.
+    - Close the Developers Console and Script Editor, open the Sheet again
 
 ##### Q: I get this error: `Cannot query for user <USERNAME>` where `<USERNAME>` is the channel's username found in the channel's shortened URL (i.e. `youtube.com/c/<USERNAME>` or `youtube.com/user/<USERNAME>` or `youtube.com/@<USERNAME>`
 
