@@ -371,7 +371,7 @@ function getPlaylistVideos(playlistId, startDate) {
       var results = YouTube.PlaylistItems.list('contentDetails', {
         playlistId: playlistId,
         maxResults: 50,
-        publishedAfter: startDate.toIsoString(), // According to documentation this isn't supported with YouTube.PlaylistItems.list but it seems to help...
+        publishedAfter: startDate.toIsoString(),
         pageToken: nextPageToken
       });
       if (!results || !results.items) {
@@ -526,7 +526,7 @@ function deletePlaylistItems(playlistId, deleteBeforeTimestamp) {
       });
 
       results.items.forEach(video => {
-        if (video.contentDetails.videoPublishedAt < deleteBeforeTimestamp) { // this compares the timestamp when the video was published
+        if ((new Date(item.contentDetails.videoPublishedAt)) < (new Date(deleteBeforeTimestamp))) { // this compares the timestamp when the video was published
           Logger.log("Del: | " + video.contentDetails)
           oldIds.push(video.id);
         } else {
@@ -588,9 +588,8 @@ function removeShortsFilter(videoId) {
     let response = YouTube.Videos.list('contentDetails', {
       id: videoId,
     });
-    if (response.items && response.items.length) {
-      let duration = response.items[0].contentDetails.duration;
-      return !isLessThanAMinute(duration)
+    if (response.items && response.items.length && response.items[0].contentDetails.duration) {
+      return !isLessThanAMinute(response.items[0].contentDetails.duration)
     }
   } catch (e) {
     if (e.details && e.details.errors.some(error => error.reason == quotaExceededReason)) {
