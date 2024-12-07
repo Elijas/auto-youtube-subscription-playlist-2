@@ -583,24 +583,21 @@ function removeShortsFilter(videoId) {
     id: videoId,
   });
   if (response.items && response.items.length && response.items[0].contentDetails.duration) {
-    return !isLessThanAMinute(response.items[0].contentDetails.duration)
+    return !isLessThanThreeMinutes(response.items[0].contentDetails.duration)
   }
   return false;
 }
 
 // Checks if an ISO 8601 duration is less or equal than a minute.
 // Verifying the duration is of the form PT1M or PTXXX.XXXS where X represents digits.
-function isLessThanAMinute(duration) {
-  // Check if duration is 1 minute
-  // Since there can be a 1 second variation, we check for 1 minute + 1 second too, due to following bug
+function isLessThanThreeMinutes(duration) {
+  // Check if duration is 3 minutes
+  // Since there can be a 1 second variation, we check for 3 minutes + 1 second, too, due to following bug
   // https://stackoverflow.com/questions/72459082/yt-api-pulling-different-video-lengths-for-youtube-videos
-  if (duration == "PT1M" || duration == "PT1M1S") return true;
+  if (duration == "PT3M" || duration == "PT3M1S") return true;
   if (duration.slice(0,2) != "PT") return false;
-  for (let i = 2; i < duration.length - 1; i++) {
-    // Check if is digit
-    if (duration[i] > '9') return false;
-  }
-  return duration[duration.length - 1] == 'S';
+  // match one or two groups of this, so e.g. "2M", "59S" or "2M5S"
+  return duration.match("^PT([12]M|[1-5]?[0-9]S){1,2}$") != null;
 }
 
 //
@@ -769,7 +766,7 @@ function test1() {
   // });
   // if (response.items && response.items.length) {
   //   let duration = response.items[0].contentDetails.duration;
-  //   if (isLessThanAMinute(duration)) {
+  //   if (isLessThanThreeMinutes(duration)) {
   //     Logger.log("Is a short");
   //   } else {
   //     Logger.log("Is not a short");
