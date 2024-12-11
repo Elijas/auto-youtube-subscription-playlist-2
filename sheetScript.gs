@@ -576,7 +576,7 @@ function applyFilters(videoIds, sheet, iRow) {
   return videoIds.filter(videoId => filters.reduce((acc, cur) => acc && cur(videoId), true));
 }
 
-// Returns false if video is a short by checking if its length is less than a minute
+// Returns false if video is a short by checking if its length is less than three minutes
 // There might be better/more accurate ways
 function removeShortsFilter(videoId) {
   let response = YouTube.Videos.list('contentDetails', {
