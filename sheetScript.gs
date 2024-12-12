@@ -588,7 +588,7 @@ function removeShortsFilter(videoId) {
   return false;
 }
 
-// Checks if an ISO 8601 duration is less or equal than a minute.
+// Checks if an ISO 8601 duration is less or equal than three minutes.
 // Verifying the duration is of the form PT1M or PTXXX.XXXS where X represents digits.
 function isLessThanThreeMinutes(duration) {
   // Check if duration is 3 minutes
