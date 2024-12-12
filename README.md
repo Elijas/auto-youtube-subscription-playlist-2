@@ -21,7 +21,7 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 
 - Remove videos in the playlists that are older than a certain number of days before the execution of the script (optional).
 
-- Remove videos less than 1 minute in length (e.g. shorts) (optional)
+- Skip adding videos less than 3 minute in length (e.g. shorts). Note that this does not filter exclusively to shorts and removes all videos less than 3 mins (optional)
 
 ### (Extra) Scripts to easily remove multiple items from a youtube playlist [here](./removeVidsFromPlaylist.md)
 
