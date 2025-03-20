@@ -97,6 +97,8 @@ function updatePlaylists(sheet) {
     } else {
       /// ...get channels...
       var channelIds = [];
+      var filterChannelIds = [];
+      var filterPlaylistIds = [];
       var playlistIds = [];
       for (var iColumn = reservedTableColumns; iColumn < sheet.getLastColumn(); iColumn++) {
         var channel = data[iRow][iColumn];
@@ -107,6 +109,15 @@ function updatePlaylists(sheet) {
           else [].push.apply(channelIds, newChannelIds);
         } else if (channel.substring(0,2) == "PL" && channel.length > 10)  // Add videos from playlist. MaybeTODO: better validation, since might interpret a channel with a name "PL..." as a playlist ID
            playlistIds.push(channel);
+        else if(channel.substring(0,2) == "F:" && channel.split("|").length == 2) // Check for a filter beginning with "F:" and terminated with a pipe symbol, with the channel ID after the pipe symbol.
+        {
+          //Check if ID is a channel vs a playlist
+          if(channel.split("|")[1].substring(0,2) == "UC" && channel.length > 10) {
+            filterChannelIds.push({ filter: channel.split("|")[0].substring(2), id: channel.split("|")[1]});
+          } else if(channel.split("|")[1].substring(0,2) == "PL" && channel.length > 10) {
+            filterPlaylistIds.push({ filter: channel.split("|")[0].substring(2), id: channel.split("|")[1]});
+          }
+        } 
         else if (!(channel.substring(0,2) == "UC" && channel.length > 10)) // Check if it is not a channel ID (therefore a username). MaybeTODO: do a better validation, since might interpret a channel with a name "UC..." as a channel ID
         {
           try {
@@ -132,6 +143,26 @@ function updatePlaylists(sheet) {
         if (!videoIds || typeof(videoIds) !== "object") addError("Failed to get videos with channel id "+channelIds[i])
         else if (debugFlag_logWhenNoNewVideosFound && videoIds.length === 0) {
           Logger.log("Channel with id "+channelIds[i]+" has no new videos")
+        } else {
+          [].push.apply(newVideoIds, videoIds);
+        }
+      }
+      /// ...get FILTERED videos from the channels...
+      for (var i = 0; i < filterChannelIds.length; i++) {
+        var videoIds = getVideoIdsFiltered(filterChannelIds[i].id, lastTimestamp, filterChannelIds[i].filter)
+        if (!videoIds || typeof(videoIds) !== "object") addError("Failed to get filtered videos with channel id "+filterChannelIds[i].id)
+        else if (debugFlag_logWhenNoNewVideosFound && videoIds.length === 0) {
+          Logger.log("Channel with id "+filterChannelIds[i].id+" has no new videos after filtering")
+        } else {
+          [].push.apply(newVideoIds, videoIds);
+        }
+      }
+      /// ...get FILTERED videos from the playlists...
+      for (var i = 0; i < filterPlaylistIds.length; i++) {
+        var videoIds = getPlaylistVideoIds(filterPlaylistIds[i].id, lastTimestamp, filterPlaylistIds[i].filter)
+        if (!videoIds || typeof(videoIds) !== "object") addError("Failed to get filtered videos with playlist id "+filterPlaylistIds[i].id)
+        else if (debugFlag_logWhenNoNewVideosFound && videoIds.length === 0) {
+          Logger.log("Playlist with id "+filterPlaylistIds[i].id+" has no new videos after filtering")
         } else {
           [].push.apply(newVideoIds, videoIds);
         }
@@ -395,8 +426,64 @@ function getVideoIdsWithLessQueries(channelId, lastTimestamp) {
   return videoIds.reverse(); // Reverse to get videos in ascending order by date
 }
 
-// Get Video IDs from Playlist
-function getPlaylistVideoIds(playlistId, lastTimestamp) {
+// Get videos from Channels and then get their titles for filtering
+// slower and date ordering is a bit messy, and more expensive for quota than
+// using the search API but I couldn't make that work reliably
+function getVideoIdsFiltered(channelId, lastTimestamp, filterString) {
+  var videoIds = [];
+  var uploadsPlaylistId;
+  try {
+    // Check Channel validity
+    var results = YouTube.Channels.list('contentDetails', {
+      id: channelId
+    });
+    if (!results) {
+      addError("YouTube channel search returned invalid response for channel with id "+channelId)
+      return []
+    } else if (!results.items || results.items.length === 0) {
+      addError("Cannot find channel with id "+channelId)
+      return []
+    } else {
+      uploadsPlaylistId = results.items[0].contentDetails.relatedPlaylists.uploads;
+    }
+  } catch (e) {
+    addError("Cannot search YouTube for channel with id "+channelId+", ERROR: " + "Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+    return [];
+  }
+
+  nextPageToken = ''
+  do {
+    try {
+      var results = YouTube.PlaylistItems.list('snippet,contentDetails', {
+        playlistId: uploadsPlaylistId,
+        maxResults: 50,
+        order: "date",
+        pageToken: nextPageToken
+      })
+      var filteredVideosToBeAdded = results.items.filter(function (vid) {return ((new Date(lastTimestamp)) <= (new Date(vid.contentDetails.videoPublishedAt)))})
+      var videosToBeAdded = filteredVideosToBeAdded.filter(vid => vid.snippet.title.toLowerCase().includes(filterString.toLowerCase()));
+      if (videosToBeAdded.length == 0) {
+        break;
+      } else {
+        [].push.apply(videoIds, videosToBeAdded.map(function (vid) {return vid.contentDetails.videoId}));
+      }
+      nextPageToken = results.nextPageToken;
+    } catch (e) {
+      if (e.details.code !== 404) { // Skip error count if Playlist isn't found, then channel is empty
+        addError("Cannot search YouTube with playlist id "+uploadsPlaylistId+", ERROR: Message: [" + e.message + "] Details: " + JSON.stringify(e.details));
+      } else {
+        Logger.log("Warning: Channel "+channelId+" does not have any uploads in "+uploadsPlaylistId+", ignore if this is intentional as this will not fail the script. API error details for troubleshooting: " + JSON.stringify(e.details));
+      }
+      return [];
+    }
+  } while (nextPageToken != null);
+  
+  return videoIds.reverse(); // Reverse to get videos in ascending order by date
+}
+
+
+// Get Video IDs from Playlist, with filtering support
+function getPlaylistVideoIds(playlistId, lastTimestamp, filterString=null) {
   var videoIds = [];
   var nextPageToken = '';
   while (nextPageToken != null){
@@ -417,8 +504,13 @@ function getPlaylistVideoIds(playlistId, lastTimestamp) {
       break
     }
 
-    for (var j = 0; j < results.items.length; j++) {
-      var item = results.items[j];
+    if (filterString) {
+      var videosToBeAdded = results.items.filter(vid => vid.snippet.title.toLowerCase().includes(filterString.toLowerCase()));
+    } else {
+      var videosToBeAdded = results.items;
+    }
+    for (var j = 0; j < videosToBeAdded.length; j++) {
+      var item = videosToBeAdded[j];
       if ((new Date(item.snippet.publishedAt)) > (new Date(lastTimestamp)))
         videoIds.push(item.snippet.resourceId.videoId);
     }

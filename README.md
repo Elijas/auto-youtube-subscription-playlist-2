@@ -23,6 +23,8 @@ This is done using Google Sheets for interface, Google Script + Youtube API v3 f
 
 - Skip adding videos less than 3 minute in length (e.g. shorts). Note that this does not filter exclusively to shorts and removes all videos less than 3 mins (optional)
 
+- Can filter videos from channels or playlists by title (optional)
+
 ### (Extra) Scripts to easily remove multiple items from a youtube playlist [here](./removeVidsFromPlaylist.md)
 
 # Where to get help
@@ -51,6 +53,7 @@ If you ran into problems, here are some of the possible sources for solutions:
       - User ID (last part (after last `/`) in `https://www.youtube.com/user/someusername`)
       - Channel ID (last part (after last `/`) in `https://www.youtube.com/channel/UCzMVH2jEyEwXPBvyht8xQNw`)
       - Playlist ID (last part (after `?list=` in `https://www.youtube.com/playlist?list=PLd0LhgZxFkVKh_JNXcdHoPYo832Wu9fub`)
+      - A filter string to filter videos by title, followed by a pipe symbol `|` and then the Channel ID or Playlist ID
       - `ALL`, to add all new videos from all of your subscriptions
       - NOTE: custom URLs cannnot be used (i.e. the last part of `https://www.youtube.com/c/skate702`). Please get the channel's ID as described in the Troubleshooting section under `Cannot query for user <USERNAME>`
     - Optionally add a number of days in column C. The playlist in this row will not be updated until that many days have passed.
