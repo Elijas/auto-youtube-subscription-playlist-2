@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 4: Admin Dashboard - Auto YouTube Subscription Playlist</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #1a73e8;
+            --primary-hover: #1557b0;
+            --secondary-color: #5f6368;
+            --background: #f8f9fa;
+            --card-background: #ffffff;
+            --border-color: #dadce0;
+            --text-primary: #202124;
+            --text-secondary: #5f6368;
+            --success-color: #1e8e3e;
+            --error-color: #d93025;
+            --warning-color: #f9ab00;
+            --info-color: #1976d2;
+            --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --shadow-hover: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--card-background);
+            border-right: 1px solid var(--border-color);
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            margin-bottom: 24px;
+        }
+
+        .sidebar-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .phase-badge {
+            display: inline-block;
+            background: #e8f0fe;
+            color: var(--primary-color);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .nav-link:hover {
+            background: var(--background);
+        }
+
+        .nav-link.active {
+            background: #e8f0fe;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .header-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--card-background);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-icon.primary {
+            background: #e8f0fe;
+            color: var(--primary-color);
+        }
+
+        .stat-icon.success {
+            background: #e8f5e9;
+            color: var(--success-color);
+        }
+
+        .stat-icon.warning {
+            background: #fef7e0;
+            color: var(--warning-color);
+        }
+
+        .stat-icon.error {
+            background: #fce8e6;
+            color: var(--error-color);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .stat-change {
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-change.positive {
+            color: var(--success-color);
+        }
+
+        .stat-change.negative {
+            color: var(--error-color);
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--info-color));
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.warning {
+            background: linear-gradient(90deg, var(--warning-color), #ff6f00);
+        }
+
+        .progress-fill.error {
+            background: linear-gradient(90deg, var(--error-color), #b00020);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-background);
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        /* Execution History */
+        .execution-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .execution-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px;
+            background: var(--background);
+            border-radius: 4px;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .execution-item.error {
+            border-left-color: var(--error-color);
+        }
+
+        .execution-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .execution-icon.success {
+            background: #e8f5e9;
+            color: var(--success-color);
+        }
+
+        .execution-icon.error {
+            background: #fce8e6;
+            color: var(--error-color);
+        }
+
+        .execution-details {
+            flex: 1;
+        }
+
+        .execution-time {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .execution-description {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .execution-duration {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Error Log */
+        .error-log {
+            background: var(--background);
+            border-radius: 4px;
+            padding: 16px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 4px 0;
+        }
+
+        .log-entry.error {
+            color: var(--error-color);
+        }
+
+        .log-entry.warning {
+            color: var(--warning-color);
+        }
+
+        .log-entry.info {
+            color: var(--text-secondary);
+        }
+
+        .log-timestamp {
+            color: var(--text-secondary);
+            margin-right: 8px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--background);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        .icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Table */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            text-align: left;
+            padding: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .table td {
+            padding: 12px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.success {
+            background: #e8f5e9;
+            color: var(--success-color);
+        }
+
+        .status-badge.error {
+            background: #fce8e6;
+            color: var(--error-color);
+        }
+
+        .status-badge.warning {
+            background: #fef7e0;
+            color: var(--warning-color);
+        }
+
+        /* Chart Placeholder */
+        .chart-container {
+            height: 200px;
+            background: linear-gradient(180deg, #e8f0fe 0%, var(--background) 100%);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 12px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-value {
+                font-size: 24px;
+            }
+        }
+
+        *:focus-visible {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" role="navigation">
+            <div class="sidebar-header">
+                <h2 class="sidebar-title">YT Playlist</h2>
+                <span class="phase-badge">Phase 4</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+                        </svg>
+                        Playlists
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                        Statistics
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                        Debug & Admin
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                        </svg>
+                        Settings
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" role="main">
+            <div class="container">
+                <header>
+                    <h1>Debug & Administration</h1>
+                    <p class="header-subtitle">System monitoring, error logs, and API quota management</p>
+                </header>
+
+                <!-- Stats Overview -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-label">Total Playlists</div>
+                                <div class="stat-value">12</div>
+                                <div class="stat-change positive">
+                                    <svg style="width: 16px; height: 16px;" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                    2 active
+                                </div>
+                            </div>
+                            <div class="stat-icon primary">
+                                <svg style="width: 24px; height: 24px;" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-label">Videos Added (30 days)</div>
+                                <div class="stat-value">1,847</div>
+                                <div class="stat-change positive">
+                                    <svg style="width: 16px; height: 16px;" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                    +15.3%
+                                </div>
+                            </div>
+                            <div class="stat-icon success">
+                                <svg style="width: 24px; height: 24px;" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-label">Success Rate</div>
+                                <div class="stat-value">98.5%</div>
+                                <div class="stat-change positive">
+                                    Excellent
+                                </div>
+                            </div>
+                            <div class="stat-icon success">
+                                <svg style="width: 24px; height: 24px;" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-label">API Quota Usage</div>
+                                <div class="stat-value">82%</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill warning" style="width: 82%;"></div>
+                                </div>
+                                <div class="stat-change" style="color: var(--text-secondary); margin-top: 4px;">
+                                    8,234 / 10,000 units
+                                </div>
+                            </div>
+                            <div class="stat-icon warning">
+                                <svg style="width: 24px; height: 24px;" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Execution History -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Recent Executions</h2>
+                        <button class="btn btn-secondary btn-sm">
+                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+                            </svg>
+                            Refresh
+                        </button>
+                    </div>
+
+                    <div class="execution-list">
+                        <div class="execution-item">
+                            <div class="execution-icon success">
+                                <svg style="width: 20px; height: 20px;" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="execution-details">
+                                <div class="execution-time">2024-01-24 14:30:15</div>
+                                <div class="execution-description">Updated all playlists • 23 videos added</div>
+                            </div>
+                            <div class="execution-duration">45s</div>
+                        </div>
+
+                        <div class="execution-item">
+                            <div class="execution-icon success">
+                                <svg style="width: 20px; height: 20px;" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="execution-details">
+                                <div class="execution-time">2024-01-24 08:30:12</div>
+                                <div class="execution-description">Updated all playlists • 15 videos added</div>
+                            </div>
+                            <div class="execution-duration">38s</div>
+                        </div>
+
+                        <div class="execution-item error">
+                            <div class="execution-icon error">
+                                <svg style="width: 20px; height: 20px;" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="execution-details">
+                                <div class="execution-time">2024-01-24 02:30:09</div>
+                                <div class="execution-description" style="color: var(--error-color);">Failed: Quota exceeded • Retry in 6 hours</div>
+                            </div>
+                            <div class="execution-duration">12s</div>
+                        </div>
+
+                        <div class="execution-item">
+                            <div class="execution-icon success">
+                                <svg style="width: 20px; height: 20px;" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="execution-details">
+                                <div class="execution-time">2024-01-23 20:30:05</div>
+                                <div class="execution-description">Updated all playlists • 31 videos added</div>
+                            </div>
+                            <div class="execution-duration">52s</div>
+                        </div>
+
+                        <div class="execution-item">
+                            <div class="execution-icon success">
+                                <svg style="width: 20px; height: 20px;" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="execution-details">
+                                <div class="execution-time">2024-01-23 14:30:02</div>
+                                <div class="execution-description">Updated all playlists • 18 videos added</div>
+                            </div>
+                            <div class="execution-duration">41s</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Two Column Layout -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px;">
+                    <!-- Error Log -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Error Log</h2>
+                            <button class="btn btn-secondary btn-sm">
+                                <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                                Export
+                            </button>
+                        </div>
+
+                        <div class="error-log">
+                            <div class="log-entry error">
+                                <span class="log-timestamp">[02:30:09]</span>
+                                <span>ERROR: Quota limit exceeded (10000/10000 units)</span>
+                            </div>
+                            <div class="log-entry warning">
+                                <span class="log-timestamp">[02:28:45]</span>
+                                <span>WARN: High quota usage detected (9500/10000)</span>
+                            </div>
+                            <div class="log-entry info">
+                                <span class="log-timestamp">[14:30:15]</span>
+                                <span>INFO: Successfully added 23 videos across 12 playlists</span>
+                            </div>
+                            <div class="log-entry info">
+                                <span class="log-timestamp">[14:29:58]</span>
+                                <span>INFO: Processing playlist: Tech Tutorials</span>
+                            </div>
+                            <div class="log-entry info">
+                                <span class="log-timestamp">[14:29:42]</span>
+                                <span>INFO: Processing playlist: Music Videos</span>
+                            </div>
+                            <div class="log-entry warning">
+                                <span class="log-timestamp">[08:30:20]</span>
+                                <span>WARN: Video UCxxxxx-VideoID not found (private/deleted)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Playlist Performance -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Playlist Performance</h2>
+                        </div>
+
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Playlist</th>
+                                    <th>Videos</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Tech Tutorials</td>
+                                    <td>156</td>
+                                    <td><span class="status-badge success">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Music Videos</td>
+                                    <td>23</td>
+                                    <td><span class="status-badge success">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>My Daily Videos</td>
+                                    <td>47</td>
+                                    <td><span class="status-badge success">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Gaming Highlights</td>
+                                    <td>89</td>
+                                    <td><span class="status-badge warning">Quota Limited</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Cooking Channel</td>
+                                    <td>12</td>
+                                    <td><span class="status-badge success">Active</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- API Quota Chart -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">API Quota Usage (Last 7 Days)</h2>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-secondary btn-sm">7 Days</button>
+                            <button class="btn btn-secondary btn-sm">30 Days</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        📊 Chart visualization would go here (integration with charting library like Chart.js)
+                    </div>
+                    <div style="margin-top: 16px; display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary);">
+                        <div>Daily quota resets in: <strong style="color: var(--text-primary);">9h 23m</strong></div>
+                        <div>Average daily usage: <strong style="color: var(--text-primary);">7,845 units</strong></div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Administrative Actions</h2>
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+                        <button class="btn btn-secondary">
+                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                            </svg>
+                            Run Manual Update
+                        </button>
+                        <button class="btn btn-secondary">
+                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd" />
+                            </svg>
+                            Re-authorize OAuth
+                        </button>
+                        <button class="btn btn-secondary">
+                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                            Export Configuration
+                        </button>
+                        <button class="btn btn-secondary">
+                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clip-rule="evenodd" />
+                            </svg>
+                            Clear Debug Logs
+                        </button>
+                        <button class="btn btn-secondary">
+                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                            </svg>
+                            View Full Audit Log
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 3: Advanced Features - Auto YouTube Subscription Playlist</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #1a73e8;
+            --primary-hover: #1557b0;
+            --secondary-color: #5f6368;
+            --background: #f8f9fa;
+            --card-background: #ffffff;
+            --border-color: #dadce0;
+            --text-primary: #202124;
+            --text-secondary: #5f6368;
+            --success-color: #1e8e3e;
+            --error-color: #d93025;
+            --warning-color: #f9ab00;
+            --info-color: #1976d2;
+            --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --shadow-hover: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Layout */
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 260px;
+            background: var(--card-background);
+            border-right: 1px solid var(--border-color);
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            margin-bottom: 24px;
+        }
+
+        .sidebar-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .phase-badge {
+            display: inline-block;
+            background: #e8f0fe;
+            color: var(--primary-color);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .nav-link:hover {
+            background: var(--background);
+        }
+
+        .nav-link.active {
+            background: #e8f0fe;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .header-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .action-bar {
+            background: var(--card-background);
+            padding: 16px 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--background);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Playlist Card */
+        .playlist-card {
+            background: var(--card-background);
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+
+        .playlist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .playlist-title-section {
+            flex: 1;
+        }
+
+        .playlist-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .playlist-id {
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            color: var(--text-secondary);
+            background: var(--background);
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .playlist-id-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .playlist-id-input {
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            padding: 4px 8px;
+            border: 1px solid var(--primary-color);
+            border-radius: 4px;
+            background: white;
+            min-width: 300px;
+        }
+
+        .playlist-id-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+        }
+
+        .edit-icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .edit-icon-btn:hover {
+            background: var(--background);
+            color: var(--primary-color);
+        }
+
+        .edit-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .edit-actions button {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .edit-actions .save-btn {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .edit-actions .save-btn:hover {
+            background: #137333;
+        }
+
+        .edit-actions .cancel-btn {
+            background: var(--background);
+            color: var(--text-primary);
+        }
+
+        .edit-actions .cancel-btn:hover {
+            background: var(--border-color);
+        }
+
+        .playlist-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success-color);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: var(--text-primary);
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Grid Layouts */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .info-card {
+            background: var(--background);
+            padding: 16px;
+            border-radius: 4px;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        /* Filter Sections */
+        .filter-group {
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .filter-group:last-child {
+            border-bottom: none;
+        }
+
+        .filter-group-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-badge {
+            background: #e8f5e9;
+            color: var(--success-color);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .filter-controls {
+            display: grid;
+            gap: 16px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+        }
+
+        .form-input, .form-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* Advanced Sections */
+        .collapsible-section {
+            margin-top: 16px;
+        }
+
+        .collapsible-trigger {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: var(--background);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .collapsible-trigger:hover {
+            background: #e8f0fe;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .collapsible-icon {
+            transition: transform 0.2s;
+            width: 20px;
+            height: 20px;
+        }
+
+        .collapsible-trigger.expanded .collapsible-icon {
+            transform: rotate(90deg);
+        }
+
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .collapsible-content.expanded {
+            max-height: 1000px;
+            padding-top: 16px;
+        }
+
+        /* Source Tags */
+        .sources-section {
+            margin-top: 20px;
+        }
+
+        .sources-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .source-tag {
+            background: #e8f0fe;
+            color: var(--primary-color);
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .source-tag .remove-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Action Buttons */
+        .actions-footer {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Alert Box */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .alert-info {
+            background: #e8f4fd;
+            color: #014361;
+            border-left: 4px solid var(--info-color);
+        }
+
+        .alert-warning {
+            background: #fef7e0;
+            color: #663c00;
+            border-left: 4px solid var(--warning-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 12px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .tabs {
+                overflow-x: auto;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        *:focus-visible {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" role="navigation" aria-label="Main navigation">
+            <div class="sidebar-header">
+                <h2 class="sidebar-title">YT Playlist</h2>
+                <span class="phase-badge">Phase 3</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+                        </svg>
+                        Playlists
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                        Statistics
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                        Debug Logs
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                        </svg>
+                        Settings
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" role="main">
+            <div class="container">
+                <header>
+                    <h1>Tech Tutorials Playlist</h1>
+                    <p class="header-subtitle">Advanced filtering and configuration</p>
+                </header>
+
+                <div class="action-bar">
+                    <div>
+                        <button class="btn btn-primary">
+                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+                            </svg>
+                            Update Now
+                        </button>
+                        <button class="btn btn-secondary">
+                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                            </svg>
+                            View on YouTube
+                        </button>
+                    </div>
+                    <div>
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+                            <input type="checkbox" class="checkbox">
+                            <span>Dry Run Mode</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="playlist-card">
+                    <div class="playlist-header">
+                        <div class="playlist-title-section">
+                            <h2 class="playlist-title">Tech Tutorials</h2>
+                            <div class="playlist-id-container">
+                                <span class="playlist-id" id="playlist-id-display">PLa1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p</span>
+                                <button class="edit-icon-btn" onclick="enablePlaylistIdEdit()" id="edit-playlist-id-btn" aria-label="Edit playlist ID">
+                                    <svg style="width: 14px; height: 14px;" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                    </svg>
+                                </button>
+                                <div class="edit-actions" id="playlist-id-edit-actions" style="display: none;">
+                                    <button class="save-btn" onclick="savePlaylistId()" aria-label="Save playlist ID">Save</button>
+                                    <button class="cancel-btn" onclick="cancelPlaylistIdEdit()" aria-label="Cancel editing">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="playlist-status">
+                            <span class="status-indicator"></span>
+                            <span>Active</span>
+                        </div>
+                    </div>
+
+                    <!-- Info Grid -->
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="info-label">Last Updated</div>
+                            <div class="info-value">1 day ago</div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-label">Videos in Playlist</div>
+                            <div class="info-value">156 videos</div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-label">Update Frequency</div>
+                            <div class="info-value">Daily (24h)</div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-label">Auto-Delete After</div>
+                            <div class="info-value">30 days</div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="tabs" role="tablist">
+                        <button class="tab active" role="tab" onclick="switchTab(0)">Basic Settings</button>
+                        <button class="tab" role="tab" onclick="switchTab(1)">Advanced Filters</button>
+                        <button class="tab" role="tab" onclick="switchTab(2)">Video Sources</button>
+                    </div>
+
+                    <!-- Tab 1: Basic Settings -->
+                    <div class="tab-content active">
+                        <div class="alert alert-info">
+                            <svg style="width: 20px; height: 20px; flex-shrink: 0;" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                            </svg>
+                            <div>
+                                <strong>Basic Filters:</strong> These simple filters help keep your playlist clean without complex configuration.
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <h3 class="filter-group-title">
+                                Content Type Filters
+                                <span class="filter-badge">3 Active</span>
+                            </h3>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="exclude-shorts" class="checkbox" checked>
+                                    <label for="exclude-shorts">Exclude YouTube Shorts</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="exclude-upcoming" class="checkbox" checked>
+                                    <label for="exclude-upcoming">Exclude Upcoming Videos</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="exclude-live" class="checkbox" checked>
+                                    <label for="exclude-live">Exclude Live Streams</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="exclude-members" class="checkbox">
+                                    <label for="exclude-members">Exclude Members-Only Content</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <h3 class="filter-group-title">Schedule Settings</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="frequency">Update Frequency</label>
+                                    <select id="frequency" class="form-select">
+                                        <option>Every hour</option>
+                                        <option>Every 6 hours</option>
+                                        <option>Every 12 hours</option>
+                                        <option selected>Every 24 hours</option>
+                                        <option>Every 2 days</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="delete-after">Auto-Delete Videos After</label>
+                                    <select id="delete-after" class="form-select">
+                                        <option>Never</option>
+                                        <option>1 day</option>
+                                        <option>7 days</option>
+                                        <option selected>30 days</option>
+                                        <option>90 days</option>
+                                        <option>1 year</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Advanced Filters -->
+                    <div class="tab-content">
+                        <div class="alert alert-warning">
+                            <svg style="width: 20px; height: 20px; flex-shrink: 0;" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                            <div>
+                                <strong>Power User Features:</strong> Advanced filters may increase API quota usage and require more frequent adjustments.
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <h3 class="filter-group-title">Duration Filters</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="min-duration">Minimum Duration (seconds)</label>
+                                    <input type="number" id="min-duration" class="form-input" placeholder="e.g., 60" value="60">
+                                    <p class="form-help">Videos shorter than this will be excluded (0 = no minimum)</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="max-duration">Maximum Duration (seconds)</label>
+                                    <input type="number" id="max-duration" class="form-input" placeholder="e.g., 3600">
+                                    <p class="form-help">Videos longer than this will be excluded (0 = no maximum)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <h3 class="filter-group-title">
+                                Title Filters
+                                <span class="filter-badge">2 Active</span>
+                            </h3>
+                            <div class="filter-controls">
+                                <div class="form-group">
+                                    <label class="form-label" for="include-title">Include videos with titles containing:</label>
+                                    <input type="text" id="include-title" class="form-input" value="tutorial, guide, how-to" placeholder="Comma-separated keywords">
+                                    <p class="form-help">Only videos matching these keywords will be added</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="exclude-title">Exclude videos with titles containing:</label>
+                                    <input type="text" id="exclude-title" class="form-input" placeholder="e.g., vlog, unboxing, shorts">
+                                    <p class="form-help">Videos matching these keywords will be skipped</p>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="use-regex" class="checkbox">
+                                    <label for="use-regex">Use regex patterns (advanced users only)</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <h3 class="filter-group-title">Date Range Filter</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="start-date">Start Date (publish date after)</label>
+                                    <input type="date" id="start-date" class="form-input">
+                                    <p class="form-help">Leave empty for automatic (last update time)</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="end-date">End Date (publish date before)</label>
+                                    <input type="date" id="end-date" class="form-input">
+                                    <p class="form-help">Leave empty for no upper limit</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <h3 class="filter-group-title">Channel Limits</h3>
+                            <div class="form-group">
+                                <label class="form-label" for="max-per-channel">Maximum videos per channel (per update)</label>
+                                <input type="number" id="max-per-channel" class="form-input" placeholder="e.g., 5" value="5">
+                                <p class="form-help">Prevents any single channel from dominating your playlist (0 = unlimited)</p>
+                            </div>
+                        </div>
+
+                        <!-- Collapsible Advanced Section -->
+                        <div class="collapsible-section">
+                            <button class="collapsible-trigger" onclick="toggleAdvanced(this)">
+                                <svg class="collapsible-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                </svg>
+                                <span>More Advanced Filters (Tags, Quality, etc.)</span>
+                            </button>
+                            <div class="collapsible-content">
+                                <div class="filter-group">
+                                    <h3 class="filter-group-title">Tag Filters</h3>
+                                    <div class="filter-controls">
+                                        <div class="form-group">
+                                            <label class="form-label" for="include-tags">Include videos with tags:</label>
+                                            <input type="text" id="include-tags" class="form-input" placeholder="e.g., programming, coding, tutorial">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="exclude-tags">Exclude videos with tags:</label>
+                                            <input type="text" id="exclude-tags" class="form-input" placeholder="e.g., gaming, entertainment">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="filter-group">
+                                    <h3 class="filter-group-title">Quality Filters</h3>
+                                    <div class="checkbox-group">
+                                        <div class="checkbox-item">
+                                            <input type="checkbox" id="hd-only" class="checkbox">
+                                            <label for="hd-only">HD (720p) or higher only</label>
+                                        </div>
+                                        <div class="checkbox-item">
+                                            <input type="checkbox" id="fullhd-only" class="checkbox">
+                                            <label for="fullhd-only">Full HD (1080p) or higher only</label>
+                                        </div>
+                                    </div>
+                                    <p class="form-help" style="margin-top: 8px;">⚠️ Quality detection may increase API quota usage</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: Video Sources -->
+                    <div class="tab-content">
+                        <div class="sources-section">
+                            <h3 class="filter-group-title">Video Sources</h3>
+                            <p class="form-help" style="margin-bottom: 16px;">Add channels, playlists, or use "ALL" to include all your subscriptions</p>
+                            
+                            <div class="sources-list">
+                                <span class="source-tag">
+                                    <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                                    </svg>
+                                    Traversy Media (UCxxxxxx...)
+                                    <button class="remove-btn" aria-label="Remove source">
+                                        <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </span>
+                                <span class="source-tag">
+                                    <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                                    </svg>
+                                    Fireship (UCyyyyyyy...)
+                                    <button class="remove-btn" aria-label="Remove source">
+                                        <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </span>
+                                <span class="source-tag">
+                                    <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+                                    </svg>
+                                    Web Dev Playlist (PLzzzzzz...)
+                                    <button class="remove-btn" aria-label="Remove source">
+                                        <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </span>
+                            </div>
+
+                            <div style="margin-top: 24px;">
+                                <div class="form-group">
+                                    <label class="form-label" for="add-source">Add New Source</label>
+                                    <div style="display: flex; gap: 8px;">
+                                        <input type="text" id="add-source" class="form-input" placeholder='Channel ID (UCxxxx...), Playlist ID (PLxxxx...), or "ALL"' style="flex: 1;">
+                                        <button class="btn btn-primary">
+                                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                                            </svg>
+                                            Add
+                                        </button>
+                                    </div>
+                                    <p class="form-help">Enter channel ID, playlist ID, username, or "ALL" for all subscriptions</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions Footer -->
+                    <div class="actions-footer">
+                        <button class="btn btn-primary">
+                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293zM9 4a1 1 0 012 0v2H9V4z" />
+                            </svg>
+                            Save Changes
+                        </button>
+                        <button class="btn btn-secondary">Cancel</button>
+                        <button class="btn btn-secondary" style="margin-left: auto;">
+                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                            Delete Playlist
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function switchTab(index) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach((tab, i) => {
+                if (i === index) {
+                    tab.classList.add('active');
+                    contents[i].classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                    contents[i].classList.remove('active');
+                }
+            });
+        }
+
+        function toggleAdvanced(trigger) {
+            const content = trigger.nextElementSibling;
+            trigger.classList.toggle('expanded');
+            content.classList.toggle('expanded');
+        }
+
+        let originalPlaylistId = '';
+
+        function enablePlaylistIdEdit() {
+            const displayElement = document.getElementById('playlist-id-display');
+            const editButton = document.getElementById('edit-playlist-id-btn');
+            const editActions = document.getElementById('playlist-id-edit-actions');
+            
+            // Store original value
+            originalPlaylistId = displayElement.textContent;
+            
+            // Create input field
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'playlist-id-input';
+            input.id = 'playlist-id-input';
+            input.value = originalPlaylistId;
+            input.placeholder = 'Enter YouTube Playlist ID (e.g., PLxxx...)';
+            
+            // Replace display with input
+            displayElement.replaceWith(input);
+            input.focus();
+            input.select();
+            
+            // Show save/cancel buttons, hide edit button
+            editButton.style.display = 'none';
+            editActions.style.display = 'flex';
+            
+            // Allow Enter to save, Escape to cancel
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    savePlaylistId();
+                } else if (e.key === 'Escape') {
+                    cancelPlaylistIdEdit();
+                }
+            });
+        }
+
+        function savePlaylistId() {
+            const input = document.getElementById('playlist-id-input');
+            const newValue = input.value.trim();
+            
+            // Basic validation
+            if (!newValue) {
+                alert('Playlist ID cannot be empty');
+                return;
+            }
+            
+            if (newValue.length < 10) {
+                alert('Invalid playlist ID format. YouTube playlist IDs typically start with "PL" and are 34 characters long.');
+                return;
+            }
+            
+            // Create display element
+            const displayElement = document.createElement('span');
+            displayElement.className = 'playlist-id';
+            displayElement.id = 'playlist-id-display';
+            displayElement.textContent = newValue;
+            
+            // Replace input with display
+            input.replaceWith(displayElement);
+            
+            // Reset button states
+            const editButton = document.getElementById('edit-playlist-id-btn');
+            const editActions = document.getElementById('playlist-id-edit-actions');
+            editButton.style.display = 'inline-flex';
+            editActions.style.display = 'none';
+            
+            // In a real application, this would make an API call to save the change
+            console.log('Playlist ID updated from', originalPlaylistId, 'to', newValue);
+            
+            // Show success feedback (in real app)
+            // showNotification('Playlist ID updated successfully', 'success');
+        }
+
+        function cancelPlaylistIdEdit() {
+            const input = document.getElementById('playlist-id-input');
+            
+            // Create display element with original value
+            const displayElement = document.createElement('span');
+            displayElement.className = 'playlist-id';
+            displayElement.id = 'playlist-id-display';
+            displayElement.textContent = originalPlaylistId;
+            
+            // Replace input with display
+            input.replaceWith(displayElement);
+            
+            // Reset button states
+            const editButton = document.getElementById('edit-playlist-id-btn');
+            const editActions = document.getElementById('playlist-id-edit-actions');
+            editButton.style.display = 'inline-flex';
+            editActions.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 2: Common Features - Auto YouTube Subscription Playlist</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #1a73e8;
+            --primary-hover: #1557b0;
+            --secondary-color: #5f6368;
+            --background: #f8f9fa;
+            --card-background: #ffffff;
+            --border-color: #dadce0;
+            --text-primary: #202124;
+            --text-secondary: #5f6368;
+            --success-color: #1e8e3e;
+            --error-color: #d93025;
+            --warning-color: #f9ab00;
+            --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --shadow-hover: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: var(--card-background);
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .header-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .phase-badge {
+            display: inline-block;
+            background: #e8f0fe;
+            color: var(--primary-color);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 12px;
+        }
+
+        .action-bar {
+            background: var(--card-background);
+            padding: 16px 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--background);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .btn:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        .icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Playlist Cards */
+        .playlists-grid {
+            display: grid;
+            gap: 24px;
+        }
+
+        .playlist-card {
+            background: var(--card-background);
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            transition: box-shadow 0.2s;
+        }
+
+        .playlist-card:hover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        .playlist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .playlist-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .playlist-id {
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            color: var(--text-secondary);
+            background: var(--background);
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .playlist-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success-color);
+        }
+
+        .playlist-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+            padding: 16px;
+            background: var(--background);
+            border-radius: 4px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .sources-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .source-tag {
+            background: #e8f0fe;
+            color: var(--primary-color);
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* NEW: Filter Section */
+        .filter-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .filter-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .filter-section-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filters-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--background);
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .filter-checkbox {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .filter-badge {
+            background: #e8f5e9;
+            color: var(--success-color);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .filter-badge.inactive {
+            background: #fce8e6;
+            color: var(--error-color);
+        }
+
+        /* Collapsible Section */
+        .collapsible {
+            margin-top: 12px;
+        }
+
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 0;
+            color: var(--primary-color);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .collapsible-header:hover {
+            text-decoration: underline;
+        }
+
+        .collapsible-icon {
+            transition: transform 0.2s;
+        }
+
+        .collapsible-icon.expanded {
+            transform: rotate(90deg);
+        }
+
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .collapsible-content.expanded {
+            max-height: 500px;
+        }
+
+        .form-group {
+            margin: 12px 0;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .playlist-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+
+            header {
+                padding: 16px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .playlist-info {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-list {
+                flex-direction: column;
+            }
+        }
+
+        *:focus-visible {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Modal Container */
+        .modal {
+            background: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 10px 20px rgba(0,0,0,0.2);
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.2s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .modal-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .source-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .source-input-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .source-input-group input {
+            flex: 1;
+        }
+
+        .btn-remove {
+            padding: 8px 12px;
+            background: var(--error-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: opacity 0.2s;
+        }
+
+        .btn-remove:hover {
+            opacity: 0.9;
+        }
+
+        .btn-add-source {
+            margin-top: 8px;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header role="banner">
+            <h1>
+                Auto YouTube Playlist Manager
+                <span class="phase-badge">Phase 2: Common Features</span>
+            </h1>
+            <p class="header-subtitle">Automatically add YouTube videos to your playlists with filters</p>
+        </header>
+
+        <div class="action-bar">
+            <div>
+                <button class="btn btn-primary" aria-label="Update all playlists now">
+                    <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+                    </svg>
+                    Update All Playlists
+                </button>
+            </div>
+            <div>
+                <button class="btn btn-secondary" aria-label="Add new playlist">
+                    <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                    </svg>
+                    New Playlist
+                </button>
+            </div>
+        </div>
+
+        <main role="main">
+            <div class="playlists-grid">
+                <!-- Playlist Card with Filters -->
+                <article class="playlist-card">
+                    <div class="playlist-header">
+                        <div>
+                            <h2 class="playlist-title">My Daily Videos</h2>
+                            <span class="playlist-id">PLn5ehBJ-qkn0diudCDW1ScQhRxbTzIE9</span>
+                        </div>
+                        <div class="playlist-status">
+                            <span class="status-indicator" aria-label="Active"></span>
+                            <span>Active</span>
+                        </div>
+                    </div>
+
+                    <div class="playlist-info">
+                        <div class="info-item">
+                            <span class="info-label">Last Updated</span>
+                            <span class="info-value">2 hours ago</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Videos in Playlist</span>
+                            <span class="info-value">47 videos</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Update Frequency</span>
+                            <span class="info-value">Every 6 hours</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Auto-Delete</span>
+                            <span class="info-value">After 7 days</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">Video Sources</span>
+                        <div class="sources-list">
+                            <span class="source-tag">
+                                <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                                </svg>
+                                ALL Subscriptions
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- NEW: Basic Filters Section -->
+                    <div class="filter-section">
+                        <div class="filter-section-header">
+                            <h3 class="filter-section-title">Active Filters</h3>
+                            <span class="filter-badge">3 Active</span>
+                        </div>
+                        <div class="filters-list">
+                            <div class="filter-item">
+                                <input type="checkbox" id="shorts-1" class="filter-checkbox" checked>
+                                <label for="shorts-1">Exclude Shorts</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="upcoming-1" class="filter-checkbox" checked>
+                                <label for="upcoming-1">Exclude Upcoming</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="live-1" class="filter-checkbox" checked>
+                                <label for="live-1">Exclude Live Streams</label>
+                            </div>
+                        </div>
+
+                        <!-- NEW: Title Filter -->
+                        <div class="collapsible">
+                            <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                                <svg class="icon collapsible-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Title Filters (Optional)</span>
+                            </div>
+                            <div class="collapsible-content">
+                                <div class="form-group">
+                                    <label class="form-label" for="include-title-1">Include videos with titles containing:</label>
+                                    <input type="text" id="include-title-1" class="form-input" placeholder="e.g., tutorial, review">
+                                    <p class="form-help">Comma-separated keywords</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="exclude-title-1">Exclude videos with titles containing:</label>
+                                    <input type="text" id="exclude-title-1" class="form-input" placeholder="e.g., vlog, unboxing">
+                                    <p class="form-help">Comma-separated keywords</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="playlist-actions">
+                        <button class="btn btn-primary btn-sm">
+                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                            </svg>
+                            View Playlist
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="openModal('My Daily Videos', 'PLn5ehBJ-qkn0diudCDW1ScQhRxbTzIE9')">
+                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                            </svg>
+                            Edit Settings
+                        </button>
+                    </div>
+                </article>
+
+                <!-- Playlist Card 2: No Filters -->
+                <article class="playlist-card">
+                    <div class="playlist-header">
+                        <div>
+                            <h2 class="playlist-title">Music Videos</h2>
+                            <span class="playlist-id">PLn5ehBJ-qkn0CDWI5cQhRxbTzIE9d9</span>
+                        </div>
+                        <div class="playlist-status">
+                            <span class="status-indicator" aria-label="Active"></span>
+                            <span>Active</span>
+                        </div>
+                    </div>
+
+                    <div class="playlist-info">
+                        <div class="info-item">
+                            <span class="info-label">Last Updated</span>
+                            <span class="info-value">5 hours ago</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Videos in Playlist</span>
+                            <span class="info-value">23 videos</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Update Frequency</span>
+                            <span class="info-value">Every 12 hours</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Auto-Delete</span>
+                            <span class="info-value">Disabled</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">Video Sources</span>
+                        <div class="sources-list">
+                            <span class="source-tag">5 Channels</span>
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <div class="filter-section-header">
+                            <h3 class="filter-section-title">Active Filters</h3>
+                            <span class="filter-badge">3 Active</span>
+                        </div>
+                        <div class="filters-list">
+                            <div class="filter-item">
+                                <input type="checkbox" id="shorts-2" class="filter-checkbox" checked>
+                                <label for="shorts-2">Exclude Shorts</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="upcoming-2" class="filter-checkbox" checked>
+                                <label for="upcoming-2">Exclude Upcoming</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="live-2" class="filter-checkbox" checked>
+                                <label for="live-2">Exclude Live Streams</label>
+                            </div>
+                        </div>
+
+                        <!-- NEW: Title Filter -->
+                        <div class="collapsible">
+                            <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                                <svg class="icon collapsible-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Title Filters (Optional)</span>
+                            </div>
+                            <div class="collapsible-content">
+                                <div class="form-group">
+                                    <label class="form-label" for="include-title-2">Include videos with titles containing:</label>
+                                    <input type="text" id="include-title-2" class="form-input" placeholder="e.g., tutorial, review">
+                                    <p class="form-help">Comma-separated keywords</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="exclude-title-2">Exclude videos with titles containing:</label>
+                                    <input type="text" id="exclude-title-2" class="form-input" placeholder="e.g., vlog, unboxing">
+                                    <p class="form-help">Comma-separated keywords</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="playlist-actions">
+                        <button class="btn btn-primary btn-sm">
+                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                            </svg>
+                            View Playlist
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="openModal('Music Videos', 'PLn5ehBJ-qkn0CDWI5cQhRxbTzIE9d9')">
+                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                            </svg>
+                            Edit Settings
+                        </button>
+                    </div>
+                </article>
+
+                <!-- Playlist Card 3: With Title Filter -->
+                <article class="playlist-card">
+                    <div class="playlist-header">
+                        <div>
+                            <h2 class="playlist-title">Tech Tutorials</h2>
+                            <span class="playlist-id">PLa1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p</span>
+                        </div>
+                        <div class="playlist-status">
+                            <span class="status-indicator" aria-label="Active"></span>
+                            <span>Active</span>
+                        </div>
+                    </div>
+
+                    <div class="playlist-info">
+                        <div class="info-item">
+                            <span class="info-label">Last Updated</span>
+                            <span class="info-value">1 day ago</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Videos in Playlist</span>
+                            <span class="info-value">156 videos</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Update Frequency</span>
+                            <span class="info-value">Daily</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Auto-Delete</span>
+                            <span class="info-value">After 30 days</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">Video Sources</span>
+                        <div class="sources-list">
+                            <span class="source-tag">12 Channels</span>
+                            <span class="source-tag">2 Playlists</span>
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <div class="filter-section-header">
+                            <h3 class="filter-section-title">Active Filters</h3>
+                            <span class="filter-badge">3 Active</span>
+                        </div>
+                        <div class="filters-list">
+                            <div class="filter-item">
+                                <input type="checkbox" id="shorts-3" class="filter-checkbox" checked>
+                                <label for="shorts-3">Exclude Shorts</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="upcoming-3" class="filter-checkbox" checked>
+                                <label for="upcoming-3">Exclude Upcoming</label>
+                            </div>
+                            <div class="filter-item">
+                                <input type="checkbox" id="live-3" class="filter-checkbox" checked>
+                                <label for="live-3">Exclude Live Streams</label>
+                            </div>
+                        </div>
+
+                        <!-- NEW: Title Filter -->
+                        <div class="collapsible">
+                            <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                                <svg class="icon collapsible-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Title Filters (Optional)</span>
+                            </div>
+                            <div class="collapsible-content">
+                                <div class="form-group">
+                                    <label class="form-label" for="include-title-3">Include videos with titles containing:</label>
+                                    <input type="text" id="include-title-3" class="form-input" placeholder="e.g., tutorial, review">
+                                    <p class="form-help">Comma-separated keywords</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="exclude-title-3">Exclude videos with titles containing:</label>
+                                    <input type="text" id="exclude-title-3" class="form-input" placeholder="e.g., vlog, unboxing">
+                                    <p class="form-help">Comma-separated keywords</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="playlist-actions">
+                        <button class="btn btn-primary btn-sm">
+                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                            </svg>
+                            View Playlist
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="openModal('Tech Tutorials', 'PLa1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p')">
+                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                            </svg>
+                            Edit Settings
+                        </button>
+                    </div>
+                </article>
+            </div>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal" onclick="closeModalOnOverlay(event)">
+        <div class="modal" onclick="event.stopPropagation()" role="dialog" aria-labelledby="modalTitle" aria-modal="true">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Playlist Settings</h2>
+                <p class="modal-subtitle" id="modalSubtitle"></p>
+            </div>
+            <div class="modal-body">
+                <form id="playlistSettingsForm">
+                    <div class="form-group">
+                        <label class="form-label" for="playlistId">Playlist ID</label>
+                        <input type="text" id="playlistId" class="form-input" placeholder="PLxxxxxxxxxxxxxxxxx" readonly>
+                        <p class="form-help">YouTube Playlist ID (found in playlist URL after ?list=)</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="updateFrequency">Update Frequency</label>
+                        <select id="updateFrequency" class="form-select">
+                            <option value="0">Every execution (no delay)</option>
+                            <option value="1">Every hour</option>
+                            <option value="3">Every 3 hours</option>
+                            <option value="6" selected>Every 6 hours</option>
+                            <option value="12">Every 12 hours</option>
+                            <option value="24">Every 24 hours (Daily)</option>
+                            <option value="48">Every 48 hours</option>
+                            <option value="168">Every week</option>
+                        </select>
+                        <p class="form-help">Minimum time between automatic updates</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="autoDelete">Auto-Delete After</label>
+                        <select id="autoDelete" class="form-select">
+                            <option value="0">Never delete</option>
+                            <option value="7">7 days</option>
+                            <option value="14">14 days</option>
+                            <option value="30">30 days</option>
+                            <option value="60">60 days</option>
+                            <option value="90">90 days</option>
+                        </select>
+                        <p class="form-help">Automatically remove videos older than this</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Video Sources</label>
+                        <div class="source-inputs" id="sourceInputs">
+                            <div class="source-input-group">
+                                <input type="text" class="form-input" placeholder="Channel ID, Username, Playlist ID, or 'ALL'" value="ALL">
+                                <button type="button" class="btn-remove" onclick="removeSource(this)" aria-label="Remove source">✕</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-sm btn-add-source" onclick="addSource()">
+                            <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                            </svg>
+                            Add Source
+                        </button>
+                        <p class="form-help">Channel IDs (UCxxx), usernames, playlist IDs (PLxxx), or "ALL" for all subscriptions</p>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()" type="button">Cancel</button>
+                <button class="btn btn-primary" onclick="saveSettings()" type="button">
+                    <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleCollapsible(header) {
+            const icon = header.querySelector('.collapsible-icon');
+            const content = header.parentElement.querySelector('.collapsible-content');
+            
+            icon.classList.toggle('expanded');
+            content.classList.toggle('expanded');
+        }
+
+        function openModal(playlistName, playlistId) {
+            document.getElementById('modalTitle').textContent = playlistName;
+            document.getElementById('modalSubtitle').textContent = 'Configure playlist settings';
+            document.getElementById('playlistId').value = playlistId;
+            document.getElementById('settingsModal').classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        function closeModal() {
+            document.getElementById('settingsModal').classList.remove('active');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+
+        function closeModalOnOverlay(event) {
+            if (event.target.id === 'settingsModal') {
+                closeModal();
+            }
+        }
+
+        function addSource() {
+            const sourceInputs = document.getElementById('sourceInputs');
+            const newSourceGroup = document.createElement('div');
+            newSourceGroup.className = 'source-input-group';
+            newSourceGroup.innerHTML = `
+                <input type="text" class="form-input" placeholder="Channel ID, Username, Playlist ID, or 'ALL'">
+                <button type="button" class="btn-remove" onclick="removeSource(this)" aria-label="Remove source">✕</button>
+            `;
+            sourceInputs.appendChild(newSourceGroup);
+        }
+
+        function removeSource(button) {
+            const sourceGroup = button.parentElement;
+            const sourceInputs = document.getElementById('sourceInputs');
+            
+            // Prevent removing the last source
+            if (sourceInputs.children.length > 1) {
+                sourceGroup.remove();
+            } else {
+                alert('At least one video source is required.');
+            }
+        }
+
+        function saveSettings() {
+            // In a real application, this would save to backend
+            const playlistId = document.getElementById('playlistId').value;
+            const frequency = document.getElementById('updateFrequency').value;
+            const autoDelete = document.getElementById('autoDelete').value;
+            
+            const sources = [];
+            document.querySelectorAll('#sourceInputs input').forEach(input => {
+                if (input.value.trim()) {
+                    sources.push(input.value.trim());
+                }
+            });
+            
+            console.log('Saving settings:', {
+                playlistId,
+                frequency: frequency + ' hours',
+                autoDelete: autoDelete + ' days',
+                sources
+            });
+            
+            // Show success feedback (in real app)
+            alert('Settings saved successfully!');
+            closeModal();
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
